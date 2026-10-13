@@ -1,0 +1,42 @@
+{
+  "exodus": "corpus/1",
+  "name": "static-generator",
+  "shape": "static site built by a generator",
+  "platform": {
+    "name": "GitHub Pages",
+    "file": ".github/workflows/main.yml",
+    "ask": false,
+    "why": "the deploy job runs `zola build`, uploads public/ with actions/upload-pages-artifact and publishes it with actions/deploy-pages; CNAME holds the custom domain"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "static site",
+      "from": ".github/workflows/main.yml",
+      "note": "Zola builds content/, templates/, sass/ and static/ into public/ at build time; nothing runs per request, so after a move it is files served by a static server (or a bucket)"
+    }
+  ],
+  "stays": [],
+  "data": [],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "crates/generate_blog/src/main.rs",
+      "why": "the `cargo blog` CLI an author runs locally to scaffold a new post; fs::write creates content/<slug>.md on the author's machine"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "crates/front_matter/src/lib.rs",
+      "why": "the fs::write is inside #[cfg(test)] mod tests and rewrites post front matter in the checkout when FIX_FRONT_MATTER is set; it runs in CI and on a developer machine"
+    }
+  ],
+  "notOnServer": [
+    "crates/",
+    "static/scripts/",
+    "content/"
+  ],
+  "questions": [],
+  "notes": "Read README.md, Cargo.toml and the three crates, .cargo/config.toml, zola.toml, mise.toml, both workflows and the JavaScript under static/scripts/ and content/*/charts.js. GitHub Pages is not one of the platforms the README of this corpus lists, but the workflow states it plainly, so the platform is named and not asked; if the audit only knows the listed hosts it will ask, which is acceptable but not the truth. The Rust workspace is tooling only (a post generator CLI, front matter checks run as tests, an insta snapshot test of the built site); none of it runs on a server. The browser scripts (theme switch, plotly charts in survey posts) contain no rule pattern."
+}

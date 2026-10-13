@@ -1,0 +1,34 @@
+#!/bin/sh
+# Fetch the corpus: one shallow clone per line of repos.txt, at its pinned commit, into $EXODUS_CORPUS
+# (default ~/.cache/exodus-corpus). The repositories are never committed here. Clones that already sit at
+# their commit are kept; folders no longer listed are removed; the whole cache must stay under 2 GB.
+# Plain sh over git, because git is the whole job.
+set -eu
+here=$(cd "$(dirname "$0")" && pwd)
+dest=${EXODUS_CORPUS:-$HOME/.cache/exodus-corpus}
+cap_kb=$((2 * 1024 * 1024))
+mkdir -p "$dest"
+
+grep -v '^#' "$here/repos.txt" | while read -r name url commit _; do
+	[ -n "$name" ] || continue
+	dir="$dest/$name"
+	if [ "$(git -C "$dir" rev-parse HEAD 2>/dev/null)" = "$commit" ]; then
+		echo "ok      $name"
+		continue
+	fi
+	rm -rf "$dir"
+	git init -q "$dir"
+	git -C "$dir" fetch -q --depth 1 "$url" "$commit"
+	git -C "$dir" -c advice.detachedHead=false checkout -q FETCH_HEAD
+	echo "fetched $name $(du -sh "$dir" | cut -f1)"
+done
+
+listed=$(grep -v '^#' "$here/repos.txt" | awk 'NF { print $1 }')
+for dir in "$dest"/*/; do
+	name=$(basename "$dir")
+	echo "$listed" | grep -qx "$name" || { rm -rf "$dir"; echo "removed $name"; }
+done
+
+used=$(du -sk "$dest" | cut -f1)
+echo "cache   $dest $((used / 1024)) MB of $((cap_kb / 1024)) MB"
+[ "$used" -le "$cap_kb" ] || { echo "the corpus is over its 2 GB cap: drop or replace a repository" >&2; exit 1; }

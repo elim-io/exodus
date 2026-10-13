@@ -1,0 +1,11 @@
+{
+  "exodus": "answers/1",
+  "answers": [
+    { "id": "what", "q": "What will the product do, in a sentence?", "answer": "Studios publish classes; their clients book a place and pay by card.", "at": "2026-10-11T10:00:00Z" },
+    { "id": "who", "q": "Who uses it, and from where?", "answer": "Studio owners and their clients, mostly in Spain and Portugal.", "value": "europe-west1", "at": "2026-10-11T10:01:00Z" },
+    { "id": "visits", "q": "How many people a day at launch?", "answer": "About 300 a day.", "value": 300, "at": "2026-10-11T10:02:00Z" },
+    { "id": "growth", "q": "How fast should it grow in the first year?", "answer": "About 20% a month, if the first studios stay.", "value": 20, "at": "2026-10-11T10:03:00Z" },
+    { "id": "payments", "q": "Does it take payments?", "answer": "Yes, by card.", "at": "2026-10-11T10:04:00Z" },
+    { "id": "egress", "q": "How much data will it send out a month?", "answer": "5 GB at launch: pages and photos.", "value": 5, "at": "2026-10-11T10:05:00Z" }
+  ]
+}

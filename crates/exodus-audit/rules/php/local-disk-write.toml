@@ -1,0 +1,26 @@
+id = "local-disk-write"
+kind = "breaks"
+title = "Files written to local disk"
+kb = "files-and-uploads-with-cloud-storage"
+part = "files"
+subject = "the files on disk"
+clean = "files written to disk"
+why = "An instance's disk lives in its memory: a file counts against the memory limit, is gone when the instance stops, and other instances never see it, so an upload saved on one is a 404 on the next."
+unless = '''(?i)/tmp\b|['"]tmp/|sys_get_temp_dir|tempnam|tmpfile'''
+include = ["**/*.php"]
+# The group `dest` names the path a write goes to (see `unless` in the README). The File facade is Laravel's;
+# `->move(` is an uploaded file's, not a storage disk's (`Storage::disk('s3')->move(`).
+regex = [
+  '''\bfile_put_contents\((?:\s*(?P<dest>\$[\w>-]+))?''',
+  '''\bmove_uploaded_file\((?:\s*[^,\n]+,\s*(?P<dest>\$[\w>-]+))?''',
+  '''\bFile::(?:put|append|prepend|replace)\((?:\s*(?P<dest>\$[\w>-]+))?''',
+  '''\bFile::(?:copy|move)\((?:\s*[^,\n]+,\s*(?P<dest>\$[\w>-]+))?''',
+  '''\w->move\(''',
+]
+fix = "Write to a Cloud Storage bucket (the google/cloud-storage package) and hand out signed URLs."
+fixes = { Laravel = "Write to a Cloud Storage bucket (Laravel: a gcs filesystem disk) and hand out signed URLs." }
+[task]
+title = "Files to a Cloud Storage bucket"
+detail = "Write to a bucket instead of the disk; for uploads, sign a PUT URL so the browser sends the file straight to the bucket and the service stores only the key. Copy the existing files over before the switch."
+effort = "M"
+phase = 2

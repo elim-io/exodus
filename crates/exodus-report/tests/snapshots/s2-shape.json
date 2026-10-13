@@ -1,0 +1,817 @@
+{
+  "exodus": "report/1",
+  "project": {
+    "id": "s2-shape",
+    "name": "s2-shape",
+    "from": "Unknown",
+    "kind": "move",
+    "what": "An app",
+    "cli": "0.1.0",
+    "traffic": "visitors",
+    "stack": []
+  },
+  "n": 1,
+  "reports": 1,
+  "at": "2026-10-11T12:00:00Z",
+  "change": "First audit",
+  "latest": 1,
+  "assumptions": {
+    "visits": 500,
+    "region": "europe-west1",
+    "egressGb": 5.0
+  },
+  "prices": {
+    "date": "2026-10-09",
+    "source": "Google Cloud pricing pages, read 2026-10-09: Cloud Run Tier 1 and its free tiers, Cloud SQL db-f1-micro and SSD and Secret Manager as published; Tier 2 is Tier 1 x 1.4; Cloud SQL and Cloud Storage outside europe-west1 and us-central1 are estimates. Firestore Standard edition from the Cloud Billing Catalog, read 2026-10-13: reads, writes and storage at europe-west1's price in every region (the catalog lists $0.03 to $0.06 per 100,000 reads across these regions); its free quota of 50,000 reads, 20,000 writes and 1 GiB a day covers one database a project, is counted in operations, so it is the same in every region, and a month holds 30 days of it. Checked against Google's bill and pricing pages 2026-10-11: Cloud Storage keeps 5,000 free class A operations in every region (the 5 GB of storage is US-only); egress stays at the published $0.12 a GB although Cloud Run bills $0.105 a GiB from Europe to Europe. Twelve more regions added 2026-10-12: each region's Cloud Run tier from Google's Cloud Run locations page, read 2026-10-12; their Cloud SQL and Cloud Storage factors are estimates; the 5 GB free Cloud Storage applies in us-central1, us-east1 and us-west1",
+    "regions": {
+      "asia-northeast1": {
+        "place": "Tokyo",
+        "tier": 1,
+        "sql": 1.28,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "asia-south1": {
+        "place": "Mumbai",
+        "tier": 1,
+        "sql": 1.2,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "asia-southeast1": {
+        "place": "Singapore",
+        "tier": 2,
+        "sql": 1.2,
+        "gcs": 0.02,
+        "gcsFree": 0.0
+      },
+      "australia-southeast1": {
+        "place": "Sydney",
+        "tier": 2,
+        "sql": 1.4,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "europe-north1": {
+        "place": "Finland",
+        "tier": 1,
+        "sql": 1.1,
+        "gcs": 0.02,
+        "gcsFree": 0.0
+      },
+      "europe-west1": {
+        "place": "Belgium",
+        "tier": 1,
+        "sql": 1.0,
+        "gcs": 0.02,
+        "gcsFree": 0.0
+      },
+      "europe-west2": {
+        "place": "London",
+        "tier": 2,
+        "sql": 1.16,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "europe-west3": {
+        "place": "Frankfurt",
+        "tier": 2,
+        "sql": 1.16,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "europe-west4": {
+        "place": "Netherlands",
+        "tier": 1,
+        "sql": 1.1,
+        "gcs": 0.02,
+        "gcsFree": 0.0
+      },
+      "europe-west9": {
+        "place": "Paris",
+        "tier": 1,
+        "sql": 1.16,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "northamerica-northeast1": {
+        "place": "Montreal",
+        "tier": 2,
+        "sql": 1.11,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "southamerica-east1": {
+        "place": "Sao Paulo",
+        "tier": 2,
+        "sql": 1.58,
+        "gcs": 0.035,
+        "gcsFree": 0.0
+      },
+      "us-central1": {
+        "place": "Iowa",
+        "tier": 1,
+        "sql": 1.0,
+        "gcs": 0.02,
+        "gcsFree": 5.0
+      },
+      "us-east1": {
+        "place": "South Carolina",
+        "tier": 1,
+        "sql": 1.0,
+        "gcs": 0.02,
+        "gcsFree": 5.0
+      },
+      "us-east4": {
+        "place": "Northern Virginia",
+        "tier": 1,
+        "sql": 1.13,
+        "gcs": 0.023,
+        "gcsFree": 0.0
+      },
+      "us-west1": {
+        "place": "Oregon",
+        "tier": 1,
+        "sql": 1.0,
+        "gcs": 0.02,
+        "gcsFree": 5.0
+      }
+    },
+    "skus": {
+      "ar": {
+        "what": "Artifact Registry storage",
+        "unit": "GB-months",
+        "price": 0.1,
+        "free": 0.5,
+        "product": "ar"
+      },
+      "egress": {
+        "what": "Internet egress, Premium tier",
+        "unit": "GB",
+        "price": 0.12,
+        "free": 0.0,
+        "product": "network"
+      },
+      "firestore-read": {
+        "what": "Firestore document reads",
+        "unit": "reads",
+        "price": 3.3e-7,
+        "free": 1500000.0,
+        "product": "firestore"
+      },
+      "firestore-storage": {
+        "what": "Firestore stored data",
+        "unit": "GiB-months",
+        "price": 0.165,
+        "free": 1.0,
+        "product": "firestore"
+      },
+      "firestore-write": {
+        "what": "Firestore document writes",
+        "unit": "writes",
+        "price": 9.9e-7,
+        "free": 600000.0,
+        "product": "firestore"
+      },
+      "gcs": {
+        "what": "Cloud Storage, Standard",
+        "unit": "GB-months",
+        "price": 0.02,
+        "free": 0.0,
+        "product": "storage"
+      },
+      "gcs-write": {
+        "what": "Cloud Storage writes, class A",
+        "unit": "writes",
+        "price": 5e-6,
+        "free": 5000.0,
+        "product": "storage"
+      },
+      "job-cpu": {
+        "what": "Cloud Run jobs CPU",
+        "unit": "vCPU-s",
+        "price": 0.000018,
+        "free": 240000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "job-mem": {
+        "what": "Cloud Run jobs memory",
+        "unit": "GiB-s",
+        "price": 2e-6,
+        "free": 450000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "run-cpu": {
+        "what": "Cloud Run CPU, request-based",
+        "unit": "vCPU-s",
+        "price": 0.000024,
+        "free": 180000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "run-cpu-always": {
+        "what": "Cloud Run CPU, instance-based",
+        "unit": "vCPU-s",
+        "price": 0.000018,
+        "free": 240000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "run-mem": {
+        "what": "Cloud Run memory, request-based",
+        "unit": "GiB-s",
+        "price": 2.5e-6,
+        "free": 360000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "run-mem-always": {
+        "what": "Cloud Run memory, instance-based",
+        "unit": "GiB-s",
+        "price": 2e-6,
+        "free": 450000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "run-req": {
+        "what": "Cloud Run requests",
+        "unit": "requests",
+        "price": 4e-7,
+        "free": 2000000.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "scheduler": {
+        "what": "Cloud Scheduler jobs",
+        "unit": "jobs",
+        "price": 0.1,
+        "free": 3.0,
+        "product": "scheduler"
+      },
+      "secrets": {
+        "what": "Secret Manager active versions",
+        "unit": "versions",
+        "price": 0.06,
+        "free": 6.0,
+        "product": "secrets"
+      },
+      "sql-f1": {
+        "what": "Cloud SQL db-f1-micro",
+        "unit": "hours",
+        "price": 0.0105,
+        "free": 0.0,
+        "scope": "sql",
+        "product": "sql"
+      },
+      "sql-ssd": {
+        "what": "Cloud SQL SSD storage",
+        "unit": "GB-months",
+        "price": 0.17,
+        "free": 0.0,
+        "scope": "sql",
+        "product": "sql"
+      },
+      "tasks": {
+        "what": "Cloud Tasks operations",
+        "unit": "operations",
+        "price": 4e-7,
+        "free": 1000000.0,
+        "product": "tasks"
+      }
+    },
+    "products": {
+      "ar": {
+        "name": "Artifact Registry",
+        "doc": "https://cloud.google.com/artifact-registry/pricing"
+      },
+      "firestore": {
+        "name": "Firestore",
+        "doc": "https://cloud.google.com/firestore/pricing"
+      },
+      "network": {
+        "name": "Network egress",
+        "doc": "https://cloud.google.com/vpc/network-pricing"
+      },
+      "run": {
+        "name": "Cloud Run",
+        "doc": "https://cloud.google.com/run/pricing"
+      },
+      "scheduler": {
+        "name": "Cloud Scheduler",
+        "doc": "https://cloud.google.com/scheduler/pricing"
+      },
+      "secrets": {
+        "name": "Secret Manager",
+        "doc": "https://cloud.google.com/secret-manager/pricing"
+      },
+      "sql": {
+        "name": "Cloud SQL",
+        "doc": "https://cloud.google.com/sql/pricing"
+      },
+      "storage": {
+        "name": "Cloud Storage",
+        "doc": "https://cloud.google.com/storage/pricing"
+      },
+      "tasks": {
+        "name": "Cloud Tasks",
+        "doc": "https://cloud.google.com/tasks/pricing"
+      }
+    },
+    "firestore": {
+      "freeReadsDay": 50000.0,
+      "freeWritesDay": 20000.0,
+      "freeGib": 1.0,
+      "readPer100k": 0.033,
+      "writePer100k": 0.099,
+      "gibMonth": 0.165,
+      "readsPerRequest": 2.0,
+      "writesPerRequest": 0.2
+    }
+  },
+  "todayBasis": "unknown",
+  "growth": 0.0,
+  "cost": {
+    "today": null,
+    "cloudRun": 63,
+    "lines": [
+      {
+        "part": {
+          "id": "website",
+          "kind": "web",
+          "name": "static site",
+          "now": "Caddy web process, always on",
+          "after": "Cloud Run service, request-based, scales to zero",
+          "today": null,
+          "product": "cloud-run",
+          "uses": [
+            {
+              "sku": "run-cpu",
+              "qty": 2.0,
+              "per": "visit",
+              "how": "8 requests a visitor, 0.25 s of 1 vCPU and 0.5 GiB each"
+            },
+            {
+              "sku": "run-mem",
+              "qty": 1.0,
+              "per": "visit",
+              "how": "8 requests a visitor, 0.25 s of 1 vCPU and 0.5 GiB each"
+            },
+            {
+              "sku": "run-req",
+              "qty": 8.0,
+              "per": "visit",
+              "how": "8 requests a visitor"
+            }
+          ]
+        },
+        "cents": 0,
+        "uses": [
+          {
+            "sku": "run-cpu",
+            "how": "8 requests a visitor, 0.25 s of 1 vCPU and 0.5 GiB each",
+            "qty": 30000.0,
+            "price": 0.000024,
+            "gross": 0.72,
+            "free": 0.72,
+            "cents": 0
+          },
+          {
+            "sku": "run-mem",
+            "how": "8 requests a visitor, 0.25 s of 1 vCPU and 0.5 GiB each",
+            "qty": 15000.0,
+            "price": 2.5e-6,
+            "gross": 0.037500000000000006,
+            "free": 0.037500000000000006,
+            "cents": 0
+          },
+          {
+            "sku": "run-req",
+            "how": "8 requests a visitor",
+            "qty": 120000.0,
+            "price": 4e-7,
+            "gross": 0.048,
+            "free": 0.048,
+            "cents": 0
+          }
+        ]
+      },
+      {
+        "part": {
+          "id": "builds",
+          "kind": "build",
+          "name": "builds",
+          "now": "the host builds the image",
+          "after": "Artifact Registry, the last 3 images",
+          "today": null,
+          "product": "artifact-registry",
+          "uses": [
+            {
+              "sku": "ar",
+              "qty": 0.75,
+              "how": "3 images of 250 MB"
+            }
+          ]
+        },
+        "cents": 3,
+        "uses": [
+          {
+            "sku": "ar",
+            "how": "3 images of 250 MB",
+            "qty": 0.75,
+            "price": 0.1,
+            "gross": 0.07500000000000001,
+            "free": 0.05,
+            "cents": 3
+          }
+        ]
+      },
+      {
+        "part": {
+          "id": "variables",
+          "kind": "secrets",
+          "name": "variables",
+          "now": "0 variables, 0 of them secrets",
+          "after": "No secrets; the variables stay plain",
+          "today": null,
+          "product": "secret-manager",
+          "uses": [
+            {
+              "sku": "secrets",
+              "qty": 0.0,
+              "how": "0 secrets, one version each"
+            }
+          ]
+        },
+        "cents": 0,
+        "uses": [
+          {
+            "sku": "secrets",
+            "how": "0 secrets, one version each",
+            "qty": 0.0,
+            "price": 0.06,
+            "gross": 0.0,
+            "free": 0.0,
+            "cents": 0
+          }
+        ]
+      },
+      {
+        "part": {
+          "id": "egress",
+          "kind": "traffic",
+          "name": "egress",
+          "now": "Traffic out",
+          "after": "Traffic out",
+          "today": null,
+          "uses": [
+            {
+              "sku": "egress",
+              "qty": 1.0,
+              "per": "egress",
+              "how": "the egress assumption"
+            }
+          ]
+        },
+        "cents": 60,
+        "uses": [
+          {
+            "sku": "egress",
+            "how": "the egress assumption",
+            "qty": 5.0,
+            "price": 0.12,
+            "gross": 0.6,
+            "free": 0.0,
+            "cents": 60
+          }
+        ]
+      }
+    ]
+  },
+  "verdict": {
+    "kind": "move",
+    "label": "Ready to move",
+    "title": "You can move s2-shape to Cloud Run as it is",
+    "reason": "The audit found nothing that breaks or bills while idle on Cloud Run."
+  },
+  "findings": [],
+  "clean": [
+    "workers waiting on a queue",
+    "work after the response",
+    "in-process timers",
+    "files written to disk",
+    "sessions in memory",
+    "sessions kept in Redis",
+    "long-lived connections",
+    "migrations in a release step",
+    "background threads",
+    "SQLite or files used as a database"
+  ],
+  "notOnServer": [
+    "ios/ (mobile app)",
+    "tools/ (build and tool code)",
+    "website/build.py (build and tool code)",
+    "website/start/ (browser code)"
+  ],
+  "stays": [
+    "functions/ (Firebase Functions 2nd gen, already on Cloud Run functions)",
+    "Firestore (functions/index.js)"
+  ],
+  "tasks": [
+    {
+      "i": 1,
+      "title": "Dockerfile and a health check route",
+      "detail": "An image that listens on $PORT; GET /healthz answers 200.",
+      "effort": "S",
+      "phase": 1,
+      "status": "todo"
+    },
+    {
+      "i": 2,
+      "title": "Infrastructure: service",
+      "detail": "Max 3 instances to begin with; the busiest hour decides when to raise it.",
+      "effort": "M",
+      "phase": 3,
+      "status": "todo"
+    },
+    {
+      "i": 3,
+      "title": "Keyless deploys from CI",
+      "detail": "The deploy signs in with Workload Identity Federation; no key file anywhere.",
+      "effort": "S",
+      "phase": 3,
+      "status": "todo"
+    },
+    {
+      "i": 4,
+      "title": "Switch the domain and stop the old host",
+      "detail": "Point the domains at Cloud Run in a quiet hour; the old host stays stopped, not deleted, for a week.",
+      "effort": "S",
+      "phase": 4,
+      "status": "todo"
+    }
+  ],
+  "planned": false,
+  "done": 0,
+  "phases": [
+    {
+      "phase": 1,
+      "name": "Prepare",
+      "tasks": [
+        1
+      ],
+      "done": 0,
+      "state": "todo"
+    },
+    {
+      "phase": 2,
+      "name": "Change the code",
+      "tasks": [],
+      "done": 0,
+      "state": "todo"
+    },
+    {
+      "phase": 3,
+      "name": "Stand up on Google Cloud",
+      "tasks": [
+        2,
+        3
+      ],
+      "done": 0,
+      "state": "todo"
+    },
+    {
+      "phase": 4,
+      "name": "Cut over",
+      "tasks": [
+        4
+      ],
+      "done": 0,
+      "state": "todo"
+    }
+  ],
+  "questions": [
+    {
+      "i": 1,
+      "id": "platform",
+      "q": "Where does the app run now?",
+      "affects": "Cost: the Today column; Cutover",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 2,
+      "id": "visits",
+      "q": "How many people use the app a day?",
+      "affects": "Cost: the web line",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 3,
+      "id": "bill",
+      "q": "What does your host bill you a month, per service?",
+      "affects": "Cost: the Today column",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 4,
+      "id": "users",
+      "q": "Where are most of your users?",
+      "affects": "Region",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 5,
+      "id": "egress",
+      "q": "How much data does the app send out a month?",
+      "affects": "Cost: egress",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 6,
+      "id": "connections",
+      "q": "Do clients keep connections open: WebSockets, server-sent events, long polling?",
+      "affects": "Findings",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 7,
+      "id": "peak",
+      "q": "When is the busiest hour, and how busy is it?",
+      "affects": "Infrastructure: the instance limit",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 8,
+      "id": "domains",
+      "q": "Which domains point at the app?",
+      "affects": "Cutover: the domains to switch",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 9,
+      "id": "downtime",
+      "q": "Can the app be down for a few minutes during the switch?",
+      "affects": "Roadmap: the cutover",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 10,
+      "id": "ci",
+      "q": "Where do the tests and the deploys run?",
+      "affects": "Checklist: keyless deploys",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 11,
+      "id": "services",
+      "q": "Which outside services does the app call?",
+      "affects": "Cutover: webhooks and allow lists to update",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 12,
+      "id": "envs",
+      "q": "Which environments does the app run in?",
+      "affects": "Infrastructure: the services to create",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 13,
+      "id": "growth",
+      "q": "How fast is the traffic growing?",
+      "affects": "Cost: the forecast",
+      "asked": 1,
+      "isAnswered": false
+    },
+    {
+      "i": 14,
+      "id": "account",
+      "q": "Is there a Google Cloud billing account to use?",
+      "affects": "Roadmap: phase 3 needs it",
+      "asked": 1,
+      "isAnswered": false
+    }
+  ],
+  "open": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14
+  ],
+  "inventory": [
+    {
+      "title": "Processes",
+      "items": [
+        "static site: Caddy web process, always on"
+      ]
+    },
+    {
+      "title": "Build, settings and traffic",
+      "items": [
+        "builds: the host builds the image",
+        "variables: 0 variables, 0 of them secrets",
+        "egress: Traffic out"
+      ]
+    },
+    {
+      "title": "Looked for, not found",
+      "items": [
+        "No workers waiting on a queue",
+        "No work after the response",
+        "No in-process timers",
+        "No files written to disk",
+        "No sessions in memory",
+        "No sessions kept in Redis",
+        "No long-lived connections",
+        "No migrations in a release step",
+        "No background threads",
+        "No SQLite or files used as a database"
+      ]
+    },
+    {
+      "title": "Not on the server, not counted",
+      "items": [
+        "ios/ (mobile app)",
+        "tools/ (build and tool code)",
+        "website/build.py (build and tool code)",
+        "website/start/ (browser code)"
+      ]
+    },
+    {
+      "title": "Stays as it is, not counted",
+      "items": [
+        "functions/ (Firebase Functions 2nd gen, already on Cloud Run functions)",
+        "Firestore (functions/index.js)"
+      ]
+    }
+  ],
+  "findingsCount": 20,
+  "sources": {
+    "kb": [
+      {
+        "slug": "what-cloud-run-costs",
+        "cited": [
+          "Cost"
+        ]
+      },
+      {
+        "slug": "what-cloud-run-is",
+        "cited": [
+          "Now and after"
+        ]
+      }
+    ],
+    "google": [
+      {
+        "what": "Cloud Run",
+        "doc": "https://cloud.google.com/run/pricing"
+      },
+      {
+        "what": "Artifact Registry",
+        "doc": "https://cloud.google.com/artifact-registry/pricing"
+      },
+      {
+        "what": "Network egress",
+        "doc": "https://cloud.google.com/vpc/network-pricing"
+      }
+    ]
+  },
+  "runtime": {
+    "name": "Your container",
+    "build": "Your Dockerfile"
+  },
+  "day": {
+    "processesAllDay": 1,
+    "cpuHoursADay": 0.28,
+    "alwaysOn": false,
+    "serverless": false
+  },
+  "audit": {
+    "files": 19,
+    "findings": 20,
+    "kb": 3.7
+  }
+}

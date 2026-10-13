@@ -1,0 +1,5 @@
+{
+  "project": "node-railway is the back end of a small web product: signed-in users upload files, and the app makes thumbnails of them and sends a daily report and a weekly digest. Its callers are browsers; no other service calls it.",
+  "today": "It runs on Railway as three processes from one Procfile: the Express web process, a BullMQ worker that makes thumbnails and reports, and a clock process that queues three jobs with node-cron. Users and tokens live in Postgres, the queue lives in Redis, and uploads are written to the web process's own disk. Sessions are kept in the web process's memory, so a restart signs everyone out. Railway builds the image from the repository.",
+  "plan": "The web process becomes a Cloud Run service that scales to zero, the worker's jobs become Cloud Tasks requests to that service, and the three schedules become Cloud Scheduler jobs. Uploads move to Cloud Storage and sessions to the database, because a Cloud Run instance keeps neither. Postgres moves to Cloud SQL, and Redis is no longer needed. The app then costs money only while it serves requests."
+}

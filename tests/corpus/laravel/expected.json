@@ -1,0 +1,122 @@
+{
+  "exodus": "corpus/1",
+  "name": "laravel",
+  "shape": "Laravel with queues",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "a self-hosted app: nginx.conf.example and Caddyfile.example are samples for one server, and the release workflow builds an archive; nothing names a host"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Laravel (PHP-FPM behind nginx, or FrankenPHP)",
+      "from": "nginx.conf.example",
+      "note": "root public/, PHP through fastcgi 127.0.0.1:9000; Caddyfile.example serves the same with FrankenPHP php_server; the Vue/TypeScript client is built by Vite into public/"
+    },
+    {
+      "kind": "cron",
+      "what": "Laravel scheduler",
+      "from": "routes/console.php",
+      "note": "daily koel:scan, koel:prune, koel:podcasts:sync, temp and duplicate clean-ups, model:prune; started by a system crontab line `php artisan schedule:run` every minute (koel:scheduler:install writes it)"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "MySQL/MariaDB",
+      "from": ".env.example",
+      "note": "DB_CONNECTION=mysql, also the default in config/database.php; PostgreSQL and SQLite are supported and tested in CI"
+    },
+    {
+      "kind": "sqlite",
+      "engine": "SQLite (TNTSearch index)",
+      "from": "config/scout.php",
+      "note": "SCOUT_DRIVER defaults to tntsearch: MultiIndexSqliteEngine keeps the search indexes as SQLite files in storage/search-indexes"
+    },
+    {
+      "kind": "files",
+      "engine": "local disk",
+      "from": ".env.example",
+      "note": "STORAGE_DRIVER=local with MEDIA_PATH: the music library itself lives on the server's disk; images in storage/images, transcodes and temp files under ARTIFACTS_PATH; S3, Dropbox, SFTP and WebDAV drivers exist"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "app/Services/SongStorages/LocalStorage.php",
+      "note": "with the default local storage, uploaded songs are moved into MEDIA_PATH and the library is scanned from it; File::move, no regex line"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "app/Services/Image/ImageWriter.php",
+      "note": "album art, artist images and avatars written into storage/images by File::put"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "app/Http/Controllers/API/Upload/UploadSongController.php",
+      "note": "the upload is moved to ARTIFACTS_PATH/tmp and its path is handed to HandleSongUploadJob; with an async queue another instance cannot see the file"
+    },
+    {
+      "rule": "sqlite-database",
+      "file": "config/scout.php",
+      "note": "TNTSearch's SQLite index files are the default search store; each instance would hold its own index on its own disk"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "app/Listeners/WriteScanLog.php",
+      "why": "a scan log is written into storage/logs with File::put and pruned later; the file is lost with the instance; hidden by the cap until the corpus test listed every place"
+    }
+  ],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "app/Services/SongStorages/RemoteDiskStorage.php",
+      "why": "file_put_contents copies a remote song into ARTIFACTS_PATH/tmp for one operation and the caller deletes it; a scratch copy, not stored data"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "tests/Unit/Services/BuildIdentifierTest.php",
+      "why": "a test"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "resources/assets/js/app.ts",
+      "why": "browser code of the Vue client, built by Vite into public/"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "resources/assets/js/stores/radioStationStore.ts",
+      "why": "browser code, a timer in the page"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "app/Providers/MacroProvider.php",
+      "why": "a macro for tests (TestResponse::macro) registered only when tests run; it writes a response into storage/logs"
+    }
+  ],
+  "notOnServer": [
+    "resources/assets/",
+    "public/",
+    "scripts/",
+    "api-docs/",
+    "docs/",
+    ".github/",
+    ".vite-hooks/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read nginx.conf.example, Caddyfile.example, .env.example, config/database.php, config/queue.php, config/scout.php, config/cache.php, routes/console.php, app/Jobs, the song storages, the upload controller and the PHP and Node rule hits. Queues: thirteen jobs implement ShouldQueue, but .env.example sets QUEUE_CONNECTION=sync, so they run inside the request and no worker is declared anywhere; config/queue.php falls back to database when the variable is missing, which would need a `php artisan queue:work` process. The scheduler is a cron process driven by a system crontab, not a timer in the process. CACHE_DRIVER=file and SESSION_DRIVER=file also keep state on each instance's disk (the API uses tokens, so sessions matter little), and PHP streaming of audio means long requests; no rule covers these. Only file_put_contents and move_uploaded_file have a PHP regex, so the real disk writes here (File:: facade) have no rule hit.",
+  "known": {
+    "FALSE break: local-disk-write app/Providers/MacroProvider.php": "a macro that only exists for tests (TestResponse::macro, registered when tests run) writes a response into storage/logs; the rule cannot see the condition around the registration",
+    "MISSED break: sqlite-database config/scout.php": "the storage or database is chosen in a settings module or a config key that no rule reads (SCOUT_DRIVER defaults to tntsearch, which keeps SQLite index files)",
+    "process missing: 1 x cron": "the Laravel scheduler is declared in routes/console.php (Schedule::job(...)->daily()) and run by `schedule:run` from a cron entry nobody commits; no reader turns those lines into a cron process",
+    "data missing: db mysql": "MySQL is named only in .env.example and config/database.php's default, and the audit never opens a .env file",
+    "data missing: sqlite": "the storage or database is chosen in a settings module or a config key that no rule reads",
+    "data extra: cache redis": "composer.json requires predis/predis, and Laravel's stock config reads REDIS_* names; the app uses Redis only when the cache or queue driver is set to it, which the default is not"
+  }
+}

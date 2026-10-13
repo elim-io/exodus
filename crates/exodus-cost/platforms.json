@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-11",
+  "source": "The platforms' pricing pages, read 2026-10-11 for the smallest paid size of each part: heroku.com/pricing and devcenter.heroku.com (Basic dyno $7, Essential-0 Postgres $5, Mini Key-Value Store $3, Scheduler jobs on one-off Basic dynos); fly.io/docs/about/pricing (shared-cpu-1x with 512 MB $3.32 a month, volumes $0.15 a GB, egress $0.02 a GB in Europe and North America); docs.railway.com/pricing ($20 a vCPU and $10 a GB of RAM a month, volumes $0.15 a GB, egress $0.05 a GB; Railway bills use, so a service is taken as 0.1 vCPU on average and 0.5 GB of RAM); render.com (Starter instance $7, Postgres Basic-256mb $6 with 1 GB of storage at $0.30, Key Value Starter $10, disks $0.25 a GB; the pricing page renders in the browser, so these four are as Render published them in 2026 and were not re-read). The audit does not read a plan's size yet, so every part is priced at the smallest paid size; the bill answer replaces all of it.",
+  "platforms": {
+    "Heroku": {
+      "process": { "cents": 700, "size": "Basic dyno" },
+      "scheduled": { "cents": 0, "size": "one-off Basic dyno runs, a few minutes a day" },
+      "db": { "cents": 500, "size": "Heroku Postgres Essential-0" },
+      "cache": { "cents": 300, "size": "Heroku Key-Value Store Mini" },
+      "diskGb": { "cents": 0, "size": "no disk: the dyno's files are lost on restart" },
+      "egressGb": { "cents": 0, "size": "included" },
+      "sleep": "Heroku sleeps only Eco dynos; this app runs on paid dynos, which run every hour."
+    },
+    "Render": {
+      "process": { "cents": 700, "size": "Starter instance" },
+      "scheduled": { "cents": 100, "size": "a cron job, Starter, billed by the minute" },
+      "db": { "cents": 630, "size": "Postgres Basic-256mb with 1 GB" },
+      "cache": { "cents": 1000, "size": "Key Value Starter" },
+      "diskGb": { "cents": 25, "size": "a persistent disk" },
+      "egressGb": { "cents": 0, "size": "included in the workspace plan" },
+      "sleep": "Render spins down only free instances; this app runs on a paid instance, which runs every hour."
+    },
+    "Fly.io": {
+      "process": { "cents": 332, "size": "shared-cpu-1x with 512 MB" },
+      "scheduled": { "cents": 0, "size": "a scheduled Machine, a few minutes a day" },
+      "db": { "cents": 332, "size": "a Postgres Machine, shared-cpu-1x with 512 MB" },
+      "cache": { "cents": 332, "size": "a Redis Machine, shared-cpu-1x with 512 MB" },
+      "diskGb": { "cents": 15, "size": "a volume" },
+      "egressGb": { "cents": 2, "size": "Europe and North America" },
+      "sleep": "Fly.io can stop idle machines (auto_stop_machines); fly.toml keeps them running, so they run every hour."
+    },
+    "Railway": {
+      "process": { "cents": 700, "size": "a service at 0.1 vCPU and 0.5 GB on average" },
+      "scheduled": { "cents": 0, "size": "a cron service, a few minutes a day" },
+      "db": { "cents": 715, "size": "a Postgres service at 0.1 vCPU, 0.5 GB and a 1 GB volume" },
+      "cache": { "cents": 700, "size": "a Redis service at 0.1 vCPU and 0.5 GB" },
+      "diskGb": { "cents": 15, "size": "a volume" },
+      "egressGb": { "cents": 5, "size": "egress" },
+      "sleep": "Railway can put a service to sleep when it has no traffic and wake it on the next request; it is off in railway.json, so these processes run every hour."
+    }
+  }
+}

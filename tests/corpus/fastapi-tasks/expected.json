@@ -1,0 +1,198 @@
+{
+  "exodus": "corpus/1",
+  "name": "fastapi-tasks",
+  "shape": "FastAPI with background and scheduled tasks",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "a self-hosted app: docker/docker-compose.yml runs it on one host and the publish workflow only pushes images to registries; nothing names a host"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "FastAPI (uvicorn) serving the API and the generated Nuxt frontend",
+      "from": "docker/Dockerfile",
+      "note": "ENTRYPOINT docker/entry.sh runs `mealie` (pyproject [project.scripts] mealie.main:main, uvicorn mealie.app:app on :9000); the frontend is built by `pnpm generate` in the frontend-builder stage and mounted as an SPA by mealie/routes/spa"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "sqlite",
+      "engine": "SQLite",
+      "from": "docker/docker-compose.yml",
+      "note": "DB_ENGINE: sqlite (also the default in mealie/core/settings/settings.py); the file lives in the mealie-data volume at /app/data; mealie/core/settings/db_providers.py builds the sqlite:/// URL"
+    },
+    {
+      "kind": "db",
+      "engine": "PostgreSQL (optional)",
+      "from": "mealie/core/settings/db_providers.py",
+      "note": "DB_ENGINE=postgres with POSTGRES_* variables; the compose file carries them but selects sqlite"
+    },
+    {
+      "kind": "files",
+      "engine": "local disk",
+      "from": "docker/docker-compose.yml",
+      "note": "volume mealie-data:/app/data (Dockerfile VOLUME $MEALIE_HOME/data/): recipe images and assets, user avatars, backups, the generated secret"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "mealie/services/scheduler/scheduler_service.py",
+      "note": "@repeat_every loops (every 5 minutes, hourly, daily at DAILY_SCHEDULE_TIME_UTC) started from the FastAPI lifespan in mealie/app.py: webhooks, token and export purges, timeline events"
+    },
+    {
+      "rule": "work-after-response",
+      "file": "mealie/routes/recipe/recipe_crud_routes.py",
+      "note": "bg_tasks.add_task(bulk_scraper.scrape, bulk) scrapes many URLs after the response"
+    },
+    {
+      "rule": "work-after-response",
+      "file": "mealie/services/event_bus_service/event_bus_service.py",
+      "note": "every event's notifications (Apprise, webhooks) are published through FastAPI BackgroundTasks after the response"
+    },
+    {
+      "rule": "work-after-response",
+      "file": "mealie/routes/households/controller_group_recipe_actions.py",
+      "note": "a recipe action POSTs to an external URL in a background task"
+    },
+    {
+      "rule": "work-after-response",
+      "file": "mealie/routes/households/controller_webhooks.py",
+      "note": "the test webhook is sent in a background task"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/services/recipe/recipe_data_service.py",
+      "note": "scraped and uploaded recipe images are written into DATA_DIR/recipes"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/routes/users/images.py",
+      "note": "profile images copied into the user's folder under DATA_DIR (the first hit, line 34, is a temporary path; line 39 is the persistent copy)"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/routes/admin/admin_backups.py",
+      "note": "uploaded backups saved into BACKUP_DIR"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/services/backups_v2/backup_v2.py",
+      "note": "backup and restore copy the SQLite file and data folders inside DATA_DIR"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/core/settings/settings.py",
+      "note": "determine_secrets generates the secret on first start and saves it into DATA_DIR; without a shared disk each instance signs tokens with a different secret. The line names tmp_file, so the rule's unless drops it"
+    },
+    {
+      "rule": "sqlite-database",
+      "file": "mealie/core/settings/db_providers.py",
+      "note": "SQLite through SQLAlchemy is the default and the compose choice; no sqlite3.connect line exists, so the rule's regex does not reach it"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/repos/repository_users.py",
+      "note": "a new user gets a default profile image copied into their folder under DATA_DIR (shutil.copy); hidden in the baseline behind the five places a finding lists"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/core/security/providers/openid_provider.py",
+      "note": "the OpenID avatar is minified in a temporary path, then moved into the user folder under DATA_DIR (shutil.move, line 292); the first write, line 288, is the temporary one"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/services/exporter/exporter.py",
+      "why": "a group export is built in a temporary path, then copied into the group's export folder under DATA_DIR, where it is served for download later; hidden by the five-places cap until the corpus test listed every place"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/services/migrations/mealie_alpha.py",
+      "why": "a migration copies the old installation's image folders into each recipe's directory under DATA_DIR (shutil.copytree); hidden by the five-places cap"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/routes/recipe/recipe_crud_routes.py",
+      "why": "an uploaded recipe asset is written into the recipe's asset directory under DATA_DIR (dest.open('wb')); hidden by the five-places cap"
+    }
+  ],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "long-lived-connection",
+      "file": "mealie/routes/recipe/recipe_crud_routes.py",
+      "why": "EventSourceResponse streams the progress of one recipe creation and closes when it is done; a request-bounded stream, not a connection held open"
+    },
+    {
+      "rule": "work-after-response",
+      "file": "mealie/services/scheduler/scheduler_service.py",
+      "why": "asyncio.create_task(schedule_daily()) is the scheduler's own start at app startup, not work after a response (the timer itself is the in-process-timer break)"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "dev/code-generation/gen_ts_types.py",
+      "why": "a code generator run by developers that writes TypeScript types into frontend/; dev/ is not in NOT_APP"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "dev/code-generation/gen_ts_locales.py",
+      "why": "a code generator run by developers"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "dev/code-generation/gen_py_pytest_routes.py",
+      "why": "generates test route files for developers"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "dev/code-generation/utils/template.py",
+      "why": "template helper of the developer code generators"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "dev/code-generation/utils/anonymize_backups.py",
+      "why": "a developer tool that anonymizes backup files"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/services/recipe/template_service.py",
+      "why": "renders an export into a temporary directory (self.temp) that is returned as a download"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/routes/admin/admin_debug.py",
+      "why": "the debug image is written into get_temporary_path() and discarded"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "frontend/app/composables/use-recipe-explorer-search.ts",
+      "why": "browser code of the Nuxt frontend, built to static files"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "mealie/routes/groups/controller_migrations.py",
+      "why": "the uploaded archive is copied into get_temporary_zip_path() for one migration and discarded; the unless of the rule does not see the with line above"
+    }
+  ],
+  "notOnServer": [
+    "frontend/",
+    "dev/",
+    "docs/",
+    ".devcontainer/",
+    ".github/",
+    "mealie/scripts/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read docker/Dockerfile, docker/entry.sh, docker/docker-compose.yml, pyproject.toml, mealie/main.py, mealie/app.py, the scheduler package and the hits of every Python rule outside tests/. One process: the scheduler runs inside the web process (lifespan), and alembic migrations run at startup in mealie/db/init_db.py rather than in a release step. Several shutil.copyfileobj hits write into temporary paths (recipe_service.py create_from_zip, ai_recipe_service.py, controller_migrations.py, users/images.py line 34) and are not breaks; the files listed in local-disk-write are the ones that persist data in DATA_DIR. mealie/scripts/ holds admin commands (change_password, make_admin) run by hand, and the SQLite default is listed as a break even though no regex line shows it.",
+  "known": {
+    "FALSE idle: long-lived-connection mealie/routes/recipe/recipe_crud_routes.py": "EventSourceResponse is a server-sent stream by definition, and the rule cannot tell one that ends with the request (this one) from one held open; the finding is idle, not breaks, and stays",
+    "MISSED break: local-disk-write mealie/core/settings/settings.py": "the secret is written to a file named tmp_file in the same function, which the rule's temporary-path check reads as a scratch file; the real destination is DATA_DIR",
+    "data missing: db postg": "Postgres is the optional engine, chosen by DB_ENGINE in settings; no manifest names a driver",
+    "data missing: sqlite": "the default engine is SQLite through SQLAlchemy, chosen in settings and a compose environment value; the file lives in a volume no reader maps"
+  }
+}

@@ -1,0 +1,21 @@
+id = "redis-sessions"
+kind = "idle"
+title = "Sessions kept in Redis"
+kb = "sessions-without-redis"
+part = "cache"
+subject = "the sessions in Redis"
+takes_over = "the sessions to signed cookies"
+clean = "sessions kept in Redis"
+why = "Redis works on Cloud Run, but a managed one bills every hour of the month. When the sessions are what it holds, they keep a paid instance running for a few kilobytes."
+include = ["**/*.rb", "**/*.rake", "**/Rakefile"]
+# redis-store and redis-session-store.
+regex = [
+  '''session_store\s*:(?:redis_store|redis_session_store)\b''',
+]
+fix = "A signed cookie session (Rack::Session::Cookie), with the secret in Secret Manager."
+fixes = { Rails = "Rails' default cookie store, with secret_key_base in Secret Manager." }
+[task]
+title = "Sessions to signed cookies"
+detail = "Keep a user id, a role and an expiry in a signed cookie (key in Secret Manager; Secure, HttpOnly, SameSite=Lax; under 4 KB), then drop Redis if nothing else uses it. For log out everywhere, keep a session version on the user row."
+effort = "S"
+phase = 2

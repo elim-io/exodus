@@ -1,0 +1,227 @@
+# class-booking: plan 1
+
+A new product on Google Cloud Run. Plan 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 with Codex from 14 findings; no code was uploaded.
+
+Built on this machine by `exodus report`; it has no share link.
+
+## Our understanding
+
+**The idea.** class-booking is a product for small fitness studios: a studio publishes its classes, and its clients book a place and pay by card. Most users are in Spain and Portugal, about 300 people a day at launch.
+
+**Where it starts.** Nothing is built yet. The person has chosen Rust with Axum for the API and React for the pages, and expects about 20% more visitors a month in the first year.
+
+**What we will build.** We will build one Cloud Run service for the API and the pages, keep bookings in Cloud SQL for PostgreSQL and class photos in Cloud Storage, and send reminders from a Cloud Run job that Cloud Scheduler starts every 15 minutes. Payment webhooks are checked and answered at once. Nothing runs while nobody uses the product, so the first months cost little.
+
+The parts, as planned:
+
+- Processes: api and app; reminders
+- Data: Postgres; photos
+
+## Summary
+
+**class-booking fits Cloud Run at about $9.99 a month at launch.**
+
+At launch $9.99 a month at 300 visitors a day. In a year $14.96 a month at 2,675 a day, at 20% growth a month. The free tier covers $3.78 a month at launch.
+
+Confidence: high. All 6 questions answered.
+
+## What class-booking gains on Cloud Run
+
+Cloud Run bills for the seconds the code works, so a product built from parts that hold no state costs little while it is small and grows without a rebuild. The decisions in this plan are those parts.
+
+A weekday of class-booking:
+
+- On an always-on server: billed every hour, 24 hours a day.
+- On Cloud Run: CPU only while requests and jobs run, about 1.6 CPU-hours a day.
+
+A server you rent bills every hour, busy or not. Cloud Run's hours are computed from this report's numbers.
+
+- **Scales with the traffic.** From no copies at night to as many as the traffic needs, each taking up to 1,000 requests at once.
+- **Nothing to keep running.** No server, operating system or certificate to look after. Google patches the machines, renews HTTPS and restarts a copy that fails.
+- **Releases without downtime.** Each deploy is a revision. Send 5% of the traffic to it first, move everyone when it holds, and go back in one click.
+- **A private line to the database.** Cloud Run reaches Cloud SQL over Google's network with IAM, without a public address; backups and point-in-time recovery are on.
+- **The rest of Google Cloud.** BigQuery, Pub/Sub, Cloud Storage and Gemini are one permission away, on the same bill.
+- **99.95% uptime in writing.** Google's SLA covers every Cloud Run service, with credits when a month falls short.
+
+What works differently:
+
+- A copy that starts after a quiet spell answers in about 0.5 to 2 seconds. Startup CPU boost shortens that; one copy kept warm removes it, for a few dollars a month.
+- A request can run for up to 60 minutes. Longer work runs as a Cloud Run job, for up to 24 hours.
+- The disk of a copy lives in its memory and goes with it, so files are kept in Cloud Storage.
+
+## Cost
+
+Assumptions: 300 visitors a day, europe-west1 (Belgium), 5 GB of egress a month.
+Prices: Google list prices, europe-west1, read Oct 9, 2026.
+
+| Part | Now | On Google Cloud | Today | Cloud Run |
+|---|---|---|---:|---:|
+| api and app | Planned | Cloud Run service, request-based, scales to zero | - | $0.00 |
+| reminders | Planned | Cloud Scheduler, 1 job, starting a Cloud Run job | - | $0.00 |
+| Postgres | Planned | Cloud SQL for PostgreSQL, db-f1-micro, 10 GB SSD | - | $9.37 |
+| photos | Planned | Cloud Storage bucket, Standard | - | $0.02 |
+| builds | Planned | Artifact Registry, the last 3 images | - | $0.00 |
+| variables | Planned | Secret Manager, 5 secrets | - | $0.00 |
+| egress | Planned | Traffic out | - | $0.60 |
+| **Total a month** | | | **-** | **$9.99** |
+
+Today: nothing, the product is not built yet.
+
+As the visitors grow, these lines grow with them: api and app, photos and egress. Egress adds about 0.56 MB a visitor and the stored files about 3.33 MB a visitor a day. These stay as they are: reminders, Postgres, builds and variables.
+
+How each Cloud Run number is computed:
+
+- api and app, Cloud Run CPU, request-based: 2,700 vCPU-s x $0.000024 = $0.06, less $0.06 free = $0.00 (6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each)
+- api and app, Cloud Run memory, request-based: 1,350 GiB-s x $0.0000025 = $0.00, less $0.00 free = $0.00 (6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each)
+- api and app, Cloud Run requests: 54,000 requests x $0.0000004 = $0.02, less $0.02 free = $0.00 (6 requests a visitor)
+- reminders, Cloud Scheduler jobs: 1 jobs x $0.10 = $0.10, less $0.10 free = $0.00 (*/15 * * * *)
+- reminders, Cloud Run jobs CPU: 172,800 vCPU-s x $0.000018 = $3.11, less $3.11 free = $0.00 (2,880 runs a month of about 1 min at 1 vCPU)
+- reminders, Cloud Run jobs memory: 86,400 GiB-s x $0.000002 = $0.17, less $0.17 free = $0.00 (the same runs at 0.5 GiB)
+- Postgres, Cloud SQL db-f1-micro: 730 hours x $0.0105 = $7.67 (always on, 730 hours)
+- Postgres, Cloud SQL SSD storage: 10 GB-months x $0.17 = $1.70 (10 GB, Cloud SQL's smallest disk)
+- photos, Cloud Storage, Standard: 1 GB-months x $0.02 = $0.02 (1 GB of files)
+- photos, Cloud Storage writes, class A: 2,000 writes x $0.000005 = $0.01, less $0.01 free = $0.00 (about 2,000 files written a month, taken as the count)
+- builds, Artifact Registry storage: 0.09 GB-months x $0.10 = $0.01, less $0.01 free = $0.00 (3 images of 30 MB)
+- variables, Secret Manager active versions: 5 versions x $0.06 = $0.30, less $0.30 free = $0.00 (5 secrets, one version each)
+- egress, Internet egress, Premium tier: 5 GB x $0.12 = $0.60 (the egress assumption)
+
+## Architecture
+
+- api and app: Cloud Run service, request-based, scales to zero
+- reminders: Cloud Scheduler, 1 job, starting a Cloud Run job
+- Postgres: Cloud SQL for PostgreSQL, db-f1-micro, 10 GB SSD
+- photos: Cloud Storage bucket, Standard
+- builds: Artifact Registry, the last 3 images
+- variables: Secret Manager, 5 secrets
+
+Planned stack: Rust 1.90, Axum 0.8, React 19, PostgreSQL 16. The container: Rust 1.90 container running Axum; Your Dockerfile, on debian slim or distroless.
+
+## Design decisions
+
+### How it is built for Cloud Run (3)
+
+**1. Reminders run as a job on a schedule**
+
+Decision: `Cloud Scheduler: */15 * * * * -> Cloud Run job "reminders"`
+
+Why: A timer inside the API would run on every copy at once, or on none when nobody calls.
+
+How: Cloud Scheduler starts a Cloud Run job every 15 minutes; it sends what is due and exits.
+
+Read: https://exodus.elim.io/blog/cron-and-timers-with-cloud-scheduler
+
+Task: 5. Reminders run as a job on a schedule
+
+**2. Payment webhooks answer at once; the work goes to a task**
+
+Decision: `POST /payments/webhook -> 200, then Cloud Tasks: POST /tasks/payment`
+
+Why: A payment provider retries a webhook that answers late, and a copy may stop as soon as it has answered.
+
+How: The handler checks the signature, queues a Cloud Task and answers 200; the task does the booking.
+
+Read: https://exodus.elim.io/blog/background-workers-with-cloud-tasks
+
+Task: 6. Payment webhooks answer at once; the work goes to a task
+
+**3. Sessions in signed cookies**
+
+Decision: `a signed cookie store, the key in Secret Manager`
+
+Why: Copies come and go, so a session kept in one copy's memory is lost on the next request.
+
+How: A signed, encrypted cookie holds the session; no Redis to pay for.
+
+Read: https://exodus.elim.io/blog/sessions-without-redis
+
+Task: 7. Sessions in signed cookies
+
+## Checklist
+
+| # | Task | Answers | Effort | Status |
+|---:|---|---|---|---|
+| 1 | Repository for class-booking: One repository; GET /healthz answers 200 once Postgres answers. | - | S | To do |
+| 2 | Dockerfile: Your Dockerfile, on debian slim or distroless. | - | S | To do |
+| 3 | Schema and migrations as a Cloud Run job: Migrations run once per deploy as a job, never from a serving copy. | - | M | To do |
+| 4 | The core of class-booking: The main screens and the API behind them. | - | L | To do |
+| 5 | Reminders run as a job on a schedule: Cloud Scheduler starts a Cloud Run job every 15 minutes; it sends what is due and exits. | Finding 1 | M | To do |
+| 6 | Payment webhooks answer at once; the work goes to a task: The handler checks the signature, queues a Cloud Task and answers 200; the task does the booking. | Finding 2 | M | To do |
+| 7 | Sessions in signed cookies: A signed, encrypted cookie holds the session; no Redis to pay for. | Finding 3 | M | To do |
+| 8 | Infrastructure: service, Cloud SQL, bucket, scheduler: Max 3 instances and a database pool of 5 a copy, because db-f1-micro takes 25 connections. | - | M | To do |
+| 9 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
+| 10 | Domain and launch: The domain on Cloud Run, then the first users. | - | S | To do |
+
+Effort: S one file or a setting, M a few files and a test, L a part of the app rewritten.
+
+## Roadmap
+
+1. Scaffold: Repository for class-booking; Dockerfile.
+2. Build the core: Schema and migrations as a Cloud Run job; The core of class-booking; Reminders run as a job on a schedule; Payment webhooks answer at once; the work goes to a task; Sessions in signed cookies.
+3. Stand up on Google Cloud: Infrastructure: service, Cloud SQL, bucket, scheduler; Keyless deploys from CI.
+4. Launch: Domain and launch.
+
+## Questions
+
+6 questions: 0 found by your agent, 6 answered by you, 0 open.
+
+1. What will the product do, in a sentence? Studios publish classes; their clients book a place and pay by card. (Your answer.) Affects: Architecture.
+2. Who uses it, and from where? Studio owners and their clients, mostly in Spain and Portugal. (Your answer.) Affects: Region.
+3. How many people a day at launch? About 300 a day. (Your answer.) Affects: Cost: the web line.
+4. How fast should it grow in the first year? About 20% a month, if the first studios stay. (Your answer.) Affects: Cost: the forecast.
+5. Does it take payments? Yes, by card. (Your answer.) Affects: Architecture: the webhook and a task.
+6. How much data will it send out a month? 5 GB at launch: pages and photos. (Your answer.) Affects: Cost: egress.
+
+## What the plan rests on
+
+14 findings: 2 processes, 2 data, 3 build, settings and traffic, 4 stack, 3 design decisions.
+
+### Processes (2)
+
+- api and app: Cloud Run service, request-based, scales to zero
+- reminders: Cloud Scheduler, 1 job, starting a Cloud Run job
+
+### Data (2)
+
+- Postgres: Cloud SQL for PostgreSQL, db-f1-micro, 10 GB SSD
+- photos: Cloud Storage bucket, Standard
+
+### Build, settings and traffic (3)
+
+- builds: Artifact Registry, the last 3 images
+- variables: Secret Manager, 5 secrets
+- egress: Traffic out
+
+### Stack (4)
+
+- Rust 1.90
+- Axum 0.8
+- React 19
+- PostgreSQL 16
+
+### Design decisions (3)
+
+- Reminders run as a job on a schedule
+- Payment webhooks answer at once; the work goes to a task
+- Sessions in signed cookies
+
+## Sources
+
+Exodus knowledge base:
+
+- https://exodus.elim.io/blog/what-cloud-run-costs (cited in Cost)
+- https://exodus.elim.io/blog/planning-a-new-product-for-cloud-run (cited in Now and after)
+- https://exodus.elim.io/blog/cron-and-timers-with-cloud-scheduler (cited in Finding 1)
+- https://exodus.elim.io/blog/background-workers-with-cloud-tasks (cited in Finding 2)
+- https://exodus.elim.io/blog/sessions-without-redis (cited in Finding 3)
+
+Google's price lists, read Oct 9, 2026:
+
+- Cloud Run pricing: https://cloud.google.com/run/pricing
+- Cloud Scheduler pricing: https://cloud.google.com/scheduler/pricing
+- Cloud SQL pricing: https://cloud.google.com/sql/pricing
+- Cloud Storage pricing: https://cloud.google.com/storage/pricing
+- Artifact Registry pricing: https://cloud.google.com/artifact-registry/pricing
+- Secret Manager pricing: https://cloud.google.com/secret-manager/pricing
+- Network egress pricing: https://cloud.google.com/vpc/network-pricing
+
+How this plan was made: Codex asked about the idea with exodus 0.1.0 and sent 14 facts (4.3 KB). The cost is computed by plain code from the price lists above; no model on our side wrote any of this plan.

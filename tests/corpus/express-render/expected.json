@@ -1,0 +1,27 @@
+{
+  "exodus": "corpus/1",
+  "name": "express-render",
+  "shape": "Express on Render",
+  "platform": {
+    "name": "Render",
+    "file": "render.yaml",
+    "ask": false,
+    "why": "render.yaml declares one web service (runtime node, plan free)"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Express",
+      "from": "render.yaml",
+      "note": "startCommand node app.js; app.js listens on PORT"
+    }
+  ],
+  "stays": [],
+  "data": [],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [],
+  "notOnServer": [],
+  "questions": [],
+  "notes": "The repository is six files: app.js, package.json, render.yaml, yarn.lock, README.md, LICENSE. app.js serves one HTML page; the page's inline <script> calls setTimeout for a confetti effect, which runs in the browser, but it sits inside a template string in server code and no rule matches setTimeout, so it is not listed as a trap. No store, no queue, no timer, no session and no disk write on the server; the expected result is a clean audit with one web process."
+}

@@ -1,0 +1,71 @@
+{
+  "exodus": "findings/1",
+  "kind": "move",
+  "platform": { "name": "Heroku", "file": "app.json", "sleep": { "on": false, "from": "app.json:10" } },
+  "stack": ["Ruby 3.3", "Rails 7", "Puma 6", "Sidekiq 7", "PostgreSQL", "Redis", "app.json"],
+  "manifests": [
+    { "file": "Gemfile", "kind": "gemfile" },
+    { "file": "Procfile", "kind": "procfile" },
+    { "file": "app.json", "kind": "heroku" }
+  ],
+  "processes": [
+    { "id": "web", "kind": "web", "name": "web", "command": "bundle exec puma -C config/puma.rb", "from": "Procfile:1", "alwaysOn": true, "framework": "Rails" },
+    { "id": "worker", "kind": "worker", "name": "worker", "command": "bundle exec sidekiq -C config/sidekiq.yml", "from": "Procfile:2", "alwaysOn": true, "framework": "Sidekiq" },
+    { "id": "release", "kind": "release", "name": "release", "command": "bin/rails db:migrate", "from": "Procfile:3", "alwaysOn": false },
+    { "id": "scheduler", "kind": "cron", "name": "Heroku Scheduler", "command": "", "from": "app.json:7", "alwaysOn": false, "schedules": [] }
+  ],
+  "data": [
+    { "id": "postgres", "kind": "db", "name": "Postgres", "engine": "PostgreSQL", "from": "app.json:5", "envName": "DATABASE_URL" },
+    { "id": "redis", "kind": "cache", "name": "Redis", "engine": "Redis", "from": "app.json:6", "envName": "REDIS_URL" },
+    { "id": "storage", "kind": "files", "name": "Active Storage", "engine": "disk", "from": "config/environments/production.rb:3" }
+  ],
+  "settings": {
+    "envNames": ["DATABASE_URL", "PORT", "RAILS_ENV", "RAILS_MASTER_KEY", "RAILS_SERVE_STATIC_FILES", "REDIS_URL"],
+    "secretsGuess": 3,
+    "variablesTotal": 6
+  },
+  "patterns": [
+    {
+      "id": "release-migrations", "rule": "release-migrations", "kind": "note",
+      "title": "Migrations run in a release step",
+      "at": "Procfile:3",
+      "code": "release: bin/rails db:migrate",
+      "why": "Cloud Run has no release phase, and a migration in the container's start command would run once per instance, at the same time.",
+      "fix": "A Cloud Run job runs the migrations, and the deploy waits for it before it sends traffic to the new revision.",
+      "part": "release", "kb": "database-migrations-as-cloud-run-jobs"
+    },
+    {
+      "id": "heroku-scheduler", "rule": "heroku-scheduler", "kind": "note",
+      "title": "Heroku Scheduler runs jobs the repository does not list",
+      "at": "app.json:7",
+      "code": "\"scheduler:standard\"",
+      "why": "Heroku Scheduler is an add-on that stays behind, and its jobs and their times live only in the Heroku dashboard.",
+      "fix": "Copy each job from the dashboard into Cloud Scheduler, which starts it as a Cloud Run job.",
+      "part": "scheduler", "kb": "cron-and-timers-with-cloud-scheduler"
+    },
+    {
+      "id": "local-disk-write", "rule": "local-disk-write", "kind": "breaks",
+      "title": "Files written to local disk",
+      "at": "config/environments/production.rb:3",
+      "code": "config.active_storage.service = :local",
+      "why": "An instance's disk lives in its memory and is gone when the instance stops; other instances never see it.",
+      "fix": "Active Storage on a Cloud Storage bucket (the GCS service in storage.yml), with signed URLs.",
+      "part": "storage", "kb": "files-and-uploads-with-cloud-storage", "subject": "the files on disk"
+    },
+    {
+      "id": "queue-worker", "rule": "queue-worker", "kind": "breaks",
+      "title": "A worker waits on a Redis queue",
+      "at": "config/environments/production.rb:4",
+      "code": "config.active_job.queue_adapter = :sidekiq",
+      "why": "Cloud Run gives an instance CPU only while it answers a request, so a worker waiting on Redis gets no CPU between requests and its jobs stall.",
+      "fix": "Cloud Tasks: each job becomes a POST to /tasks/<name> on the service; retries and rate limits move to the queue.",
+      "part": "worker", "kb": "background-workers-with-cloud-tasks", "subject": "the worker"
+    }
+  ],
+  "clean": ["work after the response", "in-process timers", "sessions in memory", "sessions kept in Redis", "long-lived connections", "background threads", "SQLite or files used as a database"],
+  "questions": [
+    { "id": "visits" }, { "id": "bill" }, { "id": "users" }, { "id": "egress" }, { "id": "connections" }, { "id": "peak" },
+    { "id": "domains" }, { "id": "downtime" }, { "id": "jobs" }, { "id": "ci" }, { "id": "services" }, { "id": "envs" },
+    { "id": "growth" }, { "id": "account" }, { "id": "schedules" }
+  ]
+}

@@ -1,0 +1,68 @@
+{
+  "exodus": "corpus/1",
+  "name": "node-fly",
+  "shape": "Node.js (TypeScript) services in a Rush monorepo on Fly.io: an API and two timer loops on one machine, a Vite web app",
+  "platform": {
+    "name": "Fly.io",
+    "file": "fly.toml",
+    "ask": false,
+    "why": "fly.toml declares app govsky with an http_service on port 3000, auto_stop_machines off, and a release_command"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Fastify API",
+      "from": "scripts/start_govsky_service.sh",
+      "note": "the Dockerfile's CMD runs this script, which starts projects/api (node dist/index.js) in the background on the same machine as the two loops below"
+    },
+    {
+      "kind": "cron",
+      "what": "PLC backfill and handle validation",
+      "from": "scripts/start_govsky_service.sh",
+      "note": "projects/plc-backfill/index.ts: two setInterval loops, every 15 minutes each"
+    },
+    {
+      "kind": "cron",
+      "what": "Bluesky bots",
+      "from": "scripts/start_govsky_service.sh",
+      "note": "projects/bots/index.ts: runBots at start and every 15 minutes by setInterval; the script's foreground process"
+    },
+    {
+      "kind": "release",
+      "what": "Prisma migrations",
+      "from": "fly.toml",
+      "note": "release_command prisma migrate deploy"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL",
+      "from": "projects/database/prisma/schema.prisma",
+      "note": "Prisma datasource postgresql on DATABASE_URL; docker-compose.yml runs postgres:14.1-alpine for development only"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "projects/plc-backfill/index.ts"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "projects/bots/index.ts"
+    }
+  ],
+  "idle": [],
+  "notBreaks": [],
+  "notOnServer": [
+    "projects/web/",
+    "common/scripts/",
+    "common/git-hooks/"
+  ],
+  "questions": [],
+  "notes": "There is no Go in this repository: it is TypeScript built with Rush (rush.json lists api, plc-backfill, bots, database, config, web), so the shape in repos.txt is wrong. Read fly.toml, the Dockerfile, scripts/start_govsky_service.sh, docker-compose.yml, the workflow and every .ts file under projects/. One Fly machine runs three node processes; after a move the API is the web service and the two 15-minute setInterval loops become scheduled jobs. projects/api/cache.ts is a per-instance in-memory cache with a 5-minute expiry, not a session store, so it is not a finding. projects/web is a Vite React SPA that rush deploy can bundle, but nothing in the repository says where it is hosted; it is browser code with no rule pattern in it, and setTimeout delays in plc-backfill and bots are awaited inside their runs.",
+  "known": {
+    "process missing: 2 x cron": "two loops inside a shell script that the Dockerfile runs; a shell script is no manifest any reader opens"
+  }
+}

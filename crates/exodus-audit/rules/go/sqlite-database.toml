@@ -1,0 +1,19 @@
+id = "sqlite-database"
+kind = "breaks"
+title = "SQLite on a volume as the database"
+kb = "cloud-sql-firestore-or-serverless-postgres"
+part = "sqlite"
+subject = "the SQLite file"
+clean = "SQLite or files used as a database"
+why = "Cloud Run has no disk a database file can live on: the filesystem is memory, and each instance would hold its own copy that vanishes when it stops."
+fix = "Move the data to Firestore before the move: each table becomes a collection and each row a document, the database/sql calls become reads and writes through cloud.google.com/go/firestore, and a join becomes a second read or a field copied into the document."
+include = ["**/*.go"]
+regex = [
+  '''sql\.Open\(\s*"sqlite3?"''',
+  '''\bsqlite\.Open\(''',
+]
+[task]
+title = "SQLite to Firestore"
+detail = "Replace the database/sql calls with cloud.google.com/go/firestore: a collection per table, a document per row, a transaction where the code needs one, and a composite index for each query that filters or sorts on two fields. The tests run against the Firestore emulator."
+effort = "L"
+phase = 2

@@ -1,0 +1,22 @@
+id = "release-migrations"
+kind = "note"
+title = "Migrations run in a release step"
+kb = "database-migrations-as-cloud-run-jobs"
+part = "release"
+clean = "migrations in a release step"
+include = ["Procfile", "render.yaml", "fly.toml", "railway.json", "railway.toml", "Dockerfile", "**/Dockerfile"]
+# The platform's release phase, or migrations chained before the server in a start command.
+regex = [
+  '''^release:\s*\S''',
+  '''preDeployCommand["']?\s*[:=]\s*["']?[^\n]*migrat''',
+  '''release_command\s*=\s*["'][^\n]*migrat''',
+  '''\b(?:migrate|db:migrate|db:prepare|migrate\s+deploy|upgrade\s+head)\b[^\n&]*&&''',
+]
+why = "Cloud Run has no release phase, and a migration in the container's start command runs once per instance, several at the same time."
+fix = "A Cloud Run job runs the migrations with the new image, and the deploy waits for it before it sends traffic to the new revision."
+
+[task]
+title = "Migrations as a Cloud Run job before each deploy"
+detail = "Create a Cloud Run job with the same image and the migrate command, and run it in the deploy before the new revision takes traffic."
+effort = "S"
+phase = 3

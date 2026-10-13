@@ -1,0 +1,24 @@
+id = "work-after-response"
+kind = "breaks"
+title = "Work runs after the response"
+kb = "background-workers-with-cloud-tasks"
+part = "web"
+subject = "the work after the response"
+clean = "work after the response"
+why = "Once the response is out, Cloud Run takes the CPU away from the instance, so the work stalls until the next request arrives, or never finishes."
+include = ["**/*.py"]
+# a task a startup hook starts (a scheduler, an idle-shutdown loop) follows no response
+unless_in = '''^\s*(?:async\s+)?def\s+(?:lifespan|startup|on_startup|start|setup)\s*\('''
+# FastAPI and Starlette background tasks, Flask's call_on_close, a task created and left to run.
+regex = [
+  '''^[ \t]*(?:asyncio|loop)\.(?:create_task|ensure_future)\(''',
+  '''\.add_task\(''',
+  '''\bcall_on_close\b''',
+]
+fix = "Run the work before returning, or create a Cloud Tasks task for it and return at once."
+fixes = { FastAPI = "Run the work before returning, or create a Cloud Tasks task for it in place of BackgroundTasks and return at once." }
+[task]
+title = "Finish the work before the response, or hand it to Cloud Tasks"
+detail = "Await the work before answering when it is short; otherwise create a Cloud Tasks task and answer at once."
+effort = "S"
+phase = 2

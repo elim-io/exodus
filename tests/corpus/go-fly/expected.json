@@ -1,0 +1,82 @@
+{
+  "exodus": "corpus/1",
+  "name": "go-fly",
+  "shape": "Go RSS reader on Fly.io: one binary serves the API and the embedded web UI, refreshes feeds on an hourly ticker, keeps everything in SQLite on a Fly volume",
+  "platform": {
+    "name": "Fly.io",
+    "file": "fly.toml",
+    "ask": false,
+    "why": "fly.toml with [http_service], auto_stop_machines and a [[mounts]] volume at /data"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Go net/http server",
+      "from": "Dockerfile",
+      "note": "cmd/main.go builds the one binary; the UI under internal/web/public is embedded and served by it; min_machines_running = 1 keeps one machine on"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "sqlite",
+      "engine": "SQLite",
+      "from": "fly.toml",
+      "note": "DB_PATH /data/agg.db on the lite_reader_data volume; opened with modernc.org/sqlite in internal/app.go"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "internal/infra/job/scheduler.go",
+      "note": "time.NewTicker every hour in a goroutine started from internal/app.go fetches all feeds; with CPU only during requests it stalls, with several instances it runs on each"
+    },
+    {
+      "rule": "sqlite-database",
+      "file": "internal/app.go",
+      "note": "sql.Open(\"sqlite\", dsn) on a file on the Fly volume; Cloud Run has no volume that a SQLite writer can share"
+    }
+  ],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "internal/web/public/js/dnd/feedDnd.js",
+      "why": "browser code served as a static asset; setTimeout in the drag and drop handler"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "internal/web/public/assets/vendor/preact@10.24.3/hooks.module.js",
+      "why": "vendored browser library"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "internal/web/public/assets/vendor/sortablejs@1.15.6/sortable.esm.js",
+      "why": "vendored browser library"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "vendor/",
+      "why": "vendored Go modules (go build -mod=vendor): third-party code, never a finding of this app"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "vendor/",
+      "why": "vendored Go modules"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "internal/app.go",
+      "why": "os.Create(dbPath) creates the database file the SQLite finding already moves; one change, not two"
+    }
+  ],
+  "notOnServer": [
+    "internal/web/public/",
+    "tests/",
+    "internal/testserver/",
+    "cmd/testserver/",
+    "vendor/"
+  ],
+  "questions": [],
+  "notes": "The web UI is Preact loaded from internal/web/public and embedded into the binary, so it is served by the Go process but runs in the browser. Sessions are rows in SQLite (internal/app/auth), not memory. Goose migrations run at start-up from embedded SQL, not in a release step. docker-compose.yaml is the self-hosting variant with the same binary and a ./data bind mount."
+}

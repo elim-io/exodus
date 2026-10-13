@@ -1,0 +1,9 @@
+{
+  "exodus": "answers/1",
+  "answers": [
+    { "id": "visits", "q": "How many people use the app a day?", "answer": "About 2,000 on weekdays, fewer at weekends.", "found": "Railway's HTTP metrics, the last 30 days", "value": 2000, "at": "2026-10-11T11:00:00Z" },
+    { "id": "bill", "q": "What does Railway bill you a month, per service?", "answer": "$48.00 for September: web $14.00, worker $9.80, clock $3.00, Postgres $12.40, Redis $5.60, uploads volume $3.00, egress $0.20.", "found": "Railway's usage API through the railway CLI; the person confirmed the total", "value": { "web": 1400, "worker": 980, "clock": 300, "postgres": 1240, "redis": 560, "uploads": 300, "egress": 20 }, "at": "2026-10-11T11:02:00Z" },
+    { "id": "users", "q": "Where are most of your users?", "answer": "Germany and the Netherlands.", "value": "europe-west1", "at": "2026-10-11T11:05:00Z" },
+    { "id": "egress", "q": "How much data does the app send out a month?", "answer": "4 GB in September.", "found": "Railway's usage API through the railway CLI", "value": 4, "at": "2026-10-11T11:06:00Z" }
+  ]
+}

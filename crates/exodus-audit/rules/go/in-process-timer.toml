@@ -1,0 +1,21 @@
+id = "in-process-timer"
+kind = "breaks"
+title = "Timers inside the process"
+kb = "cron-and-timers-with-cloud-scheduler"
+part = "cron"
+subject = "the timers"
+clean = "in-process timers"
+why = "A service at zero has no process to run a timer, a running one gets no CPU between requests, and with several instances the timer fires once per instance: late, never, or twice."
+include = ["**/*.go"]
+# A ticker in a goroutine, robfig/cron, gocron.
+regex = [
+  '''\btime\.(?:NewTicker|Tick)\(''',
+  '''\bcron\.New\(''',
+  '''\bgocron\.NewScheduler\(''',
+]
+fix = "Cloud Scheduler on the same cron lines: short work calls POST /cron/<name> on the service with an OIDC token, long work starts a Cloud Run job. Set each job's time zone; the timer ran on the server's, usually UTC."
+[task]
+title = "Timers to Cloud Scheduler"
+detail = "Give each schedule an endpoint (POST /cron/<name>, OIDC token checked) or a Cloud Run job, create a Cloud Scheduler job per schedule with its time zone, then remove the timer and its process."
+effort = "M"
+phase = 2

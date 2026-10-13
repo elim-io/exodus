@@ -1,0 +1,16 @@
+id = "heroku-scheduler"
+kind = "note"
+title = "Heroku Scheduler runs jobs the repository does not list"
+platform = "Heroku"
+kb = "cron-and-timers-with-cloud-scheduler"
+part = "cron"
+include = ["app.json"]
+regex = ['''"scheduler:[\w-]+"''']
+why = "Heroku Scheduler is an add-on that stays behind, and its jobs and their times live only in the Heroku dashboard."
+fix = "Copy each job from the dashboard (heroku addons:open scheduler) into Cloud Scheduler, which starts it as a Cloud Run job."
+
+[task]
+title = "Heroku Scheduler jobs to Cloud Scheduler"
+detail = "List the jobs and their times from the dashboard, create a Cloud Run job per command and a Cloud Scheduler job per time."
+effort = "S"
+phase = 3

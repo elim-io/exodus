@@ -1,0 +1,9 @@
+---
+description: Exodus - audit this repository and move it to Google Cloud Run with the exodus command line, or plan a new product for Cloud Run; work the plan in .exodus/plan.md
+globs:
+alwaysApply: false
+---
+
+# Exodus
+
+{{body}}

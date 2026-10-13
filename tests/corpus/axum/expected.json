@@ -1,0 +1,38 @@
+{
+  "exodus": "corpus/1",
+  "name": "axum",
+  "shape": "Rust Axum with Postgres",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "no Dockerfile, Procfile or platform manifest; the only workflow builds and tests in CI and deploys nothing"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Rust Axum API",
+      "from": "src/main.rs",
+      "note": "nothing declares the process; the binary connects to Postgres, runs migrations and serves HTTP (src/http/mod.rs)"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL",
+      "from": "src/main.rs",
+      "note": "sqlx PgPoolOptions on DATABASE_URL (.env.sample names it); schema in migrations/"
+    }
+  ],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [],
+  "notOnServer": [
+    ".github/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "A single-binary Realworld API: src/main.rs reads config from env (clap), opens a Postgres pool, runs embedded migrations at startup (sqlx::migrate!) and serves axum routes. Every file under src/ was read; there are no timers, queues, disk writes, sessions (JWT auth) or websockets, and tokio::task::spawn_blocking in src/http/users.rs is awaited inside the request. Migrations on startup are not a release step, so nothing is listed in breaks, but concurrent first starts race on them and a reviewer may prefer a Cloud Run job. No rule includes a file here that would fire (Rust has only local-disk-write), so notBreaks is empty; the CI workflow uses a Postgres container only for tests."
+}

@@ -1,0 +1,17 @@
+[package]
+name = "exodus-cost"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+exodus-schema.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+serde.workspace = true
+
+[lints]
+workspace = true

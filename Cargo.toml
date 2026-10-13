@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = ["crates/*"]
+
+[workspace.package]
+version = "0.0.0"
+edition = "2024"
+repository = "https://github.com/elim-io/exodus"
+license = "Apache-2.0"
+publish = false
+
+[workspace.dependencies]
+exodus-schema = { path = "crates/exodus-schema" }
+exodus-audit = { path = "crates/exodus-audit" }
+exodus-cost = { path = "crates/exodus-cost" }
+exodus-report = { path = "crates/exodus-report" }
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "1"
+regex = "1"
+ignore = "0.4"
+globset = "0.4"
+# Note: the binary's one HTTP client (the platform's /api): blocking, rustls, no async runtime for a CLI that
+# makes one call per command; std has no TLS. It reads ALL_PROXY, HTTPS_PROXY, HTTP_PROXY (and lowercase) and NO_PROXY
+# itself; socks-proxy adds socks5/socks5h/socks4 behind those variables (one small crate, `socks`)
+ureq = { version = "3", features = ["socks-proxy"] }
+# the person's local date in plan.md (TZ, else the system's zone; UTC when neither is known)
+jiff = "0.2"
+
+[workspace.lints.clippy]
+unwrap_used = "warn"
+expect_used = "warn"

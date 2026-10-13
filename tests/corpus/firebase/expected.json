@@ -1,0 +1,88 @@
+{
+  "exodus": "corpus/1",
+  "name": "firebase",
+  "shape": "Firebase Hosting and Functions (2nd gen)",
+  "platform": {
+    "name": "Firebase",
+    "file": "firebase.json",
+    "ask": false,
+    "why": "firebase.json declares hosting, functions, Firestore, Realtime Database and Storage; .github/workflows/firebase-deploy.yml runs firebase deploy"
+  },
+  "processes": [],
+  "stays": [
+    {
+      "what": "Firebase Hosting",
+      "from": "firebase.json",
+      "note": "hosting source is the repository root: a Next.js app deployed with the webframeworks experiment (enabled in .github/workflows/firebase-deploy.yml); pages/admin/[experiment_id].js has getServerSideProps, so Firebase builds an SSR function for it"
+    },
+    {
+      "what": "Firebase Functions 2nd gen",
+      "from": "functions/src/index.ts",
+      "note": "onRequest, onSchedule, onTaskDispatched, Firestore and Realtime Database triggers from firebase-functions/v2; one 1st gen auth trigger (functions/src/on-user-deleted.ts, firebase-functions/v1/auth)"
+    }
+  ],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "Firestore",
+      "from": "firebase.json"
+    },
+    {
+      "kind": "db",
+      "engine": "Firebase Realtime Database",
+      "from": "database.rules.json"
+    },
+    {
+      "kind": "files",
+      "engine": "Cloud Storage for Firebase",
+      "from": "storage.rules"
+    }
+  ],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "functions/src/collision-cache.ts",
+      "why": "a lease heartbeat setInterval that lives only for the duration of one request and is cleared in a finally block; Cloud Scheduler (onSchedule) does the scheduled work"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "functions/src/__tests__/compaction-emulator.test.js",
+      "why": "test code polling the emulator"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "scripts/zenodo-oauth-spike.mjs",
+      "why": "a one-off developer script that writes a token file locally"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "functions/scripts/sync-metadata.mjs",
+      "why": "a maintenance script that vendors a package into functions/metadata/ before a build"
+    },
+    {
+      "rule": "memory-sessions",
+      "file": "functions/src/__tests__/staging-assembly.test.js",
+      "why": "test code; session( is a test helper, not express-session"
+    }
+  ],
+  "notOnServer": [
+    "pages/",
+    "components/",
+    "lib/",
+    "styles/",
+    "public/",
+    "packages/client/",
+    "scripts/",
+    "functions/scripts/",
+    "migrations/",
+    "__tests__/",
+    "functions/src/__tests__/"
+  ],
+  "questions": [],
+  "notes": "Everything server-side is already serverless on Google: Firebase Hosting (a Next.js app via the webframeworks experiment, with one getServerSideProps page) and Cloud Functions, all firebase-functions/v2 except the 1st gen auth onDelete trigger in functions/src/on-user-deleted.ts. Scheduled work runs on Cloud Scheduler (scheduled-sweep.ts, scheduled-token-refresh.ts) and queued work on Cloud Tasks (onTaskDispatched), so there is no worker or clock to move. migrations/*.cjs are one-off Firestore data migrations run by hand from .github/workflows/run-migration.yml, not a release step. packages/client is a browser client library published to npm; lib/ and components/ are the Next.js front end. functions/src/mock-server.ts is an Express mock used by the emulator tests.",
+  "known": {
+    "FALSE break: in-process-timer functions/src/collision-cache.ts": "a timer that only keeps a lease, a health check or an in-memory cache fresh; the rule sees a setInterval or send_after and cannot read what the callback does, so it keeps the finding and the person decides (a lease heartbeat for one request, cleared in a finally block)"
+  }
+}

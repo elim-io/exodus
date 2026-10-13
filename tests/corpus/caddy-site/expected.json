@@ -1,0 +1,38 @@
+{
+  "exodus": "corpus/1",
+  "name": "caddy-site",
+  "shape": "static site behind Caddy",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "no Dockerfile, CI workflow or platform manifest; the README only says to run `caddy run` (or the stock caddy image) on a machine"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "static site",
+      "from": "Caddyfile",
+      "note": "Caddy serves src/ with file_server and its templates directive (HTML includes rendered by Caddy per request); /api/* is proxied to localhost:4444, a backend that is not in this repository"
+    }
+  ],
+  "stays": [],
+  "data": [],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "src/resources/js/vendor/asciinema-player-3.6.1.min.js",
+      "why": "minified third-party browser player served as a static file; its setInterval runs in the visitor's page"
+    }
+  ],
+  "notOnServer": [
+    "src/resources/js/",
+    "src/old/resources/js/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read the Caddyfile, demo/Caddyfile, README.md, .github/ (only FUNDING.yml) and every .js file under src/. All JavaScript is browser code fetched by pages (fetch/$.get to /api/...); the only rule pattern in it is setInterval inside the vendored asciinema player, and the hand-written files use setTimeout only. The /api/* backend behind localhost:4444 is not in the repository, so it is neither a process nor a finding here; a move must ask where it lives. demo/Caddyfile is a separate on-demand TLS demo host (its README says it runs on its own machine) whose on-demand certificates and port 443 binding have no Cloud Run equivalent; it is left out of processes as it is not part of the site."
+}

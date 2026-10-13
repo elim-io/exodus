@@ -1,0 +1,208 @@
+{
+  "exodus": "corpus/1",
+  "name": "mobile-backend",
+  "shape": "mobile app beside a server, a web app and an ML service",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "the app is self-hosted with docker compose (docker/docker-compose.yml) on the user's own machine; the only hosting config, deployment/ (Terragrunt for Cloudflare), publishes the documentation site, not the app"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "NestJS API (immich-server)",
+      "from": "docker/docker-compose.yml",
+      "note": "service immich-server, image built from server/Dockerfile; server/bin/start.sh runs server/dist/main.js, which starts the api worker; it also serves the SvelteKit build of web/ from /build/www"
+    },
+    {
+      "kind": "worker",
+      "what": "BullMQ job worker (microservices)",
+      "from": "server/src/main.ts",
+      "note": "the same immich-server container starts the microservices worker in a worker thread (IMMICH_WORKERS_INCLUDE/EXCLUDE choose which); it consumes the BullMQ queues on Redis and runs the in-process cron jobs"
+    },
+    {
+      "kind": "web",
+      "what": "FastAPI machine learning service",
+      "from": "docker/docker-compose.yml",
+      "note": "service immich-machine-learning, image built from machine-learning/Dockerfile; called by the server over HTTP for CLIP search, face detection and OCR"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL 14 with VectorChord",
+      "from": "docker/docker-compose.yml"
+    },
+    {
+      "kind": "cache",
+      "engine": "Valkey (Redis), the BullMQ broker and socket.io adapter",
+      "from": "docker/docker-compose.yml"
+    },
+    {
+      "kind": "files",
+      "engine": "local volume UPLOAD_LOCATION mounted at /data (originals, thumbnails, encoded video, backups)",
+      "from": "docker/docker-compose.yml"
+    },
+    {
+      "kind": "files",
+      "engine": "local volume model-cache mounted at /cache (downloaded ML models)",
+      "from": "docker/docker-compose.yml"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "queue-worker",
+      "file": "server/src/repositories/job.repository.ts"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "server/src/repositories/cron.repository.ts"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "server/src/repositories/storage.repository.ts"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "server/src/middleware/file-upload.interceptor.ts"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "server/src/services/database-backup.service.ts"
+    },
+    {
+      "rule": "background-thread",
+      "file": "server/src/main.ts"
+    },
+    {
+      "rule": "background-thread",
+      "file": "server/src/workers/microservices.ts"
+    }
+  ],
+  "idle": [
+    {
+      "rule": "long-lived-connection",
+      "file": "server/src/repositories/websocket.repository.ts"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "server/src/middleware/websocket.adapter.ts"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "server/src/repositories/app.repository.ts"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "server/src/repositories/event.repository.ts"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "server/src/maintenance/maintenance-websocket.repository.ts"
+    }
+  ],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "web/src/lib/managers/queue-manager.svelte.ts",
+      "why": "browser code: a Svelte store refreshing the job queue view"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "web/src/lib/managers/memory-manager.svelte.ts",
+      "why": "browser code in the SvelteKit app"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "server/src/repositories/machine-learning.repository.ts",
+      "why": "an availability check of the ML URLs; if it pauses while the instance is idle nothing is lost"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "server/src/repositories/job.repository.ts",
+      "why": "a watcher of the worker's own BullMQ workers, part of the worker that already breaks as queue-worker, not a scheduler of work"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "server/src/services/transcoding.service.ts",
+      "why": "cleans up live HLS transcode sessions while any is open and clears itself when the last ends; a lease, not a schedule"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "server/src/utils/misc.ts",
+      "why": "writes the OpenAPI spec into open-api/ only when generating it in development"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "server/src/bin/sync-sql.ts",
+      "why": "a developer tool that regenerates server/src/queries/*.sql"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/plugin-sdk/src/cli.ts",
+      "why": "a CLI for plugin authors, run on their machine"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "e2e/src/utils.ts",
+      "why": "end-to-end test helpers"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "e2e/src/ui/generators/timeline/model-objects.ts",
+      "why": "a test data generator"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "machine-learning/immich_ml/sessions/prepare.py",
+      "why": "writes a manifest into the model cache; losing it means a re-download on a cold start, not lost data"
+    },
+    {
+      "rule": "work-after-response",
+      "file": "machine-learning/immich_ml/main.py",
+      "why": "an idle-shutdown loop started in the lifespan hook that unloads the service after model_ttl; not work after a response, and Cloud Run scales to zero by itself"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "machine-learning/immich_ml/sessions/ann/loader.py",
+      "why": "touches the ANN tuning file in the model cache (open(tuning_file, 'a')); losing it costs seconds on the first inference after a cold start, not data - the same class as sessions/prepare.py"
+    }
+  ],
+  "notOnServer": [
+    "mobile/",
+    "native/",
+    "web/src/",
+    "packages/cli/",
+    "packages/plugin-sdk/",
+    "packages/sdk/",
+    "packages/scripts/",
+    "packages/e2e-auth-server/",
+    "e2e/",
+    "docs/",
+    "deployment/",
+    "design/",
+    "misc/",
+    "fastlane/",
+    "i18n/",
+    "open-api/",
+    "server/test/",
+    "server/src/bin/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read docker/docker-compose.yml, server/Dockerfile, server/bin/start.sh, server/src/main.ts (api and microservices workers in worker threads of one process), the repositories that hold BullMQ, cron, socket.io and storage, and machine-learning/immich_ml/main.py. All media lives on local disk under /data (StorageCore and storage.repository.ts), which needs Cloud Storage or a mounted bucket; the microservices worker needs an always-on instance, and its CronJobs (nightly jobs, library scan, version check, database backups) are created with new CronJob<null, null>( in cron.repository.ts. Migrations run at startup in server/src/services/database.service.ts behind a database lock, not as a release step. The Flutter app (mobile/) and its Rust core (native/) run on phones; the immich CLI (packages/cli) is copied into the server image but is a user tool, not a process. The ML service downloads models into /cache, a cache that Cloud Run would refill on each cold start.",
+  "known": {
+    "FALSE break: in-process-timer server/src/repositories/job.repository.ts": "a timer that only keeps a lease, a health check or an in-memory cache fresh; the rule sees a setInterval or send_after and cannot read what the callback does, so it keeps the finding and the person decides (a watcher of the process's own workers, cleared in teardown)",
+    "FALSE break: in-process-timer server/src/repositories/machine-learning.repository.ts": "a timer that only keeps a lease, a health check or an in-memory cache fresh; the rule sees a setInterval or send_after and cannot read what the callback does, so it keeps the finding and the person decides (an availability check of the ML service)",
+    "FALSE break: in-process-timer server/src/services/transcoding.service.ts": "a timer that only keeps a lease, a health check or an in-memory cache fresh; the rule sees a setInterval or send_after and cannot read what the callback does, so it keeps the finding and the person decides (cleans up streaming sessions, started with the first and cleared with the last)",
+    "FALSE break: local-disk-write machine-learning/immich_ml/sessions/ann/loader.py": "a write into a cache or scratch folder that no line of the file marks as temporary; the rule cannot tell it from data, and losing it costs a re-download or a recompute, not data (the model cache's tuning file)",
+    "FALSE break: local-disk-write machine-learning/immich_ml/sessions/prepare.py": "a write into a cache or scratch folder that no line of the file marks as temporary; the rule cannot tell it from data, and losing it costs a re-download or a recompute, not data (the model cache's manifest)",
+    "FALSE break: local-disk-write server/src/utils/misc.ts": "a write behind a development-only flag (an env var or an argument that production never sets); the rule cannot read the flag (the OpenAPI spec is written only when generating it in development)",
+    "MISSED break: local-disk-write server/src/middleware/file-upload.interceptor.ts": "the write goes through the project's own wrapper (a repository class, a File helper), so no call the rule knows appears in the file (this.storageRepository.createWriteStream)",
+    "MISSED break: local-disk-write server/src/services/database-backup.service.ts": "the write goes through the project's own wrapper (a repository class, a File helper), so no call the rule knows appears in the file (this.storageRepository.createWriteStream)",
+    "process missing: 1 x worker": "a worker thread started inside the API process (a `main.ts` that forks a microservices worker), started by a process manager or script that no reader opens"
+  }
+}

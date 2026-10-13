@@ -1,0 +1,24 @@
+id = "memory-sessions"
+kind = "breaks"
+title = "Sessions kept in process memory"
+kb = "sessions-without-redis"
+part = "web"
+subject = "the sessions in memory"
+takes_over = "the sessions to signed cookies"
+clean = "sessions in memory"
+why = "Each instance has its own memory and loses it when it stops, so a user is signed out whenever a request lands on another instance or a new one."
+include = ["**/*.js", "**/*.mjs", "**/*.cjs", "**/*.ts", "**/*.mts", "**/*.cts"]
+exclude = ["**/use[A-Z]*.?s", "**/*.d.ts"]  # the front-end folders and configs are places.toml's
+# express-session with no store keeps sessions in its MemoryStore; a Map of signed-in users is the same thing by hand.
+regex = [
+  '''\bsession\(\s*\{[^}]*\}''',
+  '''new\s+(?:session\.)?MemoryStore\(''',
+  '''\b(?:const|let|var)\s+(?:sessions|sessionStore|sessionCache|activeSessions|userSessions|loggedInUsers)\s*(?::[^=\n]+)?=\s*(?:new\s+Map\(\)|\{\}|\[\])''',
+]
+unless = '''\bstore\s*:'''
+fix = "Signed cookies (cookie-session), with the key in Secret Manager."
+[task]
+title = "Sessions to signed cookies"
+detail = "Keep a user id, a role and an expiry in a signed cookie (key in Secret Manager; Secure, HttpOnly, SameSite=Lax; under 4 KB). For log out everywhere, keep a session version on the user row."
+effort = "S"
+phase = 2

@@ -1,0 +1,175 @@
+{
+  "exodus": "corpus/1",
+  "name": "phoenix",
+  "shape": "Elixir/Phoenix with Oban",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "the Dockerfile builds a release image that the workflows push to GHCR; terraform-e2e.yml manages uptime checks, not hosting; nothing names a host"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Phoenix release (with Oban queues and cron in the same BEAM)",
+      "from": "Dockerfile",
+      "note": "ENTRYPOINT rel/docker-entrypoint.sh, CMD run -> /app/bin/plausible start on :8000; the Oban queues, the Oban cron plugin, the event write buffer and the cache refreshers all run inside this one node (lib/plausible/application.ex)"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL",
+      "from": "config/runtime.exs",
+      "note": "Plausible.Repo on DATABASE_URL; also the Oban job table and the Oban peer election"
+    },
+    {
+      "kind": "db",
+      "engine": "ClickHouse",
+      "from": "config/runtime.exs",
+      "note": "CLICKHOUSE_DATABASE_URL: the events and sessions store (Plausible.IngestRepo, priv/ingest_repo)"
+    },
+    {
+      "kind": "files",
+      "engine": "local disk",
+      "from": "Dockerfile",
+      "note": "VOLUME /var/lib/plausible as DEFAULT_DATA_DIR: CSV imports and exports while S3_DISABLED is true (the default in config/runtime.exs), the geolocation and tzdata caches, the session transfer socket, the self-hosted TLS certificates (site_encrypt)"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "queue-worker",
+      "file": "config/runtime.exs",
+      "note": "Oban queues on Postgres (imports, exports, email reports and more; workers in lib/workers/) run inside the web node and need CPU between requests; no Elixir rule exists for it"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "config/runtime.exs",
+      "note": "Oban.Plugins.Cron with base_cron (salt rotation daily, email reports hourly, traffic notifier every 15 minutes, ...) and the Reindexer schedule, all inside the node"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "lib/plausible/ingestion/write_buffer.ex",
+      "note": "events are held in memory and flushed to ClickHouse on a Process.send_after tick; with CPU throttled after the request the flush waits, and an instance stopped hard loses the buffer"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "lib/plausible/application.ex",
+      "note": "warmed caches (sites, shield rules, tracker scripts) refresh on intervals of 25 s to 1 min"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "lib/plausible/session/salts.ex",
+      "note": "the salt cache is refreshed by a timer inside the node"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/plausible/file.ex",
+      "note": "mv! (File.rename!/File.cp!) is the write behind uploads and exports kept on local disk"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/plausible_web/live/csv_import.ex",
+      "note": "with storage \"local\" an uploaded CSV is moved into DATA_DIR/plausible-imports for a later Oban job, which may run on another instance"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/workers/export_analytics.ex",
+      "note": "the export archive is written into DATA_DIR/plausible-exports and downloaded later"
+    },
+    {
+      "rule": "memory-sessions",
+      "file": "lib/plausible/session/cache_store.ex",
+      "note": "visitor sessions of the analytics are kept in an in-memory cache per node (Plausible.Cache :sessions, Session.Balancer); several instances count one visitor as several sessions. Not login sessions; no Elixir rule exists for it"
+    }
+  ],
+  "idle": [
+    {
+      "rule": "long-lived-connection",
+      "file": "lib/plausible_web/endpoint.ex",
+      "note": "socket \"/live\" Phoenix.LiveView.Socket: LiveView pages (imports, settings, SSO) hold a websocket"
+    }
+  ],
+  "notBreaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "lib/mix/tasks/download_country_database.ex",
+      "why": "a mix task the Dockerfile runs at build time to fetch the geolocation database into priv/"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/mix/tasks/generate_referrer_favicons.ex",
+      "why": "a developer mix task that regenerates a committed file; lib/mix/tasks/ is not in NOT_APP"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/mix/tasks/generate_countries_meta.ex",
+      "why": "a developer mix task that writes a committed JSON file"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/mix/tasks/download_ip_registries.ex",
+      "why": "a developer mix task that refreshes committed registry files"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/mix/tasks/create_paddle_sandbox_plans.ex",
+      "why": "a developer mix task that writes plan fixtures"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "lib/mix/tasks/create_paddle_prod_plans.ex",
+      "why": "a developer mix task that writes plan files"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "tracker/src/engagement.js",
+      "why": "the browser tracking script, a setInterval in the visitor's page; tracker/ is not excluded by the node rules"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "tracker/installation_support/verifier.js",
+      "why": "browser code injected to verify an installation"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "tracker/compiler/index.js",
+      "why": "the build script that compiles tracker variants into priv/tracker/js"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "tracker/compiler/generate-variants.js",
+      "why": "a build script that writes the variants list"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "lib/plausible/internal_stats_api_version.ex",
+      "why": "a GenServer that refreshes a cached cluster version; a stalled refresh between requests costs nothing"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "lib/plausible/rate_limit.ex",
+      "why": "cleans the buckets of an in-memory rate limiter; the timer is not the problem, the per-instance state is"
+    }
+  ],
+  "notOnServer": [
+    "assets/",
+    "tracker/",
+    "e2e/",
+    ".github/",
+    "lib/mix/tasks/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read the Dockerfile, rel/ (entrypoint and overlay scripts), config/runtime.exs, lib/plausible/application.ex, the ingestion and session modules, the endpoint and the Elixir and Node rule hits. Everything runs in one BEAM release: splitting the Oban queues and cron from the web node, or moving cron to Cloud Scheduler, is the main change, and the ClickHouse write buffer plus the per-node session cache assume one long-lived node (the release even hands the session cache over through DATA_DIR on redeploys). Migrations are rel/overlays/migrate.sh, started by `db migrate` through the entrypoint by hand or by an outside compose file, not by a release step in this repository. The self-hosted HTTPS (site_encrypt, certbot in the CE image) is not needed behind Cloud Run. Only local-disk-write has an Elixir rule, so most breaks here have no regex today.",
+  "known": {
+    "FALSE break: in-process-timer lib/plausible/internal_stats_api_version.ex": "a timer that only keeps a lease, a health check or an in-memory cache fresh; the rule sees a setInterval or send_after and cannot read what the callback does, so it keeps the finding and the person decides (a GenServer that refreshes a cached version)",
+    "FALSE break: in-process-timer lib/plausible/rate_limit.ex": "a timer that only keeps a lease, a health check or an in-memory cache fresh; the rule sees a setInterval or send_after and cannot read what the callback does, so it keeps the finding and the person decides (cleans the buckets of an in-memory rate limiter; the in-memory state per instance is the real point and no rule reads it)",
+    "MISSED break: local-disk-write lib/plausible_web/live/csv_import.ex": "the write goes through the project's own wrapper (a repository class, a File helper), so no call the rule knows appears in the file (Plausible.File.mv!)",
+    "MISSED break: local-disk-write lib/workers/export_analytics.ex": "the write goes through the project's own wrapper (a repository class, a File helper), so no call the rule knows appears in the file (Plausible.File.mv!)",
+    "MISSED break: memory-sessions lib/plausible/session/cache_store.ex": "the sessions are kept in a Cachex cache behind the project's own adapter; no call names a session store",
+    "data missing: db click": "ClickHouse is named by CLICKHOUSE_DATABASE_URL in config/runtime.exs and by a driver the stores table does not know"
+  }
+}

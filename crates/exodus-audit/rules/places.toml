@@ -1,0 +1,75 @@
+# Where a file's code runs when it is not the server's (src/place.rs reads this). A hit in a place listed here is
+# named in `clean` as "not on the server: <place> (<why>)" instead of being a finding. `why` is one of: tests,
+# "docs and examples", "build and tool code", "mobile app", "desktop app", "browser code".
+
+# Languages a browser runs.
+front = ["js", "mjs", "cjs", "jsx", "ts", "mts", "cts", "tsx", "vue", "svelte"]
+
+# Folders. `names` are folder names, one segment ("tests") or two ("lib/tasks"), compared in lower case; a
+# `prefixes` or `suffixes` entry is compared to one segment. `front_only`: the folder counts only for the
+# languages in `front`. `except_ext`: the folder does not count for these file extensions.
+[[folder]]
+why = "tests"
+names = ["test", "tests", "spec", "__tests__", "e2e", "testdata", "fixtures", "fixture", "mocks", "__mocks__", "bench", "benches", "benchmarks"]
+prefixes = ["e2e-", "e2e_"]
+
+[[folder]]
+why = "docs and examples"
+names = ["docs", "doc", "examples", "example"]
+
+[[folder]]
+why = "build and tool code"
+names = ["scripts", "script", "tools", "cli", "dev", "codegen", "compiler", "notebooks", "seeds", "lib/tasks", "mix/tasks", "management/commands", "console/commands"]
+prefixes = ["generate_", "generate-"]
+suffixes = ["_tools", "-tools", "-cli", "_cli"]
+
+# Rust's src/bin/ holds the binaries a server runs.
+[[folder]]
+why = "build and tool code"
+names = ["bin"]
+except_ext = ["rs"]
+
+[[folder]]
+why = "mobile app"
+names = ["ios", "android", "mobile", "fastlane"]
+suffixes = [".xcodeproj", ".xcworkspace"]
+
+[[folder]]
+why = "desktop app"
+names = ["src-tauri", "desktop", "electron"]
+
+# What a server hands out as files, and the usual front-end folders.
+[[folder]]
+why = "browser code"
+front_only = true
+names = ["public", "static", "assets", "www", "site", "website", "client", "frontend", "components", "hooks", "composables", "app/javascript", "app/frontend", "resources/js", "resources/assets"]
+
+# File names (the name, not the path), in this order: the first regex that matches decides.
+[[file]]
+why = "tests"
+name = '''_test\.go$|\.test\.|\.spec\.|_spec\.rb$|^mock\.|\.mock\.|^test_.*\.py$|_test\.py$'''
+
+[[file]]
+why = "mobile app"
+name = '''\.(?:swift|dart)$'''
+
+[[file]]
+why = "browser code"
+name = '''\.(?:vue|svelte)$|\.svelte\.'''
+
+[[file]]
+why = "build and tool code"
+name = '''^(?i:gulpfile|gruntfile)\.|\.ipynb$|\.config\.|^(?:build|generate|seed|setup|cli|gen[_-][^.]*|generate[_-][^.]*)(?:\.[^.]+)*\.(?:py|js|mjs|cjs|ts|mts|rb|sh)$'''
+
+# A package.json decides for the code under it: a desktop library, or a UI library with no server library (a
+# package that is both is not placed).
+[package]
+desktop = ["electron"]
+ui = ["react", "react-dom", "vue", "svelte", "preact", "solid-js", "@angular/core", "lit", "jquery"]
+# Libraries that make a package (also) a server, or a function on Google's side.
+server = ["express", "fastify", "koa", "hono", "@nestjs/core", "@hapi/hapi", "next", "nuxt", "@sveltejs/kit", "@remix-run/node", "@react-router/node", "astro", "firebase-functions", "firebase-admin"]
+
+# A last resort for a file nothing above placed: the code itself. DOM APIs and no Node module is browser code.
+[code]
+dom = '''\b(?:document|window|navigator|localStorage|sessionStorage)\.\w|\baddEventListener\(|\brequestAnimationFrame\('''
+node = '''(?:require\(|from\s+|import\s+)['"](?:node:|fs['"/]|path['"]|http['"]|child_process|express|fastify|koa)|\bprocess\.(?:env|argv|exit)\b'''

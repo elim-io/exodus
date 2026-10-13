@@ -1,0 +1,22 @@
+id = "queue-worker"
+kind = "breaks"
+title = "A worker waits on a queue"
+kb = "background-workers-with-cloud-tasks"
+part = "worker"
+subject = "the worker"
+takes_over = "the queue goes to Cloud Tasks"
+clean = "workers waiting on a queue"
+include = ["**/*.ex", "**/*.exs"]
+exclude = ["**/config/test.exs", "**/config/dev.exs", "**/config/*_test.exs", "**/config/*_dev.exs"]
+# Oban runs its queues inside the application: the config that names it is where they start.
+regex = [
+  '''^\s*config\s+:\w+\s*,\s*Oban\b''',
+]
+why = "Cloud Run gives an instance CPU only while it answers a request, so Oban's queues, which run inside the application and poll the database, get no CPU between requests and their jobs stall. With CPU always allocated they run, and bill every second whether there is work or not."
+fix = "Cloud Tasks: where the code inserts a job, it creates a task that POSTs to /tasks/<name> on the service, and a handler there does the job and answers 2xx. Retries, backoff and rate limits move to the queue; check the OIDC token and make the handler safe to run twice."
+
+[task]
+title = "Worker: queue jobs to a Cloud Tasks handler"
+detail = "Replace each Oban insert with a Cloud Tasks task that POSTs to /tasks/<name>, move the worker's perform into that route, check the OIDC token, then drop the queues from the Oban config."
+effort = "L"
+phase = 2

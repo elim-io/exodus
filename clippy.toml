@@ -1,0 +1,3 @@
+# unwrap/expect are warned in code (workspace lints, so CI's -D warnings refuses them) and allowed in tests
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true

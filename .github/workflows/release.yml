@@ -1,0 +1,62 @@
+name: release
+
+# A tag v* builds the binaries for linux (static, musl) and macOS, x86_64 and arm64, and makes a GitHub Release with
+# them, SHA256SUMS and install.sh. A tag with a hyphen (v0.1.0-rc) makes a prerelease, which /releases/latest skips.
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - { target: x86_64-unknown-linux-musl, os: ubuntu-latest, zig: true }
+          - { target: aarch64-unknown-linux-musl, os: ubuntu-latest, zig: true }
+          - { target: x86_64-apple-darwin, os: macos-latest }
+          - { target: aarch64-apple-darwin, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup target add ${{ matrix.target }}
+      # the tag is the version: v0.1.0-rc builds exodus 0.1.0-rc
+      - run: perl -pi -e 's/^version = ".*"/version = "'"${GITHUB_REF_NAME#v}"'"/ if $. < 15' Cargo.toml
+      - if: matrix.zig
+        # a venv: the runner's python refuses system-wide installs; its bin has cargo-zigbuild and the python with zig
+        run: python3 -m venv ~/zig && ~/zig/bin/pip install cargo-zigbuild && echo ~/zig/bin >> "$GITHUB_PATH"
+      - if: matrix.zig
+        run: cargo zigbuild --release -p exodus --target ${{ matrix.target }}
+      - if: ${{ !matrix.zig }}
+        run: cargo build --release -p exodus --target ${{ matrix.target }}
+      - run: tar -czf exodus-${{ matrix.target }}.tar.gz -C target/${{ matrix.target }}/release exodus
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.target }}
+          path: exodus-${{ matrix.target }}.tar.gz
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - run: cp install.sh dist/ && cd dist && sha256sum exodus-*.tar.gz install.sh > SHA256SUMS && cat SHA256SUMS
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pre=""; case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "exodus ${GITHUB_REF_NAME#v}" $pre \
+            --notes "Install: curl -fsSL https://exodus.elim.io/install | sh, then exodus init --code CODE in the repository (the code comes from the cabinet)."

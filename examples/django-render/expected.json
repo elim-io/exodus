@@ -1,0 +1,72 @@
+{
+  "exodus": "findings/1",
+  "kind": "move",
+  "platform": { "name": "Render", "file": "render.yaml", "sleep": { "on": false, "from": "render.yaml:5" } },
+  "stack": ["Python 3.12", "Django 5", "Gunicorn 23", "Celery 5", "PostgreSQL 16", "Redis", "render.yaml"],
+  "manifests": [
+    { "file": "render.yaml", "kind": "render" },
+    { "file": "requirements.txt", "kind": "requirements" }
+  ],
+  "processes": [
+    { "id": "web", "kind": "web", "name": "books-web", "command": "gunicorn books.wsgi --workers 3", "from": "render.yaml:7", "alwaysOn": true, "framework": "Django" },
+    { "id": "release", "kind": "release", "name": "books-web pre-deploy", "command": "python manage.py migrate", "from": "render.yaml:8", "alwaysOn": false },
+    {
+      "id": "worker", "kind": "worker", "name": "books-worker", "command": "celery -A books worker --beat --loglevel info", "from": "render.yaml:26", "alwaysOn": true, "framework": "Celery",
+      "schedules": [ { "cron": "0 2 * * *", "from": "books/celery.py:14" } ]
+    }
+  ],
+  "data": [
+    { "id": "media", "kind": "files", "name": "media", "engine": "disk", "from": "render.yaml:27" },
+    { "id": "redis", "kind": "cache", "name": "books-redis", "engine": "Redis", "from": "render.yaml:41", "envName": "CELERY_BROKER_URL" },
+    { "id": "postgres", "kind": "db", "name": "books-db", "engine": "PostgreSQL", "version": "16", "from": "render.yaml:47", "envName": "DATABASE_URL" }
+  ],
+  "settings": {
+    "envNames": ["CELERY_BROKER_URL", "DATABASE_URL", "DJANGO_SECRET_KEY", "DJANGO_SETTINGS_MODULE"],
+    "secretsGuess": 3,
+    "variablesTotal": 4
+  },
+  "patterns": [
+    {
+      "id": "queue-worker", "rule": "queue-worker", "kind": "breaks",
+      "title": "A worker waits on a Redis queue",
+      "at": "books/celery.py:8",
+      "code": "app = Celery(\"books\", broker=os.environ[\"CELERY_BROKER_URL\"])",
+      "why": "Cloud Run gives an instance CPU only while it answers a request, so a worker waiting on Redis gets no CPU between requests and its jobs stall.",
+      "fix": "Cloud Tasks: each job becomes a POST to /tasks/<name> on the service; retries and rate limits move to the queue.",
+      "part": "worker", "kb": "background-workers-with-cloud-tasks", "subject": "the worker"
+    },
+    {
+      "id": "in-process-timer", "rule": "in-process-timer", "kind": "breaks",
+      "title": "Timers inside the process",
+      "at": "books/celery.py:14",
+      "code": "\"schedule\": crontab(hour=2, minute=0),",
+      "why": "Instances stop when idle and several can run at once, so a timer inside one fires late, never, or twice.",
+      "fix": "Cloud Scheduler starts a Cloud Run job at the same times.",
+      "part": "worker", "kb": "cron-and-timers-with-cloud-scheduler", "subject": "the timers"
+    },
+    {
+      "id": "local-disk-write", "rule": "local-disk-write", "kind": "breaks",
+      "title": "Files written to local disk",
+      "at": "exports/tasks.py:13",
+      "code": "with open(path, \"w\", newline=\"\") as f:",
+      "why": "An instance's disk lives in its memory and is gone when the instance stops; other instances never see it.",
+      "fix": "Write to a Cloud Storage bucket and hand out signed URLs.",
+      "part": "media", "kb": "files-and-uploads-with-cloud-storage", "subject": "the files on disk"
+    },
+    {
+      "id": "release-migrations", "rule": "release-migrations", "kind": "note",
+      "title": "Migrations run in a release step",
+      "at": "render.yaml:8",
+      "code": "preDeployCommand: python manage.py migrate",
+      "why": "Cloud Run has no release phase, and a migration in the container's start command would run once per instance, at the same time.",
+      "fix": "A Cloud Run job runs the migrations, and the deploy waits for it before it sends traffic to the new revision.",
+      "part": "release", "kb": "database-migrations-as-cloud-run-jobs"
+    }
+  ],
+  "clean": ["work after the response", "sessions in memory", "sessions kept in Redis", "long-lived connections", "background threads", "SQLite or files used as a database"],
+  "questions": [
+    { "id": "visits" }, { "id": "bill" }, { "id": "users" }, { "id": "egress" }, { "id": "connections" }, { "id": "peak" },
+    { "id": "domains" }, { "id": "downtime" }, { "id": "jobs" }, { "id": "ci" }, { "id": "services" }, { "id": "envs" },
+    { "id": "growth" }, { "id": "account" }, { "id": "schedules" }
+  ]
+}

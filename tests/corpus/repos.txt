@@ -1,0 +1,19 @@
+# name             repository                                    commit                                    shape
+caddy-site         https://github.com/caddyserver/website         19575198cce1ea5f1bb37895ef3f9f2ec0f1997a  static site behind Caddy
+static-generator   https://github.com/rust-lang/blog.rust-lang.org fa662c62687d2a31a03a68288328a6262723d652 static site built by a generator
+nginx-spa          https://github.com/excalidraw/excalidraw       2df993fb397dd6d64625908c9c10337727617f6f  browser app built by Vite, served by nginx
+nextjs-vercel      https://github.com/nextjs/saas-starter         6e33e58b1e553a41fe22e6b941a7229a002de361  Next.js on Vercel with Postgres
+express-render     https://github.com/render-examples/express-hello-world 039c34770852fb07cef7f9f0f8534c5de408b207 Express on Render
+django-celery      https://github.com/HackSoftware/Django-Styleguide-Example a70ef43d7df03706c1211d4fcfd70b4b0120ba1e Django with Celery worker and beat
+rails-sidekiq      https://github.com/maybe-finance/maybe         77b5469832758d1cbee1a940f3012a1ae1c74cd3  Rails with Sidekiq
+go-fly             https://github.com/cubny/lite-reader           aedd415d65390676c84b72640e5785dbfbe9c49d  Go service with SQLite on Fly.io
+node-fly           https://github.com/nas5w/govsky                eafdc8cc976b4d26c3858455f783f29251b63d7c  TypeScript API and bots on Fly.io
+monorepo           https://github.com/hoppscotch/hoppscotch       63273f8e599e73f0fb38c0739314e8d46b6bc83d  monorepo: backend, web apps, desktop, CLI
+firebase           https://github.com/jspsych/datapipe            2ee3198f201a38745f9a91418736d1323193f922  Firebase Hosting and Functions (2nd gen)
+ios-firebase       https://github.com/ertembiyik/Haptics          fdb21f28ab13884d732acb582a1b7bb69687ada5  iOS app beside Firebase Functions
+mobile-backend     https://github.com/immich-app/immich           8cfee782bde77424c36a962511fe3450d05f4653  mobile app beside a server, web and ML service
+laravel            https://github.com/koel/koel                   50d8a2bc8b60068d6f17540095c1c35508ec8c99  Laravel with queues
+fastapi-tasks      https://github.com/mealie-recipes/mealie       0caaf22c470626b348cdb9b75280cf9ce5d05581  FastAPI with background and scheduled tasks
+phoenix            https://github.com/plausible/analytics         0ea0cb3f6d6f1079423ed266d542feba6d676f31  Elixir/Phoenix with Oban
+axum               https://github.com/launchbadge/realworld-axum-sqlx f1b25654773228297e35c292f357d33b7121a101 Rust Axum with Postgres
+compose            https://github.com/healthchecks/healthchecks   efcc84b6a49f087445a118ccb05186bfb5c33082  Django with docker-compose and a long-running sender

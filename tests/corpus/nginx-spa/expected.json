@@ -1,0 +1,92 @@
+{
+  "exodus": "corpus/1",
+  "name": "nginx-spa",
+  "shape": "browser app built by Vite, served by nginx",
+  "platform": {
+    "name": "Vercel",
+    "file": "vercel.json",
+    "ask": false,
+    "why": "the root vercel.json sets outputDirectory excalidraw-app/build, headers and redirects, and excalidraw-app's build:app script reads VERCEL_GIT_COMMIT_SHA; the Dockerfile (nginx) is the self-hosting image pushed to Docker Hub by .github/workflows/publish-docker.yml"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "static site",
+      "from": "Dockerfile",
+      "note": "Vite builds excalidraw-app into excalidraw-app/build, which nginx serves (on Vercel the same folder is served as static output); collaboration, sharing and the library talk to backends outside this repository by VITE_APP_* URLs"
+    },
+    {
+      "kind": "web",
+      "what": "static site",
+      "from": "dev-docs/vercel.json",
+      "note": "the Docusaurus developer docs, built to dev-docs/build and deployed as its own Vercel project from master"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "Firestore",
+      "from": "firebase-project/firebase.json"
+    },
+    {
+      "kind": "files",
+      "engine": "Cloud Storage for Firebase",
+      "from": "firebase-project/firebase.json"
+    }
+  ],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "packages/common/debug.ts",
+      "why": "browser debug helper: window.setInterval in the editor"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "packages/excalidraw/subset/woff2/woff2-bindings.ts",
+      "why": "Emscripten-generated WASM glue for font subsetting, run in the browser or a web worker"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/excalidraw/index-node.ts",
+      "why": "a Node experiment built by scripts/build-node.js that renders a sample scene to test.png on a developer machine; no process serves it"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "scripts/build-version.js",
+      "why": "build step (excalidraw-app build:version) that writes version.json into the build output"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "scripts/buildWasm.js",
+      "why": "build script that writes generated WASM bindings into the source tree"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "scripts/release.js",
+      "why": "release tool that rewrites package.json versions before npm publish"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "scripts/woff2/woff2-esbuild-plugins.js",
+      "why": "esbuild plugin that writes temporary font files during the package build"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "excalidraw-app/collab/Collab.tsx",
+      "why": "socket.io-client in the browser connecting to the external collaboration server; the long-lived connection is not on this site's server"
+    }
+  ],
+  "notOnServer": [
+    "excalidraw-app/",
+    "packages/",
+    "scripts/",
+    "examples/",
+    "dev-docs/",
+    "public/"
+  ],
+  "questions": [],
+  "notes": "Read the Dockerfile, docker-compose.yml (a dev setup), the root, dev-docs and examples vercel.json files, firebase-project/, the Docker and other workflows, package.json scripts and .env.production (names only). Everything in the repository is browser code, build tooling or docs: no server code exists, so there are no breaks. Firestore and Firebase Storage are used straight from the browser (excalidraw-app/data/firebase.ts) and already live on Google; the collaboration websocket server, the share backend and the AI backend are separate services referenced by URL, not in this repository. The two examples under examples/ are demos with their own vercel.json and are left out of processes; dev-docs is listed because it is a real deployed site."
+}

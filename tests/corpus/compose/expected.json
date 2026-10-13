@@ -1,0 +1,119 @@
+{
+  "exodus": "corpus/1",
+  "name": "compose",
+  "shape": "Django with docker-compose and a long-running sender",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "docker/docker-compose.yml is a self-hosting sample and the publish workflow only pushes an image to a registry; nothing names a host"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Django under uWSGI",
+      "from": "docker/uwsgi.ini",
+      "note": "Dockerfile CMD and the compose service web start uwsgi with module hc.wsgi:application on :8000"
+    },
+    {
+      "kind": "worker",
+      "what": "sendalerts loop",
+      "from": "docker/uwsgi.ini",
+      "note": "attach-daemon ./manage.py sendalerts runs beside uWSGI in the web container, polling the database for status flips and checks going down and sending notifications on a thread pool"
+    },
+    {
+      "kind": "worker",
+      "what": "sendreports loop",
+      "from": "docker/uwsgi.ini",
+      "note": "attach-daemon ./manage.py sendreports --loop polls every second for due monthly/weekly reports and nags"
+    },
+    {
+      "kind": "worker",
+      "what": "SMTP listener (optional)",
+      "from": "docker/uwsgi.ini",
+      "note": "attach-daemon ./manage.py smtpd only when SMTPD_PORT is set; receives pings by email on a raw TCP port"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL 16",
+      "from": "docker/docker-compose.yml",
+      "note": "service db with the volume db-data; hc/settings.py also supports MySQL/MariaDB and falls back to SQLite (hc.sqlite) when DB is unset, but docker/.env.example sets postgres"
+    },
+    {
+      "kind": "files",
+      "engine": "S3-compatible object storage (optional)",
+      "from": "hc/settings.py",
+      "note": "S3_BUCKET and friends; ping bodies go there via hc/lib/s3.py when set, else into the database"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "queue-worker",
+      "file": "hc/api/management/commands/sendalerts.py",
+      "note": "a forever loop that polls the database (a DB-backed queue of flips) and sleeps 2 s when idle; needs an always-on worker, not a request-driven container"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "hc/api/management/commands/sendreports.py",
+      "note": "--loop wakes every second and sends reports whose next_report_date is due; a scheduler living in a process"
+    },
+    {
+      "rule": "background-thread",
+      "file": "hc/lib/s3.py",
+      "note": "remove_objects starts a Thread that is not joined; it is called from Check.prune on every 100th ping inside the web request (hc/api/models.py), so the S3 deletes outlive the response and are throttled on Cloud Run"
+    }
+  ],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "sqlite-database",
+      "file": "hc/front/views.py",
+      "why": "opens search.db, a read-only docs search index committed to the repository and baked into the image; no user data is written to it"
+    },
+    {
+      "rule": "sqlite-database",
+      "file": "hc/front/management/commands/populate_searchdb.py",
+      "why": "a developer command that rebuilds the committed search.db; not run by any process"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "hc/front/management/commands/pygmentize.py",
+      "why": "a developer command that writes highlighted snippets into templates/; not run by any process"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "hc/front/management/commands/render_docs.py",
+      "why": "a developer command that renders docs into templates/ before a commit; not run by any process"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "static/js/adaptive-setinterval.js",
+      "why": "browser code served as a static asset, a setInterval in the page"
+    }
+  ],
+  "notOnServer": [
+    "static/",
+    "hc/integrations/signal/static/",
+    "hc/integrations/webhook/static/",
+    "hc/integrations/trello/static/",
+    "hc/integrations/po/static/",
+    "hc/integrations/zulip/static/",
+    "hc/integrations/ntfy/static/",
+    "stuff/",
+    ".github/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read docker/Dockerfile, docker/docker-compose.yml, docker/uwsgi.ini, hc/settings.py, hc/lib/s3.py, hc/api/models.py and every management command. The compose file declares only web and db, but uwsgi.ini attaches three daemons to the web container (sendalerts, sendreports --loop and, with SMTPD_PORT, smtpd); after a move they become separate always-on workers, and the SMTP listener has no Cloud Run equivalent (Cloud Run accepts only HTTP/gRPC), which no rule covers yet. uwsgi.ini also runs manage.py migrate as hook-pre-app on every start; that is a migration at startup rather than a release step, so it is in no list. The other management commands (prune*, send*notices, sendlogs) are meant for cron but nothing in the repository schedules them.",
+  "known": {
+    "FALSE break: sqlite-database hc/front/views.py": "opens a read-only docs search index committed to the repository (search.db); sqlite3.connect is the same call as for a database that is written, and the rule cannot read the mode",
+    "MISSED break: queue-worker hc/api/management/commands/sendalerts.py": "a polling loop in a management command that a process manager starts; the loop is no pattern a rule knows, and the process that runs it is not read either (see the process lines)",
+    "MISSED break: in-process-timer hc/api/management/commands/sendreports.py": "a polling loop in a management command that a process manager starts; the loop is no pattern a rule knows, and the process that runs it is not read either (see the process lines)",
+    "process missing: 3 x worker": "three daemons in docker/uwsgi.ini (`attach-daemon = ./manage.py sendalerts`, sendreports, smtpd), started by a process manager or script that no reader opens",
+    "data missing: files": "S3-compatible storage is optional and set by S3_BUCKET in settings; no manifest or dependency names it"
+  }
+}

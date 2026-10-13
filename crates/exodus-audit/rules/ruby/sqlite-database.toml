@@ -1,0 +1,19 @@
+id = "sqlite-database"
+kind = "breaks"
+title = "SQLite on a volume as the database"
+kb = "cloud-sql-firestore-or-serverless-postgres"
+part = "sqlite"
+subject = "the SQLite file"
+clean = "SQLite or files used as a database"
+why = "Cloud Run has no disk a database file can live on: the filesystem is memory, and each instance would hold its own copy that vanishes when it stops."
+fix = "Move the data to Firestore before the move: each table becomes a collection and each row a document, the SQL calls become reads and writes through google-cloud-firestore, and a join becomes a second read or a field copied into the document."
+include = ["**/*.rb", "**/*.rake", "**/Rakefile"]
+regex = [
+  '''SQLite3::Database\.new''',
+  '''adapter:\s*['"]?sqlite3''',
+]
+[task]
+title = "SQLite to Firestore"
+detail = "Replace the SQL calls with google-cloud-firestore: a collection per table, a document per row, a transaction where the code needs one, and a composite index for each query that filters or sorts on two fields. The tests run against the Firestore emulator."
+effort = "L"
+phase = 2

@@ -1,0 +1,6406 @@
+[
+ {
+  "name": "acme-api report 1",
+  "assumptions": {
+   "visits": 1000,
+   "region": "europe-west1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   120
+  ],
+  "today": 3520,
+  "cloudRun": 1064
+ },
+ {
+  "name": "acme-api report 1 in europe-west2",
+  "assumptions": {
+   "visits": 1000,
+   "region": "europe-west2",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   1086,
+   0,
+   5,
+   3,
+   0,
+   120
+  ],
+  "today": 3520,
+  "cloudRun": 1214
+ },
+ {
+  "name": "acme-api report 1 in us-central1",
+  "assumptions": {
+   "visits": 1000,
+   "region": "us-central1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   937,
+   0,
+   0,
+   3,
+   0,
+   120
+  ],
+  "today": 3520,
+  "cloudRun": 1060
+ },
+ {
+  "name": "acme-api report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 1000,
+   "region": "asia-southeast1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   1124,
+   0,
+   4,
+   3,
+   0,
+   120
+  ],
+  "today": 3520,
+  "cloudRun": 1251
+ },
+ {
+  "name": "acme-api report 1 at 10000 visits",
+  "assumptions": {
+   "visits": 10000,
+   "region": "europe-west1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   2169,
+   937,
+   0,
+   4,
+   3,
+   0,
+   120
+  ],
+  "today": 3520,
+  "cloudRun": 3233
+ },
+ {
+  "name": "acme-api report 1 at 20 GB egress",
+  "assumptions": {
+   "visits": 1000,
+   "region": "europe-west1",
+   "egressGb": 20
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   240
+  ],
+  "today": 3520,
+  "cloudRun": 1184
+ },
+ {
+  "name": "acme-api report 2",
+  "assumptions": {
+   "visits": 1000,
+   "region": "europe-west1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   120
+  ],
+  "today": 4800,
+  "cloudRun": 1064
+ },
+ {
+  "name": "acme-api report 2 in europe-west2",
+  "assumptions": {
+   "visits": 1000,
+   "region": "europe-west2",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   1086,
+   0,
+   5,
+   3,
+   0,
+   120
+  ],
+  "today": 4800,
+  "cloudRun": 1214
+ },
+ {
+  "name": "acme-api report 2 in us-central1",
+  "assumptions": {
+   "visits": 1000,
+   "region": "us-central1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   937,
+   0,
+   0,
+   3,
+   0,
+   120
+  ],
+  "today": 4800,
+  "cloudRun": 1060
+ },
+ {
+  "name": "acme-api report 2 in asia-southeast1",
+  "assumptions": {
+   "visits": 1000,
+   "region": "asia-southeast1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   1124,
+   0,
+   4,
+   3,
+   0,
+   120
+  ],
+  "today": 4800,
+  "cloudRun": 1251
+ },
+ {
+  "name": "acme-api report 2 at 10000 visits",
+  "assumptions": {
+   "visits": 10000,
+   "region": "europe-west1",
+   "egressGb": 10
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   2169,
+   51,
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   120
+  ],
+  "today": 4800,
+  "cloudRun": 3284
+ },
+ {
+  "name": "acme-api report 2 at 20 GB egress",
+  "assumptions": {
+   "visits": 1000,
+   "region": "europe-west1",
+   "egressGb": 20
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   240
+  ],
+  "today": 4800,
+  "cloudRun": 1184
+ },
+ {
+  "name": "acme-api report 3",
+  "assumptions": {
+   "visits": 2000,
+   "region": "europe-west1",
+   "egressGb": 4
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   72,
+   47,
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   48
+  ],
+  "today": 4800,
+  "cloudRun": 1111
+ },
+ {
+  "name": "acme-api report 3 in europe-west2",
+  "assumptions": {
+   "visits": 2000,
+   "region": "europe-west2",
+   "egressGb": 4
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   274,
+   66,
+   0,
+   1086,
+   0,
+   5,
+   3,
+   0,
+   48
+  ],
+  "today": 4800,
+  "cloudRun": 1482
+ },
+ {
+  "name": "acme-api report 3 in us-central1",
+  "assumptions": {
+   "visits": 2000,
+   "region": "us-central1",
+   "egressGb": 4
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   72,
+   47,
+   0,
+   937,
+   0,
+   0,
+   3,
+   0,
+   48
+  ],
+  "today": 4800,
+  "cloudRun": 1107
+ },
+ {
+  "name": "acme-api report 3 in asia-southeast1",
+  "assumptions": {
+   "visits": 2000,
+   "region": "asia-southeast1",
+   "egressGb": 4
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   274,
+   66,
+   0,
+   1124,
+   0,
+   4,
+   3,
+   0,
+   48
+  ],
+  "today": 4800,
+  "cloudRun": 1519
+ },
+ {
+  "name": "acme-api report 3 at 20000 visits",
+  "assumptions": {
+   "visits": 20000,
+   "region": "europe-west1",
+   "egressGb": 4
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   4941,
+   51,
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   48
+  ],
+  "today": 4800,
+  "cloudRun": 5984
+ },
+ {
+  "name": "acme-api report 3 at 14 GB egress",
+  "assumptions": {
+   "visits": 2000,
+   "region": "europe-west1",
+   "egressGb": 14
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 1400,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 3.5,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 1.75,
+      "per": "visit",
+      "how": "10 requests a visitor, 0.35 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 10,
+      "per": "visit",
+      "how": "10 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "worker",
+    "today": 980,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 19500,
+      "how": "1,300 jobs a day, 0.5 s of 1 vCPU each, on the service"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 9750,
+      "how": "1,300 jobs a day at 0.5 GiB"
+     },
+     {
+      "sku": "run-req",
+      "qty": 39000,
+      "how": "one request a job"
+     },
+     {
+      "sku": "tasks",
+      "qty": 39000,
+      "how": "one task a job"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 3,
+      "how": "hourly cleanup, nightly report, weekly digest"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 19200,
+      "how": "720 runs of 20 s, 30 of 2 min, 4 of 5 min, at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 9600,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1240,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "redis",
+    "today": 560,
+    "uses": []
+   },
+   {
+    "id": "uploads",
+    "today": 300,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 2,
+      "how": "2 GB of uploads"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 2000,
+      "how": "about 2,000 uploads a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.8,
+      "how": "3 images of 270 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "5 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 20,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   72,
+   47,
+   0,
+   937,
+   0,
+   4,
+   3,
+   0,
+   168
+  ],
+  "today": 4800,
+  "cloudRun": 1231
+ },
+ {
+  "name": "shop-bot report 1",
+  "assumptions": {
+   "visits": 3000,
+   "region": "europe-west1",
+   "egressGb": 3
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.3,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "sync",
+    "today": 200,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one nightly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 108000,
+      "how": "30 runs of an hour at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 54000,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 500,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 3,
+      "how": "10 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 10,
+      "how": "10 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   25,
+   24,
+   36
+  ],
+  "today": 3200,
+  "cloudRun": 85
+ },
+ {
+  "name": "shop-bot report 1 in europe-west2",
+  "assumptions": {
+   "visits": 3000,
+   "region": "europe-west2",
+   "egressGb": 3
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.3,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "sync",
+    "today": 200,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one nightly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 108000,
+      "how": "30 runs of an hour at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 54000,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 500,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 3,
+      "how": "10 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 10,
+      "how": "10 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   25,
+   24,
+   36
+  ],
+  "today": 3200,
+  "cloudRun": 85
+ },
+ {
+  "name": "shop-bot report 1 in us-central1",
+  "assumptions": {
+   "visits": 3000,
+   "region": "us-central1",
+   "egressGb": 3
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.3,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "sync",
+    "today": 200,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one nightly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 108000,
+      "how": "30 runs of an hour at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 54000,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 500,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 3,
+      "how": "10 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 10,
+      "how": "10 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   25,
+   24,
+   36
+  ],
+  "today": 3200,
+  "cloudRun": 85
+ },
+ {
+  "name": "shop-bot report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 3000,
+   "region": "asia-southeast1",
+   "egressGb": 3
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.3,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "sync",
+    "today": 200,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one nightly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 108000,
+      "how": "30 runs of an hour at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 54000,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 500,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 3,
+      "how": "10 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 10,
+      "how": "10 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   25,
+   24,
+   36
+  ],
+  "today": 3200,
+  "cloudRun": 85
+ },
+ {
+  "name": "shop-bot report 1 at 30000 visits",
+  "assumptions": {
+   "visits": 30000,
+   "region": "europe-west1",
+   "egressGb": 3
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.3,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "sync",
+    "today": 200,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one nightly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 108000,
+      "how": "30 runs of an hour at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 54000,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 500,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 3,
+      "how": "10 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 10,
+      "how": "10 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   216,
+   0,
+   0,
+   25,
+   24,
+   36
+  ],
+  "today": 3200,
+  "cloudRun": 301
+ },
+ {
+  "name": "shop-bot report 1 at 13 GB egress",
+  "assumptions": {
+   "visits": 3000,
+   "region": "europe-west1",
+   "egressGb": 13
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.3,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15,
+      "per": "visit",
+      "how": "1 request a visitor, 0.3 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "sync",
+    "today": 200,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one nightly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 108000,
+      "how": "30 runs of an hour at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 54000,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 500,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 3,
+      "how": "10 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 10,
+      "how": "10 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   25,
+   24,
+   156
+  ],
+  "today": 3200,
+  "cloudRun": 205
+ },
+ {
+  "name": "render-landing report 1",
+  "assumptions": {
+   "visits": 5000,
+   "region": "europe-west1",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": "730 hours at 1 vCPU; visits do not change it"
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 5256000,
+      "how": "730 hours at 2 GiB"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.4,
+      "how": "2 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   5259,
+   0,
+   0,
+   180
+  ],
+  "today": 2500,
+  "cloudRun": 5439
+ },
+ {
+  "name": "render-landing report 1 in europe-west2",
+  "assumptions": {
+   "visits": 5000,
+   "region": "europe-west2",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": "730 hours at 1 vCPU; visits do not change it"
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 5256000,
+      "how": "730 hours at 2 GiB"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.4,
+      "how": "2 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   7573,
+   0,
+   0,
+   180
+  ],
+  "today": 2500,
+  "cloudRun": 7753
+ },
+ {
+  "name": "render-landing report 1 in us-central1",
+  "assumptions": {
+   "visits": 5000,
+   "region": "us-central1",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": "730 hours at 1 vCPU; visits do not change it"
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 5256000,
+      "how": "730 hours at 2 GiB"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.4,
+      "how": "2 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   5259,
+   0,
+   0,
+   180
+  ],
+  "today": 2500,
+  "cloudRun": 5439
+ },
+ {
+  "name": "render-landing report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 5000,
+   "region": "asia-southeast1",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": "730 hours at 1 vCPU; visits do not change it"
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 5256000,
+      "how": "730 hours at 2 GiB"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.4,
+      "how": "2 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   7573,
+   0,
+   0,
+   180
+  ],
+  "today": 2500,
+  "cloudRun": 7753
+ },
+ {
+  "name": "render-landing report 1 at 50000 visits",
+  "assumptions": {
+   "visits": 50000,
+   "region": "europe-west1",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": "730 hours at 1 vCPU; visits do not change it"
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 5256000,
+      "how": "730 hours at 2 GiB"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.4,
+      "how": "2 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   5259,
+   0,
+   0,
+   180
+  ],
+  "today": 2500,
+  "cloudRun": 5439
+ },
+ {
+  "name": "render-landing report 1 at 25 GB egress",
+  "assumptions": {
+   "visits": 5000,
+   "region": "europe-west1",
+   "egressGb": 25
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2500,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": "730 hours at 1 vCPU; visits do not change it"
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 5256000,
+      "how": "730 hours at 2 GiB"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.4,
+      "how": "2 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   5259,
+   0,
+   0,
+   300
+  ],
+  "today": 2500,
+  "cloudRun": 5559
+ },
+ {
+  "name": "link-preview report 1",
+  "assumptions": {
+   "visits": 4000,
+   "region": "europe-west1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 638,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.12,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.06,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "ipv4",
+    "today": 200,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.06,
+      "how": "3 images of 20 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 10,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   0,
+   60
+  ],
+  "today": 848,
+  "cloudRun": 60
+ },
+ {
+  "name": "link-preview report 1 in europe-west2",
+  "assumptions": {
+   "visits": 4000,
+   "region": "europe-west2",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 638,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.12,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.06,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "ipv4",
+    "today": 200,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.06,
+      "how": "3 images of 20 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 10,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   0,
+   60
+  ],
+  "today": 848,
+  "cloudRun": 60
+ },
+ {
+  "name": "link-preview report 1 in us-central1",
+  "assumptions": {
+   "visits": 4000,
+   "region": "us-central1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 638,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.12,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.06,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "ipv4",
+    "today": 200,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.06,
+      "how": "3 images of 20 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 10,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   0,
+   60
+  ],
+  "today": 848,
+  "cloudRun": 60
+ },
+ {
+  "name": "link-preview report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 4000,
+   "region": "asia-southeast1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 638,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.12,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.06,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "ipv4",
+    "today": 200,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.06,
+      "how": "3 images of 20 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 10,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   0,
+   60
+  ],
+  "today": 848,
+  "cloudRun": 60
+ },
+ {
+  "name": "link-preview report 1 at 40000 visits",
+  "assumptions": {
+   "visits": 40000,
+   "region": "europe-west1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 638,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.12,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.06,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "ipv4",
+    "today": 200,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.06,
+      "how": "3 images of 20 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 10,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   0,
+   60
+  ],
+  "today": 848,
+  "cloudRun": 60
+ },
+ {
+  "name": "link-preview report 1 at 15 GB egress",
+  "assumptions": {
+   "visits": 4000,
+   "region": "europe-west1",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 638,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.12,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.06,
+      "per": "visit",
+      "how": "1 request a visitor, 0.12 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 1,
+      "per": "visit",
+      "how": "1 request a visitor"
+     }
+    ]
+   },
+   {
+    "id": "ipv4",
+    "today": 200,
+    "uses": []
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.06,
+      "how": "3 images of 20 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 2,
+      "how": "2 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 10,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   0,
+   180
+  ],
+  "today": 848,
+  "cloudRun": 180
+ },
+ {
+  "name": "storefront report 1",
+  "assumptions": {
+   "visits": 3000,
+   "region": "us-central1",
+   "egressGb": 30
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2000,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.32,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.16,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 4,
+      "per": "visit",
+      "how": "4 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "images",
+    "today": 600,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1.5,
+      "how": "1.5 GB of resized images"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 4000,
+      "how": "about 4,000 sizes written a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.6,
+      "how": "3 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 4,
+      "how": "4 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   0,
+   360
+  ],
+  "today": 2600,
+  "cloudRun": 361
+ },
+ {
+  "name": "storefront report 1 in europe-west1",
+  "assumptions": {
+   "visits": 3000,
+   "region": "europe-west1",
+   "egressGb": 30
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2000,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.32,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.16,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 4,
+      "per": "visit",
+      "how": "4 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "images",
+    "today": 600,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1.5,
+      "how": "1.5 GB of resized images"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 4000,
+      "how": "about 4,000 sizes written a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.6,
+      "how": "3 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 4,
+      "how": "4 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   3,
+   1,
+   0,
+   360
+  ],
+  "today": 2600,
+  "cloudRun": 364
+ },
+ {
+  "name": "storefront report 1 in europe-west2",
+  "assumptions": {
+   "visits": 3000,
+   "region": "europe-west2",
+   "egressGb": 30
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2000,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.32,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.16,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 4,
+      "per": "visit",
+      "how": "4 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "images",
+    "today": 600,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1.5,
+      "how": "1.5 GB of resized images"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 4000,
+      "how": "about 4,000 sizes written a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.6,
+      "how": "3 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 4,
+      "how": "4 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   3,
+   1,
+   0,
+   360
+  ],
+  "today": 2600,
+  "cloudRun": 364
+ },
+ {
+  "name": "storefront report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 3000,
+   "region": "asia-southeast1",
+   "egressGb": 30
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2000,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.32,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.16,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 4,
+      "per": "visit",
+      "how": "4 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "images",
+    "today": 600,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1.5,
+      "how": "1.5 GB of resized images"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 4000,
+      "how": "about 4,000 sizes written a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.6,
+      "how": "3 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 4,
+      "how": "4 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   3,
+   1,
+   0,
+   360
+  ],
+  "today": 2600,
+  "cloudRun": 364
+ },
+ {
+  "name": "storefront report 1 at 30000 visits",
+  "assumptions": {
+   "visits": 30000,
+   "region": "us-central1",
+   "egressGb": 30
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2000,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.32,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.16,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 4,
+      "per": "visit",
+      "how": "4 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "images",
+    "today": 600,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1.5,
+      "how": "1.5 GB of resized images"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 4000,
+      "how": "about 4,000 sizes written a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.6,
+      "how": "3 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 4,
+      "how": "4 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   323,
+   0,
+   1,
+   0,
+   360
+  ],
+  "today": 2600,
+  "cloudRun": 684
+ },
+ {
+  "name": "storefront report 1 at 40 GB egress",
+  "assumptions": {
+   "visits": 3000,
+   "region": "us-central1",
+   "egressGb": 40
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 2000,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.32,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.16,
+      "per": "visit",
+      "how": "4 requests a visitor, 0.08 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 4,
+      "per": "visit",
+      "how": "4 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "images",
+    "today": 600,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1.5,
+      "how": "1.5 GB of resized images"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 4000,
+      "how": "about 4,000 sizes written a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.6,
+      "how": "3 images of 200 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 4,
+      "how": "4 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   0,
+   480
+  ],
+  "today": 2600,
+  "cloudRun": 481
+ },
+ {
+  "name": "invoices report 1",
+  "assumptions": {
+   "visits": 200,
+   "region": "europe-west1",
+   "egressGb": 2
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.6000000000000001,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 3,
+      "per": "visit",
+      "how": "3 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one monthly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 1800,
+      "how": "one run of 30 min at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 900,
+      "how": "the same run at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "pdfs",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 0.5,
+      "how": "0.5 GB of PDFs"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 600,
+      "how": "about 600 PDFs a month"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1500,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.9,
+      "how": "3 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 3,
+      "how": "3 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   937,
+   4,
+   0,
+   24
+  ],
+  "today": 2000,
+  "cloudRun": 966
+ },
+ {
+  "name": "invoices report 1 in europe-west2",
+  "assumptions": {
+   "visits": 200,
+   "region": "europe-west2",
+   "egressGb": 2
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.6000000000000001,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 3,
+      "per": "visit",
+      "how": "3 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one monthly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 1800,
+      "how": "one run of 30 min at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 900,
+      "how": "the same run at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "pdfs",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 0.5,
+      "how": "0.5 GB of PDFs"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 600,
+      "how": "about 600 PDFs a month"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1500,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.9,
+      "how": "3 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 3,
+      "how": "3 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   1086,
+   4,
+   0,
+   24
+  ],
+  "today": 2000,
+  "cloudRun": 1115
+ },
+ {
+  "name": "invoices report 1 in us-central1",
+  "assumptions": {
+   "visits": 200,
+   "region": "us-central1",
+   "egressGb": 2
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.6000000000000001,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 3,
+      "per": "visit",
+      "how": "3 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one monthly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 1800,
+      "how": "one run of 30 min at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 900,
+      "how": "the same run at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "pdfs",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 0.5,
+      "how": "0.5 GB of PDFs"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 600,
+      "how": "about 600 PDFs a month"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1500,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.9,
+      "how": "3 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 3,
+      "how": "3 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   0,
+   937,
+   4,
+   0,
+   24
+  ],
+  "today": 2000,
+  "cloudRun": 965
+ },
+ {
+  "name": "invoices report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 200,
+   "region": "asia-southeast1",
+   "egressGb": 2
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.6000000000000001,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 3,
+      "per": "visit",
+      "how": "3 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one monthly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 1800,
+      "how": "one run of 30 min at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 900,
+      "how": "the same run at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "pdfs",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 0.5,
+      "how": "0.5 GB of PDFs"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 600,
+      "how": "about 600 PDFs a month"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1500,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.9,
+      "how": "3 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 3,
+      "how": "3 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   1124,
+   4,
+   0,
+   24
+  ],
+  "today": 2000,
+  "cloudRun": 1153
+ },
+ {
+  "name": "invoices report 1 at 2000 visits",
+  "assumptions": {
+   "visits": 2000,
+   "region": "europe-west1",
+   "egressGb": 2
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.6000000000000001,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 3,
+      "per": "visit",
+      "how": "3 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one monthly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 1800,
+      "how": "one run of 30 min at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 900,
+      "how": "the same run at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "pdfs",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 0.5,
+      "how": "0.5 GB of PDFs"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 600,
+      "how": "about 600 PDFs a month"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1500,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.9,
+      "how": "3 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 3,
+      "how": "3 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   937,
+   4,
+   0,
+   24
+  ],
+  "today": 2000,
+  "cloudRun": 966
+ },
+ {
+  "name": "invoices report 1 at 12 GB egress",
+  "assumptions": {
+   "visits": 200,
+   "region": "europe-west1",
+   "egressGb": 12
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 500,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.6000000000000001,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "3 requests a visitor, 0.2 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 3,
+      "per": "visit",
+      "how": "3 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "clock",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one monthly job"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 1800,
+      "how": "one run of 30 min at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 900,
+      "how": "the same run at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "pdfs",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 0.5,
+      "how": "0.5 GB of PDFs"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 600,
+      "how": "about 600 PDFs a month"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 1500,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.9,
+      "how": "3 images of 300 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 3,
+      "how": "3 secrets, one version each"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1,
+   937,
+   4,
+   0,
+   144
+  ],
+  "today": 2000,
+  "cloudRun": 1086
+ },
+ {
+  "name": "class-booking report 1",
+  "assumptions": {
+   "visits": 300,
+   "region": "europe-west1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15000000000000002,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 6,
+      "per": "visit",
+      "how": "6 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "reminders",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one schedule"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 14400,
+      "how": "2,880 runs a month of 5 s at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 7200,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "photos",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1,
+      "how": "1 GB of photos"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 500,
+      "how": "about 500 photos a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.09,
+      "how": "3 images of 30 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "Stripe key and webhook secret, Postmark token, session key, database password"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   937,
+   2,
+   0,
+   0,
+   60
+  ],
+  "today": 0,
+  "cloudRun": 999
+ },
+ {
+  "name": "class-booking report 1 in europe-west2",
+  "assumptions": {
+   "visits": 300,
+   "region": "europe-west2",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15000000000000002,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 6,
+      "per": "visit",
+      "how": "6 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "reminders",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one schedule"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 14400,
+      "how": "2,880 runs a month of 5 s at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 7200,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "photos",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1,
+      "how": "1 GB of photos"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 500,
+      "how": "about 500 photos a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.09,
+      "how": "3 images of 30 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "Stripe key and webhook secret, Postmark token, session key, database password"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1086,
+   2,
+   0,
+   0,
+   60
+  ],
+  "today": 0,
+  "cloudRun": 1148
+ },
+ {
+  "name": "class-booking report 1 in us-central1",
+  "assumptions": {
+   "visits": 300,
+   "region": "us-central1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15000000000000002,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 6,
+      "per": "visit",
+      "how": "6 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "reminders",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one schedule"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 14400,
+      "how": "2,880 runs a month of 5 s at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 7200,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "photos",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1,
+      "how": "1 GB of photos"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 500,
+      "how": "about 500 photos a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.09,
+      "how": "3 images of 30 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "Stripe key and webhook secret, Postmark token, session key, database password"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   937,
+   0,
+   0,
+   0,
+   60
+  ],
+  "today": 0,
+  "cloudRun": 997
+ },
+ {
+  "name": "class-booking report 1 in asia-southeast1",
+  "assumptions": {
+   "visits": 300,
+   "region": "asia-southeast1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15000000000000002,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 6,
+      "per": "visit",
+      "how": "6 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "reminders",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one schedule"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 14400,
+      "how": "2,880 runs a month of 5 s at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 7200,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "photos",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1,
+      "how": "1 GB of photos"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 500,
+      "how": "about 500 photos a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.09,
+      "how": "3 images of 30 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "Stripe key and webhook secret, Postmark token, session key, database password"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   1124,
+   2,
+   0,
+   0,
+   60
+  ],
+  "today": 0,
+  "cloudRun": 1186
+ },
+ {
+  "name": "class-booking report 1 at 3000 visits",
+  "assumptions": {
+   "visits": 3000,
+   "region": "europe-west1",
+   "egressGb": 5
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15000000000000002,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 6,
+      "per": "visit",
+      "how": "6 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "reminders",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one schedule"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 14400,
+      "how": "2,880 runs a month of 5 s at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 7200,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "photos",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1,
+      "how": "1 GB of photos"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 500,
+      "how": "about 500 photos a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.09,
+      "how": "3 images of 30 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "Stripe key and webhook secret, Postmark token, session key, database password"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   937,
+   2,
+   0,
+   0,
+   60
+  ],
+  "today": 0,
+  "cloudRun": 999
+ },
+ {
+  "name": "class-booking report 1 at 15 GB egress",
+  "assumptions": {
+   "visits": 300,
+   "region": "europe-west1",
+   "egressGb": 15
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu",
+      "qty": 0.30000000000000004,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-mem",
+      "qty": 0.15000000000000002,
+      "per": "visit",
+      "how": "6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each"
+     },
+     {
+      "sku": "run-req",
+      "qty": 6,
+      "per": "visit",
+      "how": "6 requests a visitor"
+     }
+    ]
+   },
+   {
+    "id": "reminders",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "scheduler",
+      "qty": 1,
+      "how": "one schedule"
+     },
+     {
+      "sku": "job-cpu",
+      "qty": 14400,
+      "how": "2,880 runs a month of 5 s at 1 vCPU"
+     },
+     {
+      "sku": "job-mem",
+      "qty": 7200,
+      "how": "the same runs at 0.5 GiB"
+     }
+    ]
+   },
+   {
+    "id": "postgres",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": "always on, 730 hours"
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": "10 GB, Cloud SQL's smallest disk"
+     }
+    ]
+   },
+   {
+    "id": "photos",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "gcs",
+      "qty": 1,
+      "how": "1 GB of photos"
+     },
+     {
+      "sku": "gcs-write",
+      "qty": 500,
+      "how": "about 500 photos a month"
+     }
+    ]
+   },
+   {
+    "id": "builds",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "ar",
+      "qty": 0.09,
+      "how": "3 images of 30 MB"
+     }
+    ]
+   },
+   {
+    "id": "variables",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "secrets",
+      "qty": 5,
+      "how": "Stripe key and webhook secret, Postmark token, session key, database password"
+     }
+    ]
+   },
+   {
+    "id": "egress",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "egress",
+      "qty": 1,
+      "per": "egress",
+      "how": "the egress assumption"
+     }
+    ]
+   }
+  ],
+  "cents": [
+   0,
+   0,
+   937,
+   2,
+   0,
+   0,
+   180
+  ],
+  "today": 0,
+  "cloudRun": 1119
+ },
+ {
+  "name": "kb: Cloud SQL db-f1-micro, 730 h and 10 GB",
+  "assumptions": {
+   "visits": 0,
+   "region": "europe-west1",
+   "egressGb": 0
+  },
+  "parts": [
+   {
+    "id": "db",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "sql-f1",
+      "qty": 730,
+      "how": ""
+     },
+     {
+      "sku": "sql-ssd",
+      "qty": 10,
+      "how": ""
+     }
+    ]
+   }
+  ],
+  "cents": [
+   937
+  ],
+  "today": 0,
+  "cloudRun": 937
+ },
+ {
+  "name": "kb: always on, 1 vCPU and 0.5 GiB all month",
+  "assumptions": {
+   "visits": 0,
+   "region": "europe-west1",
+   "egressGb": 0
+  },
+  "parts": [
+   {
+    "id": "web",
+    "today": 0,
+    "uses": [
+     {
+      "sku": "run-cpu-always",
+      "qty": 2628000,
+      "how": ""
+     },
+     {
+      "sku": "run-mem-always",
+      "qty": 1314000,
+      "how": ""
+     }
+    ]
+   }
+  ],
+  "cents": [
+   4471
+  ],
+  "today": 0,
+  "cloudRun": 4471
+ }
+]

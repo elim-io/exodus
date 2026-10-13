@@ -1,0 +1,17 @@
+{
+  "name": "rails-heroku",
+  "stack": "heroku-24",
+  "addons": [
+    "heroku-postgresql:essential-0",
+    "heroku-redis:mini",
+    "scheduler:standard"
+  ],
+  "formation": {
+    "web": { "quantity": 1, "size": "basic" },
+    "worker": { "quantity": 1, "size": "basic" }
+  },
+  "env": {
+    "RAILS_MASTER_KEY": { "required": true },
+    "RAILS_SERVE_STATIC_FILES": { "value": "enabled" }
+  }
+}

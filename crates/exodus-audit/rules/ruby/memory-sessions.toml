@@ -1,0 +1,22 @@
+id = "memory-sessions"
+kind = "breaks"
+title = "Sessions kept in process memory"
+kb = "sessions-without-redis"
+part = "web"
+subject = "the sessions in memory"
+takes_over = "the sessions to signed cookies"
+clean = "sessions in memory"
+why = "Each instance has its own memory and loses it when it stops, so a user is signed out whenever a request lands on another instance or a new one."
+include = ["**/*.rb", "**/*.rake", "**/Rakefile"]
+# A constant hash of signed-in users is the same thing by hand.
+regex = [
+  '''^\s*(?:SESSIONS|@@sessions|LOGGED_IN_USERS)\s*=\s*\{\}''',
+  '''session_store\s*:(?:memory_store|cache_store)\b''',
+]
+fix = "A signed cookie session (Rack::Session::Cookie), with the secret in Secret Manager."
+fixes = { Rails = "Rails' default cookie store, with secret_key_base in Secret Manager." }
+[task]
+title = "Sessions to signed cookies"
+detail = "Keep a user id, a role and an expiry in a signed cookie (key in Secret Manager; Secure, HttpOnly, SameSite=Lax; under 4 KB). For log out everywhere, keep a session version on the user row."
+effort = "S"
+phase = 2

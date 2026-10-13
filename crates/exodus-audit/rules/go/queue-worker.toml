@@ -1,0 +1,22 @@
+id = "queue-worker"
+kind = "breaks"
+title = "A worker waits on a queue"
+kb = "background-workers-with-cloud-tasks"
+part = "worker"
+subject = "the worker"
+takes_over = "the queue goes to Cloud Tasks"
+clean = "workers waiting on a queue"
+include = ["**/*.go"]
+regex = [
+  '''\basynq\.NewServer\(''',
+  '''\bmachinery\.NewServer\(''',
+  '''\.Consume\(''',
+]
+why = "Cloud Run gives an instance CPU only while it answers a request, so a worker waiting on a queue gets no CPU between requests and its jobs stall. With CPU always allocated it runs, and bills every second whether there is work or not."
+fix = "Cloud Tasks: each job becomes a POST to /tasks/<name> on the service, and a handler there does the job and answers 2xx. Retries and rate limits move to the queue."
+
+[task]
+title = "Worker: queue jobs to a Cloud Tasks handler"
+detail = "Replace each enqueue with a Cloud Tasks task that POSTs to /tasks/<name>, move the handler into that route, check the OIDC token, then drop the worker process."
+effort = "L"
+phase = 2

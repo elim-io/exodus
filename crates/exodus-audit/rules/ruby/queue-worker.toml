@@ -1,0 +1,22 @@
+id = "queue-worker"
+kind = "breaks"
+title = "A worker waits on a Redis queue"
+kb = "background-workers-with-cloud-tasks"
+part = "worker"
+subject = "the worker"
+takes_over = "the queue goes to Cloud Tasks"
+clean = "workers waiting on a queue"
+include = ["**/*.rb", "**/*.rake", "**/Rakefile"]
+regex = [
+  '''queue_adapter\s*=\s*:(?:sidekiq|resque|delayed_job|good_job|solid_queue|que|sneakers|shoryuken)\b''',
+  '''^\s*include\s+Sidekiq::(?:Worker|Job)\b''',
+]
+why = "Cloud Run gives an instance CPU only while it answers a request, so a worker waiting on a queue gets no CPU between requests and its jobs stall. With CPU always allocated it runs, and bills every second whether there is work or not."
+fix = "Cloud Tasks: each job becomes a POST to /tasks/<name> on the service, a task created where the job was enqueued. Retries move to the queue."
+fixes = { Rails = "Cloud Tasks: each job becomes a POST to /tasks/<name> on the service, through an Active Job adapter for Cloud Tasks or a task created where perform_later was called. Retries move to the queue." }
+
+[task]
+title = "Worker: Active Job to a Cloud Tasks handler"
+detail = "Point Active Job at Cloud Tasks (or create a task where perform_later was called), add the /tasks route that runs the job, check the OIDC token, then drop the worker process and Redis."
+effort = "L"
+phase = 2

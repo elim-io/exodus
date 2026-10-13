@@ -1,0 +1,25 @@
+id = "queue-worker"
+kind = "breaks"
+title = "A worker waits on a Redis queue"
+kb = "background-workers-with-cloud-tasks"
+part = "worker"
+subject = "the worker"
+takes_over = "the queue goes to Cloud Tasks"
+clean = "workers waiting on a queue"
+include = ["**/*.py"]
+# A Celery app, an RQ queue or worker (the worker itself runs as `rq worker`), Dramatiq, Huey, arq's WorkerSettings.
+regex = [
+  '''\bCelery\(''',
+  '''\brq\.Worker\(|^from\s+rq\s+import\s+.*\b(?:Worker|Queue)\b''',
+  '''\bdramatiq\.set_broker\(''',
+  '''\b(?:Redis)?Huey\(''',
+  '''^class\s+WorkerSettings\b''',
+]
+why = "Cloud Run gives an instance CPU only while it answers a request, so a worker waiting on a queue gets no CPU between requests and its jobs stall. With CPU always allocated it runs, and bills every second whether there is work or not."
+fix = "Cloud Tasks: each task becomes a POST to /tasks/<name> on the service, created where the code called .delay() or .enqueue(); a handler does the work and answers 2xx. Retries and rate limits move to the queue."
+
+[task]
+title = "Worker: Celery tasks to a Cloud Tasks handler"
+detail = "Replace each .delay() with a Cloud Tasks task that POSTs to /tasks/<name>, move the task body into that view, check the OIDC token, then drop the worker process and the broker."
+effort = "L"
+phase = 2

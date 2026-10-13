@@ -1,0 +1,154 @@
+{
+  "exodus": "corpus/1",
+  "name": "monorepo",
+  "shape": "monorepo: backend, web apps, desktop app, CLI",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "the deployment the repository maintains is self-hosting with docker compose (docker-compose.yml, prod.Dockerfile); netlify.toml and firebase.json are stale leftovers that publish packages/hoppscotch-web/dist, a package that no longer exists"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "NestJS GraphQL backend",
+      "from": "prod.Dockerfile",
+      "note": "target backend (docker-compose.yml service hoppscotch-backend): packages/hoppscotch-backend/prod_run.mjs starts node dist/main with Caddy in front (backend.Caddyfile)"
+    },
+    {
+      "kind": "web",
+      "what": "static site",
+      "from": "prod.Dockerfile",
+      "note": "target app (docker-compose.yml service hoppscotch-app): Caddy serves the Vite build of packages/hoppscotch-selfhost-web from /site/selfhost-web"
+    },
+    {
+      "kind": "web",
+      "what": "Go webapp bundle server",
+      "from": "prod.Dockerfile",
+      "note": "packages/hoppscotch-selfhost-web/webapp-server, started beside Caddy in the app target on :3200; serves signed web bundles to the desktop app"
+    },
+    {
+      "kind": "web",
+      "what": "static site",
+      "from": "prod.Dockerfile",
+      "note": "target sh_admin (docker-compose.yml service hoppscotch-sh-admin): Caddy serves the Vite build of packages/hoppscotch-sh-admin"
+    },
+    {
+      "kind": "release",
+      "what": "Prisma migrations",
+      "from": "docker-compose.yml",
+      "note": "service hoppscotch-migrate runs pnpm exec prisma migrate deploy; docker-compose.deploy.yml chains the same command before node aio_run.mjs"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL 15",
+      "from": "docker-compose.yml"
+    },
+    {
+      "kind": "files",
+      "engine": "local disk (/data/webapp-server)",
+      "from": "prod.Dockerfile"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-selfhost-web/webapp-server/internal/crypto/keys.go"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "packages/hoppscotch-backend/src/posthog/posthog.service.ts"
+    }
+  ],
+  "idle": [
+    {
+      "rule": "long-lived-connection",
+      "file": "packages/hoppscotch-backend/src/app.module.ts"
+    }
+  ],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "packages/hoppscotch-common/src/composables/poll.ts",
+      "why": "browser code: a Vue composable polling in the page"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "packages/hoppscotch-common/src/composables/graphql.ts",
+      "why": "browser code: a Vue composable in the web app"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "packages/hoppscotch-common/src/platform/std/kernel-interceptors/extension/index.ts",
+      "why": "browser code: polls for the browser extension"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "aio_run.mjs",
+      "why": "container entrypoint writes VITE_ variables to a mkdtemp file at startup to inject them into the static build, then deletes it; nothing has to persist"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-selfhost-web/prod_run.mjs",
+      "why": "same startup env injection into a temporary file"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-sh-admin/prod_run.mjs",
+      "why": "same startup env injection into a temporary file"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-backend/src/gql-schema.ts",
+      "why": "build-time GraphQL SDL generation, only with GENERATE_GQL_SCHEMA (the postinstall script)"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-cli/src/utils/reporters/junit.ts",
+      "why": "the CLI writes a JUnit report on the user's machine"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-kernel/src/io/impl/desktop/v/1.ts",
+      "why": "desktop kernel I/O inside the Tauri app"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-desktop/src-tauri/src/config.rs",
+      "why": "desktop app (Tauri) on the user's machine"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-agent/src-tauri/src/webview/mod.rs",
+      "why": "desktop agent (Tauri) on the user's machine"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "packages/hoppscotch-desktop/crates/webapp-bundler/src/main.rs",
+      "why": "a build tool that writes the web bundle zip"
+    }
+  ],
+  "notOnServer": [
+    "packages/hoppscotch-common/",
+    "packages/hoppscotch-selfhost-web/src/",
+    "packages/hoppscotch-sh-admin/src/",
+    "packages/hoppscotch-desktop/",
+    "packages/hoppscotch-agent/",
+    "packages/hoppscotch-cli/",
+    "packages/hoppscotch-kernel/",
+    "packages/hoppscotch-relay/",
+    "packages/hoppscotch-js-sandbox/",
+    "packages/hoppscotch-data/",
+    "packages/codemirror-lang-graphql/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read docker-compose.yml (profiles), prod.Dockerfile (targets backend, app, sh_admin, aio), the prod_run.mjs entrypoints and the backend's NestJS modules; the separate-service profile is listed, the aio target runs the same four servers in one container under aio_run.mjs. The backend serves GraphQL subscriptions over websockets (subscriptions-transport-ws in app.module.ts) through an in-memory graphql-subscriptions PubSub (src/pubsub/pubsub.service.ts), so with more than one instance subscribers miss events published on another instance; graphql-redis-subscriptions is a dependency but unused, and no rule id covers this. The weekly @Cron in posthog.service.ts (@nestjs/schedule) is an in-process scheduler, and an admin config change calls stopApp() (src/infra-config/helper.ts) to SIGTERM the process and rely on the container restart, which on Cloud Run reloads only that one instance. docker-compose.deploy.yml chains prisma migrate deploy before the server, the release-migrations pattern, but in a compose file that rule does not read.",
+  "known": {
+    "FALSE break: local-disk-write packages/hoppscotch-backend/src/gql-schema.ts": "a write behind a development-only flag (an env var or an argument that production never sets); the rule cannot read the flag (GENERATE_GQL_SCHEMA, run by a postinstall script)"
+  }
+}

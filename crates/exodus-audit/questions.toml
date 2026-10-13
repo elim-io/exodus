@@ -1,0 +1,212 @@
+# The fixed questionnaire (architecture.md §6.4). The audit lists the ones it cannot answer from the repository; the
+# agent answers what it can from the platform's CLI or API and sends the person only the rest.
+#
+# when: always | web (a web process) | worker (a worker process) | schedule (anything on a schedule) |
+#       web-timer (a timer inside the web process) | unknown-platform (no file names the host) | agent (never picked
+#       by the audit; the agent asks when it applies) | new (the questionnaire of a product not built yet).
+# value: the machine value an answer may carry (answers.json, A14). {platform} is the platform's name.
+
+[[question]]
+id = "platform"
+when = "unknown-platform"
+q = "Where does the app run now?"
+affects = "Cost: the Today column; Cutover"
+hint = "The platform's command line in this folder, read-only: railway status, fly status, heroku apps:info, render services, vercel project ls, netlify status, firebase projects:list. The platform's name and the service, never a token, a variable's value or a connection string."
+value = "platform"
+
+[[question]]
+id = "visits"
+when = "always"
+q = "How many people use the app a day?"
+affects = "Cost: the web line"
+hint = "The platform's HTTP metrics or request logs for the last 30 days, or an analytics account."
+value = "visits"
+
+[[question]]
+id = "bill"
+when = "always"
+q = "What does {platform} bill you a month, per service?"
+affects = "Cost: the Today column"
+hint = "The platform's usage API or CLI, or the last invoice; ask the person to confirm the total."
+value = "bill"
+
+[[question]]
+id = "users"
+when = "always"
+q = "Where are most of your users?"
+affects = "Region"
+hint = "The platform's region, an analytics account, or the person."
+value = "users"
+
+[[question]]
+id = "egress"
+when = "always"
+q = "How much data does the app send out a month?"
+affects = "Cost: egress"
+hint = "The platform's bandwidth metrics or the invoice's egress line."
+value = "egress"
+
+[[question]]
+id = "connections"
+when = "web"
+q = "Do clients keep connections open: WebSockets, server-sent events, long polling?"
+affects = "Findings"
+hint = "The code: a WebSocket or SSE library, text/event-stream; the client's reconnect logic."
+
+[[question]]
+id = "peak"
+when = "web"
+q = "When is the busiest hour, and how busy is it?"
+affects = "Infrastructure: the instance limit"
+hint = "The platform's HTTP metrics, requests a second by hour."
+
+[[question]]
+id = "domains"
+when = "always"
+q = "Which domains point at the app?"
+affects = "Cutover: the domains to switch"
+hint = "The platform's domains command or settings."
+
+[[question]]
+id = "downtime"
+when = "always"
+q = "Can the app be down for a few minutes during the switch?"
+affects = "Roadmap: the cutover"
+
+[[question]]
+id = "jobs"
+when = "worker"
+q = "May the worker's jobs run in parallel, or twice?"
+affects = "Checklist: the worker task"
+hint = "The job code: what it sends or charges, and whether it checks that it already ran."
+
+[[question]]
+id = "ci"
+when = "always"
+q = "Where do the tests and the deploys run?"
+affects = "Checklist: keyless deploys"
+hint = ".github/workflows, .gitlab-ci.yml, .circleci, or the platform's Git deploys."
+
+[[question]]
+id = "services"
+when = "always"
+q = "Which outside services does the app call?"
+affects = "Cutover: webhooks and allow lists to update"
+hint = "The dependencies and the names of the environment variables."
+
+[[question]]
+id = "envs"
+when = "always"
+q = "Which environments does the app run in?"
+affects = "Infrastructure: the services to create"
+hint = "The platform's environments or the CI's deploy targets."
+
+[[question]]
+id = "growth"
+when = "always"
+q = "How fast is the traffic growing?"
+affects = "Cost: the forecast"
+value = "growth"
+
+[[question]]
+id = "account"
+when = "always"
+q = "Is there a Google Cloud billing account to use?"
+affects = "Roadmap: phase 3 needs it"
+hint = "Yes or no, and how many: gcloud billing accounts list --filter=open=true --format='value(open)' counts them. Never their names or ids: a report can be shared by link."
+
+[[question]]
+id = "deadline"
+when = "agent"
+q = "Does anything wait for an answer within a few seconds?"
+affects = "Findings: startup CPU boost"
+hint = "Webhook handlers and the sender's documented time limit."
+
+[[question]]
+id = "dbgrowth"
+when = "agent"
+q = "How fast does the database grow?"
+affects = "Cost: a small database stays in a free tier"
+hint = "The database's size now and a month ago."
+
+[[question]]
+id = "cpu"
+when = "web-timer"
+q = "How busy is the CPU over a day?"
+affects = "Verdict and cost: always-on billing"
+hint = "The platform's CPU metrics for the last 14 days."
+
+[[question]]
+id = "schedules"
+when = "schedule"
+q = "May the scheduled jobs run twice, or must each run exactly once?"
+affects = "Checklist: the scheduled jobs"
+hint = "The job code: what it writes or sends, and whether it checks that it already ran."
+
+[[question]]
+id = "what"
+when = "new"
+q = "What will the product do, in a sentence?"
+affects = "Architecture"
+
+[[question]]
+id = "who"
+when = "new"
+q = "Who uses it, and from where?"
+affects = "Region"
+value = "users"
+
+[[question]]
+id = "visits"
+when = "new"
+q = "How many people a day at launch?"
+affects = "Cost: the web line"
+value = "visits"
+
+[[question]]
+id = "growth"
+when = "new"
+q = "How fast should it grow in the first year?"
+affects = "Cost: the forecast"
+value = "growth"
+
+[[question]]
+id = "payments"
+when = "new"
+q = "Does it take payments?"
+affects = "Architecture: the webhook and a task"
+
+[[question]]
+id = "realtime"
+when = "new"
+q = "Does anything need live updates in the browser?"
+affects = "Architecture: WebSockets or not"
+
+[[question]]
+id = "stack"
+when = "new"
+q = "Which language and framework do you want?"
+affects = "Stack and the container"
+
+[[question]]
+id = "egress"
+when = "new"
+q = "How much data will it send out a month?"
+affects = "Cost: egress"
+value = "egress"
+
+[[question]]
+id = "egressmb"
+when = "agent"
+q = "How much data does one visit send out, in MB?"
+affects = "Cost: how egress grows in the forecast"
+hint = "The month's egress over the month's visits, from the platform's metrics; without it the forecast uses the egress and visits answers."
+value = "rate"
+
+[[question]]
+id = "filesmb"
+when = "agent"
+q = "How many MB of stored files does each daily visitor add?"
+affects = "Cost: how the stored files grow in the forecast"
+hint = "The size of the uploads folder or bucket over the visitors a day; without it the forecast grows the files with the visitors."
+value = "rate"

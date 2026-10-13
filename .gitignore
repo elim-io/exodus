@@ -1,0 +1,5 @@
+/target
+.exodus/
+.DS_Store
+.env
+*.pem

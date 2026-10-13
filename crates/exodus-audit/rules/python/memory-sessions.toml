@@ -1,0 +1,23 @@
+id = "memory-sessions"
+kind = "breaks"
+title = "Sessions kept in process memory"
+kb = "sessions-without-redis"
+part = "web"
+subject = "the sessions in memory"
+takes_over = "the sessions to signed cookies"
+clean = "sessions in memory"
+why = "Each instance has its own memory and loses it when it stops, so a user is signed out whenever a request lands on another instance or a new one."
+include = ["**/*.py"]
+# Flask-Session on the filesystem, Django sessions in a file or the local memory cache, a module-level dict of users.
+regex = [
+  '''^(?:sessions|SESSIONS|active_sessions|user_sessions|logged_in_users)\s*(?::[^=\n]+)?=\s*(?:\{\}|dict\(\))''',
+  '''SESSION_TYPE\s*=\s*['"](?:filesystem|null)['"]''',
+  '''SESSION_ENGINE\s*=\s*['"]django\.contrib\.sessions\.backends\.(?:file|cache)['"]''',
+]
+fix = "Signed cookies, with the key in Secret Manager."
+fixes = { Django = "Django's signed_cookies session backend, with the key in Secret Manager.", Flask = "Flask's default session, a signed cookie, with the key in Secret Manager." }
+[task]
+title = "Sessions to signed cookies"
+detail = "Keep a user id, a role and an expiry in a signed cookie (key in Secret Manager; Secure, HttpOnly, SameSite=Lax; under 4 KB). For log out everywhere, keep a session version on the user row."
+effort = "S"
+phase = 2

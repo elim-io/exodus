@@ -1,0 +1,22 @@
+id = "work-after-response"
+kind = "breaks"
+title = "Work runs after the response"
+kb = "background-workers-with-cloud-tasks"
+part = "web"
+subject = "the work after the response"
+clean = "work after the response"
+why = "Once the response is out, Cloud Run takes the CPU away from the instance, so the work stalls until the next request arrives, or never finishes."
+include = ["**/*.js", "**/*.mjs", "**/*.cjs", "**/*.ts", "**/*.mts", "**/*.cts"]
+exclude = ["**/use[A-Z]*.?s", "**/*.d.ts"]  # the front-end folders and configs are places.toml's
+# A statement right after res.send()/json()/end() at the start of a line; the hit is that statement. `void f()` is
+# how TypeScript spells a promise nobody awaits, but on its own it is everywhere in frontend code, so only this form counts.
+regex = [
+  '''^[ \t]*res\.(?:send|json|end|sendStatus|redirect|render)\([^\n]*\n[ \t]*(?P<at>(?:(?:await|void)[ \t]+)?[A-Za-z_$][\w$.]*\()''',
+]
+unless = '''^[ \t]*(?:console|logger|log)\.'''
+fix = "Await the work before res.send(), or create a Cloud Tasks task for it and answer at once."
+[task]
+title = "Finish the work before the response, or hand it to Cloud Tasks"
+detail = "Await the work before answering when it is short; otherwise create a Cloud Tasks task and answer at once."
+effort = "S"
+phase = 2

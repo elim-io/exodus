@@ -1,0 +1,7 @@
+:{$PORT:8080} {
+	root * /srv
+	encode gzip
+	file_server
+	try_files {path} {path}.html {path}/index.html
+	header /start/* Cache-Control "public, max-age=3600"
+}

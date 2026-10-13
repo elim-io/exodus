@@ -1,0 +1,20 @@
+id = "background-thread"
+kind = "breaks"
+title = "Background threads"
+kb = "background-workers-with-cloud-tasks"
+part = "web"
+subject = "the background threads"
+clean = "background threads"
+why = "A thread that works outside a request gets no CPU once the response is out, and it dies with the instance when traffic falls, so its work stalls or is lost."
+include = ["**/*.py"]
+regex = [
+  '''\bthreading\.(?:Thread|Timer)\(''',
+  '''\bThread\(\s*target\s*=''',
+  '''\bstart_new_thread\(''',
+]
+fix = "Do the work inside the request, or create a Cloud Tasks task for it; a loop that must always run goes to a Cloud Run worker pool."
+[task]
+title = "Background threads to Cloud Tasks or the request"
+detail = "Run short work inside the request; send longer work to Cloud Tasks; a loop that must always run goes to a worker pool."
+effort = "M"
+phase = 2

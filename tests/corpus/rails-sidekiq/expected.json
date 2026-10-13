@@ -1,0 +1,97 @@
+{
+  "exodus": "corpus/1",
+  "name": "rails-sidekiq",
+  "shape": "Rails with Sidekiq",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "no platform manifest: the Dockerfile and compose.example.yml are for self-hosting on a machine or VPS, the publish workflow only pushes an image to a container registry, and bin/render-build.sh is a build script with no render.yaml beside it"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Rails (Puma)",
+      "from": "compose.example.yml",
+      "note": "service web runs the image's CMD ./bin/rails server (Dockerfile); bin/docker-entrypoint runs rails db:prepare before the server starts"
+    },
+    {
+      "kind": "worker",
+      "what": "Sidekiq",
+      "from": "compose.example.yml",
+      "note": "service worker: bundle exec sidekiq, queues in config/sidekiq.yml; sidekiq-cron inside it enqueues the jobs of config/schedule.yml"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL",
+      "from": "config/database.yml",
+      "note": "adapter postgresql; postgres:16 in compose.example.yml"
+    },
+    {
+      "kind": "cache",
+      "engine": "Redis",
+      "from": "compose.example.yml",
+      "note": "REDIS_URL for Sidekiq and Action Cable (config/cable.yml production adapter redis); an optional cache store on CACHE_REDIS_URL"
+    },
+    {
+      "kind": "files",
+      "engine": "local disk",
+      "from": "config/environments/production.rb",
+      "note": "Active Storage service defaults to local (storage/, config/storage.yml); compose mounts a volume on /rails/storage; S3 and R2 are the alternatives"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "queue-worker",
+      "file": "config/environments/production.rb"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "config/schedule.yml"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "config/environments/production.rb"
+    }
+  ],
+  "idle": [
+    {
+      "rule": "long-lived-connection",
+      "file": "app/views/layouts/shared/_htmldoc.html.erb"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "app/components/UI/account_page.html.erb",
+      "why": "turbo_stream_from opens a Turbo Streams subscription over Action Cable for the account page; hidden until the rule read templates"
+    },
+    {
+      "rule": "long-lived-connection",
+      "file": "app/views/chats/show.html.erb",
+      "why": "turbo_stream_from @chat: a chat page subscribes to its stream over Action Cable"
+    }
+  ],
+  "notBreaks": [
+    {
+      "rule": "in-process-timer",
+      "file": "vendor/javascript/d3-timer.js",
+      "why": "a vendored browser library pinned by importmap and served to the page; its setInterval runs in the visitor's browser"
+    }
+  ],
+  "notOnServer": [
+    "app/javascript/",
+    "vendor/javascript/",
+    "app/assets/",
+    "public/",
+    "app/views/pwa/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read Procfile.dev (development only, with a tailwind watcher), compose.example.yml, the Dockerfile and bin/docker-entrypoint, the workflows, config/*.yml, config/environments/production.rb, config/initializers, app/channels and a sweep of app/, lib/ and vendor/javascript for every rule pattern. Only one Ruby line matches a rule regex as written (queue_adapter = :sidekiq); the timer, the disk and the websockets are real but declared in YAML, an ENV.fetch default and ERB views. Migrations run in bin/docker-entrypoint before the server (db:prepare), not in a release step, so no release-migrations finding; on Cloud Run they would better become a job. lib/tasks/*.rake and perf.rake hold no rule pattern. The websocket finding is turbo_stream_from in the signed-in layout (also in app/views/chats/show.html.erb and app/components/UI/account_page.html.erb), carried by Action Cable on Redis; the timer is the three sidekiq-cron jobs of config/schedule.yml polled inside the Sidekiq process.",
+  "known": {
+    "process missing: 1 x worker": "the Sidekiq worker is a service on the project's own image with `command: bundle exec sidekiq` in compose.example.yml, beside a root Dockerfile; a compose file adds processes only when nothing else named any"
+  }
+}

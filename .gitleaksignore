@@ -1,0 +1,3 @@
+# false positive: a masked test key ("exk_<project id>_...") in an expected `exodus status` line
+530d28eafaaadda0756906fab81be634117c4933:crates/exodus/tests/platform.rs:generic-api-key:369
+crates/exodus/tests/platform.rs:generic-api-key:369

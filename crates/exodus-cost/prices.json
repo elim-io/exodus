@@ -1,0 +1,310 @@
+{
+  "date": "2026-10-09",
+  "source": "Google Cloud pricing pages, read 2026-10-09: Cloud Run Tier 1 and its free tiers, Cloud SQL db-f1-micro and SSD and Secret Manager as published; Tier 2 is Tier 1 x 1.4; Cloud SQL and Cloud Storage outside europe-west1 and us-central1 are estimates. Firestore Standard edition from the Cloud Billing Catalog, read 2026-10-13: reads, writes and storage at europe-west1's price in every region (the catalog lists $0.03 to $0.06 per 100,000 reads across these regions); its free quota of 50,000 reads, 20,000 writes and 1 GiB a day covers one database a project, is counted in operations, so it is the same in every region, and a month holds 30 days of it. Checked against Google's bill and pricing pages 2026-10-11: Cloud Storage keeps 5,000 free class A operations in every region (the 5 GB of storage is US-only); egress stays at the published $0.12 a GB although Cloud Run bills $0.105 a GiB from Europe to Europe. Twelve more regions added 2026-10-12: each region's Cloud Run tier from Google's Cloud Run locations page, read 2026-10-12; their Cloud SQL and Cloud Storage factors are estimates; the 5 GB free Cloud Storage applies in us-central1, us-east1 and us-west1",
+  "regions": {
+    "europe-west1": {
+      "place": "Belgium",
+      "tier": 1,
+      "sql": 1,
+      "gcs": 0.02,
+      "gcsFree": 0
+    },
+    "europe-west2": {
+      "place": "London",
+      "tier": 2,
+      "sql": 1.16,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "us-central1": {
+      "place": "Iowa",
+      "tier": 1,
+      "sql": 1,
+      "gcs": 0.02,
+      "gcsFree": 5
+    },
+    "asia-southeast1": {
+      "place": "Singapore",
+      "tier": 2,
+      "sql": 1.2,
+      "gcs": 0.02,
+      "gcsFree": 0
+    },
+    "europe-west3": {
+      "place": "Frankfurt",
+      "tier": 2,
+      "sql": 1.16,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "europe-west4": {
+      "place": "Netherlands",
+      "tier": 1,
+      "sql": 1.1,
+      "gcs": 0.02,
+      "gcsFree": 0
+    },
+    "europe-west9": {
+      "place": "Paris",
+      "tier": 1,
+      "sql": 1.16,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "europe-north1": {
+      "place": "Finland",
+      "tier": 1,
+      "sql": 1.1,
+      "gcs": 0.02,
+      "gcsFree": 0
+    },
+    "us-east1": {
+      "place": "South Carolina",
+      "tier": 1,
+      "sql": 1,
+      "gcs": 0.02,
+      "gcsFree": 5
+    },
+    "us-east4": {
+      "place": "Northern Virginia",
+      "tier": 1,
+      "sql": 1.13,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "us-west1": {
+      "place": "Oregon",
+      "tier": 1,
+      "sql": 1,
+      "gcs": 0.02,
+      "gcsFree": 5
+    },
+    "asia-northeast1": {
+      "place": "Tokyo",
+      "tier": 1,
+      "sql": 1.28,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "asia-south1": {
+      "place": "Mumbai",
+      "tier": 1,
+      "sql": 1.2,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "australia-southeast1": {
+      "place": "Sydney",
+      "tier": 2,
+      "sql": 1.4,
+      "gcs": 0.023,
+      "gcsFree": 0
+    },
+    "southamerica-east1": {
+      "place": "Sao Paulo",
+      "tier": 2,
+      "sql": 1.58,
+      "gcs": 0.035,
+      "gcsFree": 0
+    },
+    "northamerica-northeast1": {
+      "place": "Montreal",
+      "tier": 2,
+      "sql": 1.11,
+      "gcs": 0.023,
+      "gcsFree": 0
+    }
+  },
+  "skus": {
+    "run-cpu": {
+      "what": "Cloud Run CPU, request-based",
+      "unit": "vCPU-s",
+      "price": 2.4e-05,
+      "free": 180000,
+      "scope": "run",
+      "product": "run"
+    },
+    "run-mem": {
+      "what": "Cloud Run memory, request-based",
+      "unit": "GiB-s",
+      "price": 2.5e-06,
+      "free": 360000,
+      "scope": "run",
+      "product": "run"
+    },
+    "run-req": {
+      "what": "Cloud Run requests",
+      "unit": "requests",
+      "price": 4e-07,
+      "free": 2000000,
+      "scope": "run",
+      "product": "run"
+    },
+    "run-cpu-always": {
+      "what": "Cloud Run CPU, instance-based",
+      "unit": "vCPU-s",
+      "price": 1.8e-05,
+      "free": 240000,
+      "scope": "run",
+      "product": "run"
+    },
+    "run-mem-always": {
+      "what": "Cloud Run memory, instance-based",
+      "unit": "GiB-s",
+      "price": 2e-06,
+      "free": 450000,
+      "scope": "run",
+      "product": "run"
+    },
+    "job-cpu": {
+      "what": "Cloud Run jobs CPU",
+      "unit": "vCPU-s",
+      "price": 1.8e-05,
+      "free": 240000,
+      "scope": "run",
+      "product": "run"
+    },
+    "job-mem": {
+      "what": "Cloud Run jobs memory",
+      "unit": "GiB-s",
+      "price": 2e-06,
+      "free": 450000,
+      "scope": "run",
+      "product": "run"
+    },
+    "tasks": {
+      "what": "Cloud Tasks operations",
+      "unit": "operations",
+      "price": 4e-07,
+      "free": 1000000,
+      "product": "tasks"
+    },
+    "scheduler": {
+      "what": "Cloud Scheduler jobs",
+      "unit": "jobs",
+      "price": 0.1,
+      "free": 3,
+      "product": "scheduler"
+    },
+    "sql-f1": {
+      "what": "Cloud SQL db-f1-micro",
+      "unit": "hours",
+      "price": 0.0105,
+      "free": 0,
+      "scope": "sql",
+      "product": "sql"
+    },
+    "sql-ssd": {
+      "what": "Cloud SQL SSD storage",
+      "unit": "GB-months",
+      "price": 0.17,
+      "free": 0,
+      "scope": "sql",
+      "product": "sql"
+    },
+    "firestore-read": {
+      "what": "Firestore document reads",
+      "unit": "reads",
+      "price": 3.3e-07,
+      "free": 1500000,
+      "product": "firestore"
+    },
+    "firestore-write": {
+      "what": "Firestore document writes",
+      "unit": "writes",
+      "price": 9.9e-07,
+      "free": 600000,
+      "product": "firestore"
+    },
+    "firestore-storage": {
+      "what": "Firestore stored data",
+      "unit": "GiB-months",
+      "price": 0.165,
+      "free": 1,
+      "product": "firestore"
+    },
+    "gcs": {
+      "what": "Cloud Storage, Standard",
+      "unit": "GB-months",
+      "price": 0.02,
+      "free": 0,
+      "product": "storage"
+    },
+    "gcs-write": {
+      "what": "Cloud Storage writes, class A",
+      "unit": "writes",
+      "price": 5e-06,
+      "free": 5000,
+      "product": "storage"
+    },
+    "ar": {
+      "what": "Artifact Registry storage",
+      "unit": "GB-months",
+      "price": 0.1,
+      "free": 0.5,
+      "product": "ar"
+    },
+    "secrets": {
+      "what": "Secret Manager active versions",
+      "unit": "versions",
+      "price": 0.06,
+      "free": 6,
+      "product": "secrets"
+    },
+    "egress": {
+      "what": "Internet egress, Premium tier",
+      "unit": "GB",
+      "price": 0.12,
+      "free": 0,
+      "product": "network"
+    }
+  },
+  "products": {
+    "run": {
+      "name": "Cloud Run",
+      "doc": "https://cloud.google.com/run/pricing"
+    },
+    "tasks": {
+      "name": "Cloud Tasks",
+      "doc": "https://cloud.google.com/tasks/pricing"
+    },
+    "scheduler": {
+      "name": "Cloud Scheduler",
+      "doc": "https://cloud.google.com/scheduler/pricing"
+    },
+    "sql": {
+      "name": "Cloud SQL",
+      "doc": "https://cloud.google.com/sql/pricing"
+    },
+    "firestore": {
+      "name": "Firestore",
+      "doc": "https://cloud.google.com/firestore/pricing"
+    },
+    "storage": {
+      "name": "Cloud Storage",
+      "doc": "https://cloud.google.com/storage/pricing"
+    },
+    "ar": {
+      "name": "Artifact Registry",
+      "doc": "https://cloud.google.com/artifact-registry/pricing"
+    },
+    "secrets": {
+      "name": "Secret Manager",
+      "doc": "https://cloud.google.com/secret-manager/pricing"
+    },
+    "network": {
+      "name": "Network egress",
+      "doc": "https://cloud.google.com/vpc/network-pricing"
+    }
+  },
+  "firestore": {
+    "freeReadsDay": 50000,
+    "freeWritesDay": 20000,
+    "freeGib": 1,
+    "readPer100k": 0.033,
+    "writePer100k": 0.099,
+    "gibMonth": 0.165,
+    "readsPerRequest": 2,
+    "writesPerRequest": 0.2
+  }
+}

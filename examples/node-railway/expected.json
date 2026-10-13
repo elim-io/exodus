@@ -1,0 +1,77 @@
+{
+  "exodus": "findings/1",
+  "kind": "move",
+  "platform": { "name": "Railway", "file": "railway.json", "sleep": { "on": false, "from": "railway.json:7" } },
+  "stack": ["Node 20", "Express 4", "BullMQ 5", "PostgreSQL", "Redis", "railway.json"],
+  "manifests": [
+    { "file": "Procfile", "kind": "procfile" },
+    { "file": "package.json", "kind": "package" },
+    { "file": "railway.json", "kind": "railway" }
+  ],
+  "processes": [
+    { "id": "web", "kind": "web", "name": "web", "command": "node src/server.js", "from": "Procfile:1", "alwaysOn": true, "framework": "Express" },
+    { "id": "worker", "kind": "worker", "name": "worker", "command": "node src/worker.js", "from": "Procfile:2", "alwaysOn": true, "framework": "BullMQ" },
+    {
+      "id": "clock", "kind": "cron", "name": "clock", "command": "node src/clock.js", "from": "Procfile:3", "alwaysOn": true, "framework": "node-cron",
+      "schedules": [
+        { "cron": "0 * * * *", "from": "src/clock.js:9" },
+        { "cron": "0 2 * * *", "from": "src/clock.js:10" },
+        { "cron": "0 8 * * 1", "from": "src/clock.js:11" }
+      ]
+    }
+  ],
+  "data": [
+    { "id": "postgres", "kind": "db", "name": "Postgres", "engine": "PostgreSQL", "from": "src/db.js:3", "envName": "DATABASE_URL" },
+    { "id": "redis", "kind": "cache", "name": "Redis", "engine": "Redis", "from": "src/queue.js:4", "envName": "REDIS_URL" },
+    { "id": "uploads", "kind": "files", "name": "uploads", "engine": "disk", "from": "src/server.js:30", "envName": "UPLOAD_DIR" }
+  ],
+  "settings": {
+    "envNames": ["DATABASE_URL", "PORT", "REDIS_URL", "SESSION_SECRET", "UPLOAD_DIR"],
+    "secretsGuess": 3,
+    "variablesTotal": 5
+  },
+  "patterns": [
+    {
+      "id": "in-process-timer", "rule": "in-process-timer", "kind": "breaks",
+      "title": "Timers inside the process",
+      "at": "src/clock.js:9",
+      "code": "cron.schedule('0 * * * *', cleanup);",
+      "why": "Instances stop when idle and several can run at once, so a timer inside one fires late, never, or twice.",
+      "fix": "Cloud Scheduler starts a Cloud Run job at the same times.",
+      "part": "clock", "kb": "cron-and-timers-with-cloud-scheduler", "subject": "the timers"
+    },
+    {
+      "id": "memory-sessions", "rule": "memory-sessions", "kind": "breaks",
+      "title": "Sessions kept in process memory",
+      "at": "src/server.js:14",
+      "code": "app.use(session({ secret: process.env.SESSION_SECRET, resave: false, saveUninitialized: false }));",
+      "why": "Each instance has its own memory and loses it when it stops, so a user is signed out whenever a request lands on another instance or a new one.",
+      "fix": "Signed cookies (cookie-session), with the key in Secret Manager.",
+      "part": "web", "kb": "sessions-without-redis", "subject": "the sessions in memory"
+    },
+    {
+      "id": "local-disk-write", "rule": "local-disk-write", "kind": "breaks",
+      "title": "Files written to local disk",
+      "at": "src/server.js:30",
+      "code": "await fs.writeFile(path.join(UPLOAD_DIR, name), req.file.buffer);",
+      "why": "An instance's disk lives in its memory and is gone when the instance stops; other instances never see it.",
+      "fix": "Write to a Cloud Storage bucket and hand out signed URLs.",
+      "part": "uploads", "kb": "files-and-uploads-with-cloud-storage", "subject": "the files on disk"
+    },
+    {
+      "id": "queue-worker", "rule": "queue-worker", "kind": "breaks",
+      "title": "A worker waits on a Redis queue",
+      "at": "src/worker.js:9",
+      "code": "new Worker('jobs', handle, { connection: redis });",
+      "why": "Cloud Run gives an instance CPU only while it answers a request, so a worker waiting on Redis gets no CPU between requests and its jobs stall.",
+      "fix": "Cloud Tasks: each job becomes a POST to /tasks/<name> on the service; retries and rate limits move to the queue.",
+      "part": "worker", "kb": "background-workers-with-cloud-tasks", "subject": "the worker"
+    }
+  ],
+  "clean": ["work after the response", "sessions kept in Redis", "long-lived connections", "migrations in a release step", "background threads", "SQLite or files used as a database"],
+  "questions": [
+    { "id": "visits" }, { "id": "bill" }, { "id": "users" }, { "id": "egress" }, { "id": "connections" }, { "id": "peak" },
+    { "id": "domains" }, { "id": "downtime" }, { "id": "jobs" }, { "id": "ci" }, { "id": "services" }, { "id": "envs" },
+    { "id": "growth" }, { "id": "account" }, { "id": "schedules" }
+  ]
+}

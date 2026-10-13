@@ -1,0 +1,22 @@
+[package]
+name = "exodus"
+version.workspace = true
+edition.workspace = true
+repository.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+exodus-schema.workspace = true
+exodus-audit.workspace = true
+exodus-cost.workspace = true
+exodus-report.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+ureq.workspace = true
+jiff.workspace = true
+
+[lints]
+workspace = true

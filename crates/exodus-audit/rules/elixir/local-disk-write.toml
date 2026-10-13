@@ -1,0 +1,19 @@
+id = "local-disk-write"
+kind = "breaks"
+title = "Files written to local disk"
+kb = "files-and-uploads-with-cloud-storage"
+part = "files"
+subject = "the files on disk"
+clean = "files written to disk"
+why = "An instance's disk lives in its memory: a file counts against the memory limit, is gone when the instance stops, and other instances never see it, so an upload saved on one is a 404 on the next."
+unless = '''(?i)\btmp|/tmp\b|tempfile|tempdir|temporary|mkdtemp|temp_dir'''
+include = ["**/*.ex", "**/*.exs"]
+regex = [
+  '''\bFile\.(?:write!?|cp!?|rename!?)\(''',
+]
+fix = "Write to a Cloud Storage bucket (the google_api_storage package) and hand out signed URLs."
+[task]
+title = "Files to a Cloud Storage bucket"
+detail = "Write to a bucket instead of the disk; for uploads, sign a PUT URL so the browser sends the file straight to the bucket and the service stores only the key. Copy the existing files over before the switch."
+effort = "M"
+phase = 2

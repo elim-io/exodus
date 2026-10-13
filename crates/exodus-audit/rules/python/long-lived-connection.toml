@@ -1,0 +1,20 @@
+id = "long-lived-connection"
+kind = "idle"
+title = "Long-lived connections"
+kb = "patterns-that-break-on-cloud-run"
+part = "web"
+subject = "the open connections"
+clean = "long-lived connections"
+why = "Cloud Run supports WebSockets and server-sent events, but a request lasts at most 60 minutes, so clients must reconnect; an open connection keeps its instance billed the whole time, and messages between users on different instances need a shared store or pub/sub."
+fix = "For a few connections, keep them and let clients reconnect. For thousands open all day, a managed realtime service, or staying on an always-on host, usually costs less."
+include = ["**/*.py"]
+regex = [
+  '''\b(?:AsyncWebsocketConsumer|WebsocketConsumer|AsyncJsonWebsocketConsumer|StreamingHttpResponse|EventSourceResponse|SocketIO)\b''',
+  '''@\w+\.websocket\(''',
+  '''(?i)(?:content.?type|media_type|mimetype)['"]?\s*[:,=]\s*['"]text/event-stream''',
+]
+[task]
+title = "Connections: reconnect and share messages across instances"
+detail = "Set the request timeout to 60 minutes, make the client reconnect, and pass messages between instances through Pub/Sub or the database."
+effort = "M"
+phase = 2

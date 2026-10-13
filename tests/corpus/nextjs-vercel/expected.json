@@ -1,0 +1,45 @@
+{
+  "exodus": "corpus/1",
+  "name": "nextjs-vercel",
+  "shape": "Next.js on Vercel with Postgres",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "only the README says Vercel (a deploy button and a guide); nothing the build reads names a host, no vercel.json or .vercel/, so the audit asks and the agent answers from the Vercel CLI (relaxed from Vercel in fix-scan 2/2)"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Next.js",
+      "from": "package.json",
+      "note": "`next build` then `next start`: App Router pages, server actions, route handlers under app/api (Stripe checkout and webhook, user, team) and a Node-runtime middleware.ts that refreshes the session cookie"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "Postgres",
+      "from": "lib/db/drizzle.ts"
+    }
+  ],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "lib/db/setup.ts",
+      "why": "the `pnpm db:setup` script a developer runs once; it writes docker-compose.yml and .env on the developer machine and never runs on the server"
+    }
+  ],
+  "notOnServer": [
+    "lib/db/setup.ts",
+    "lib/db/seed.ts",
+    "components/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read package.json, README.md, next.config.ts, middleware.ts, drizzle.config.ts, .env.example (names only) and every file under app/ and lib/. Sessions are signed JWTs in an httpOnly cookie (lib/auth/session.ts), not server memory; every logActivity and database call in the server actions and route handlers is awaited before the response, so nothing runs after it; no timers, files, sockets or queues exist on the server side. Migrations are drizzle-kit commands run by hand (`pnpm db:migrate`), not a release step, so there is no release process. The platform is named from the README only, since a template has no host manifest; lib/db/setup.ts and lib/db/seed.ts are developer scripts listed in notOnServer as files rather than folders because lib/db/ also holds the server's drizzle client and queries."
+}

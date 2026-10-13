@@ -1,0 +1,52 @@
+{
+  "exodus": "corpus/1",
+  "name": "ios-firebase",
+  "shape": "iOS app beside Firebase Functions",
+  "platform": {
+    "name": "Firebase",
+    "file": "Firebase/firebase.json",
+    "ask": false,
+    "why": "Firebase/firebase.json declares hosting, functions, Firestore and the Realtime Database"
+  },
+  "processes": [],
+  "stays": [
+    {
+      "what": "Firebase Hosting",
+      "from": "Firebase/firebase.json",
+      "note": "serves Firebase/public/ as static files: a landing page, legal pages, the invite page and apple-app-site-association"
+    },
+    {
+      "what": "Firebase Functions 2nd gen",
+      "from": "Firebase/functions/src/index.ts",
+      "note": "onCall endpoints and Realtime Database triggers from firebase-functions/v2; one 1st gen auth onDelete trigger (deleteUserData, firebase-functions/v1)"
+    }
+  ],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "Firebase Realtime Database",
+      "from": "Firebase/database.rules.json"
+    },
+    {
+      "kind": "db",
+      "engine": "Firestore",
+      "from": "Firebase/firebase.json"
+    }
+  ],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [],
+  "notOnServer": [
+    "Haptics/",
+    "Widgets/",
+    "AyoIntentExtension/",
+    "Packages/",
+    "Haptics.xcodeproj/",
+    "Configuration/",
+    "Firebase/public/",
+    "Firebase/functions/scripts/",
+    "docs/"
+  ],
+  "questions": [],
+  "notes": "An iOS app (Haptics/, Widgets/, AyoIntentExtension/ and the Swift packages under Packages/) with its backend in Firebase/: Firebase Hosting of static pages and one functions codebase in Firebase/functions/src/index.ts. The functions are firebase-functions/v2 (https.onCall, database.onValue*) except deleteUserData, a 1st gen auth.user().onDelete trigger; all of it stays. No server code matches any rule; the Swift sources use Timer and FileManager on the device, which no rule reads, and Firebase/functions/scripts/backfill-user-conversations-index.js is a one-off maintenance script. There is no process to move, so nothing in the repository runs on Cloud Run beyond what Firebase already deploys."
+}

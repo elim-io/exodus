@@ -1,0 +1,39 @@
+{
+  "exodus": "findings/1",
+  "kind": "new",
+  "repo": { "owner": "example", "name": "class-booking" },
+  "platform": { "name": "Unknown", "file": "" },
+  "stack": ["Rust 1.90", "Axum 0.8", "React 19", "PostgreSQL 16"],
+  "what": "Bookings and payments for small fitness studios: a Rust API and a React app",
+  "manifests": [],
+  "processes": [
+    { "id": "web", "kind": "web", "name": "api and app", "command": "", "from": "design", "alwaysOn": false, "framework": "Axum" },
+    { "id": "reminders", "kind": "cron", "name": "reminders", "command": "", "from": "design", "alwaysOn": false, "schedules": [ { "cron": "*/15 * * * *", "from": "design" } ] }
+  ],
+  "data": [
+    { "id": "postgres", "kind": "db", "name": "Postgres", "engine": "PostgreSQL", "version": "16", "from": "design" },
+    { "id": "photos", "kind": "files", "name": "photos", "engine": "bucket", "sizeMb": 1000, "from": "design" }
+  ],
+  "settings": { "envNames": [], "secretsGuess": 5, "variablesTotal": 5 },
+  "patterns": [
+    { "id": "reminders", "rule": "design", "kind": "note", "title": "Reminders run as a job on a schedule", "at": "design", "code": "Cloud Scheduler: */15 * * * * -> Cloud Run job \"reminders\"", "why": "A timer inside the API would run on every copy at once, or on none when nobody calls.", "fix": "Cloud Scheduler starts a Cloud Run job every 15 minutes; it sends what is due and exits.", "part": "reminders", "kb": "cron-and-timers-with-cloud-scheduler" },
+    { "id": "payments", "rule": "design", "kind": "note", "title": "Payment webhooks answer at once; the work goes to a task", "at": "design", "code": "POST /payments/webhook -> 200, then Cloud Tasks: POST /tasks/payment", "why": "A payment provider retries a webhook that answers late, and a copy may stop as soon as it has answered.", "fix": "The handler checks the signature, queues a Cloud Task and answers 200; the task does the booking.", "part": "web", "kb": "background-workers-with-cloud-tasks" },
+    { "id": "sessions", "rule": "design", "kind": "note", "title": "Sessions in signed cookies", "at": "design", "code": "a signed cookie store, the key in Secret Manager", "why": "Copies come and go, so a session kept in one copy's memory is lost on the next request.", "fix": "A signed, encrypted cookie holds the session; no Redis to pay for.", "part": "web", "kb": "sessions-without-redis" }
+  ],
+  "clean": [],
+  "questions": [
+    { "id": "what", "q": "What will the product do, in a sentence?", "affects": "Architecture" },
+    { "id": "who", "q": "Who uses it, and from where?", "affects": "Region" },
+    { "id": "visits", "q": "How many people a day at launch?", "affects": "Cost: the web line" },
+    { "id": "growth", "q": "How fast should it grow in the first year?", "affects": "Cost: the forecast" },
+    { "id": "payments", "q": "Does it take payments?", "affects": "Architecture: the webhook and a task" },
+    { "id": "egress", "q": "How much data will it send out a month?", "affects": "Cost: egress" }
+  ],
+  "stats": { "files": 0, "bytes": 0, "rulesRun": 0, "startedAt": "", "finishedAt": "" },
+  "cli": "0.1.0",
+  "understanding": {
+    "project": "class-booking is a product for small fitness studios: a studio publishes its classes, and its clients book a place and pay by card. Most users are in Spain and Portugal, about 300 people a day at launch.",
+    "today": "Nothing is built yet. The person has chosen Rust with Axum for the API and React for the pages, and expects about 20% more visitors a month in the first year.",
+    "plan": "We will build one Cloud Run service for the API and the pages, keep bookings in Cloud SQL for PostgreSQL and class photos in Cloud Storage, and send reminders from a Cloud Run job that Cloud Scheduler starts every 15 minutes. Payment webhooks are checked and answered at once. Nothing runs while nobody uses the product, so the first months cost little."
+  }
+}

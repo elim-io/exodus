@@ -1,0 +1,26 @@
+id = "local-disk-write"
+kind = "breaks"
+title = "Files written to local disk"
+kb = "files-and-uploads-with-cloud-storage"
+part = "files"
+subject = "the files on disk"
+clean = "files written to disk"
+why = "An instance's disk lives in its memory: a file counts against the memory limit, is gone when the instance stops, and other instances never see it, so an upload saved on one is a 404 on the next."
+unless = '''(?i)\btmp|/tmp\b|tempfile|tempdir|temporary|mkdtemp|os\.TempDir'''
+include = ["**/*.js", "**/*.mjs", "**/*.cjs", "**/*.ts", "**/*.mts", "**/*.cts"]
+exclude = ["**/use[A-Z]*.?s", "**/*.d.ts"]  # the front-end folders and configs are places.toml's
+# The group `dest` names the path a write goes to (see `unless` in the README); for rename and copyFile it is the second argument.
+regex = [
+  '''\bfs\.(?:promises\.)?(?:writeFile|appendFile|createWriteStream)(?:Sync)?\((?:\s*(?P<dest>[A-Za-z_$][\w$.]*))?''',
+  '''\bfs\.(?:promises\.)?(?:rename|copyFile)(?:Sync)?\((?:\s*[^,\n]+,\s*(?P<dest>[A-Za-z_$][\w$.]*))?''',
+  '''(?:^|[^.\w\n])(?:writeFileSync|appendFileSync|createWriteStream)\((?:\s*(?P<dest>[A-Za-z_$][\w$.]*))?''',
+  '''\bawait\s+(?:writeFile|appendFile)\((?:\s*(?P<dest>[A-Za-z_$][\w$.]*))?''',
+  '''multer\(\s*\{\s*dest\s*:''',
+  '''\bdiskStorage\(''',
+]
+fix = "Write to a Cloud Storage bucket and hand out signed URLs; for uploads, let the browser PUT the file to a signed URL so the bytes never pass through the service."
+[task]
+title = "Files to a Cloud Storage bucket"
+detail = "Write to a bucket instead of the disk; for uploads, sign a PUT URL so the browser sends the file straight to the bucket and the service stores only the key. Copy the existing files over before the switch."
+effort = "M"
+phase = 2

@@ -1,0 +1,92 @@
+{
+  "exodus": "corpus/1",
+  "name": "django-celery",
+  "shape": "Django with a Celery worker and beat",
+  "platform": {
+    "name": "Heroku",
+    "file": ".github/workflows/django.yml",
+    "ask": false,
+    "why": "the workflow's deploy_to_heroku job pushes to a Heroku app; the Procfile and runtime.txt are Heroku's files (the job is switched off with if: false)"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Django (gunicorn)",
+      "from": "Procfile",
+      "note": "gunicorn config.wsgi:application; docker/web_entrypoint.sh starts the same for the Docker image"
+    },
+    {
+      "kind": "worker",
+      "what": "Celery worker",
+      "from": "Procfile",
+      "note": "celery -A styleguide_example.tasks worker, broker RabbitMQ by CELERY_BROKER_URL"
+    },
+    {
+      "kind": "cron",
+      "what": "Celery beat",
+      "from": "Procfile",
+      "note": "celery beat with django_celery_beat's DatabaseScheduler: the schedules live in Postgres, none are defined in code"
+    },
+    {
+      "kind": "release",
+      "what": "Django migrations",
+      "from": "Procfile",
+      "note": "release: python manage.py migrate"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL",
+      "from": "config/django/base.py",
+      "note": "DATABASES from DATABASE_URL, default postgres:///styleguide_example; docker-compose.yml runs postgres:14.1; also the Celery result backend (django-db)"
+    },
+    {
+      "kind": "cache",
+      "engine": "RabbitMQ",
+      "from": "config/settings/celery.py",
+      "note": "the Celery broker (amqp), rabbitmq:alpine in docker-compose.yml; a queue broker, not a cache"
+    },
+    {
+      "kind": "files",
+      "engine": "local disk",
+      "from": "config/settings/files_and_storages.py",
+      "note": "FILE_UPLOAD_STORAGE defaults to local: uploads go to MEDIA_ROOT under the app folder; S3 is the other setting"
+    }
+  ],
+  "breaks": [
+    {
+      "rule": "queue-worker",
+      "file": "styleguide_example/tasks/celery.py"
+    },
+    {
+      "rule": "local-disk-write",
+      "file": "config/settings/files_and_storages.py"
+    }
+  ],
+  "idle": [],
+  "notBreaks": [
+    {
+      "rule": "local-disk-write",
+      "file": "markdown_tools/toc.py",
+      "why": "a developer tool that rewrites README.md's table of contents; never runs on the server, and markdown_tools/ is not in NOT_APP"
+    },
+    {
+      "rule": "in-process-timer",
+      "file": "styleguide_example/tasks/management/commands/setup_periodic_tasks.py",
+      "why": "a management command that writes beat schedules (CrontabSchedule rows) into the database when run by hand; it is not a timer and its list of tasks is empty"
+    }
+  ],
+  "notOnServer": [
+    "markdown_tools/",
+    "scripts/"
+  ],
+  "questions": [],
+  "notes": "Read the Procfile, docker-compose.yml, docker/*, the workflow, config/django/*.py, config/settings/*.py and every app module outside migrations. Platform: the only deploy target in the repository is Heroku (Procfile with release/web/worker/beat, runtime.txt, a disabled deploy_to_heroku job; the README also mentions AWS ECS without files for it). The beat process is real and needs Cloud Scheduler after a move, but no in-process-timer line exists: with DatabaseScheduler the schedules are rows in Postgres and setup_periodic_tasks defines none. The release step (python manage.py migrate) is the release-migrations note, not a break, so it is listed as a process only. The uploads break is a configuration default (FILE_UPLOAD_STORAGE=local, also in .env.example); it disappears when the deployment sets S3. The Celery app is styleguide_example/tasks/celery.py, with tasks in styleguide_example/emails/tasks.py and blog_examples.",
+  "known": {
+    "MISSED break: local-disk-write config/settings/files_and_storages.py": "the storage or database is chosen in a settings module or a config key that no rule reads (FILE_UPLOAD_STORAGE defaults to local)",
+    "data missing: cache rabbi": "the Celery broker is an amqp URL in a settings module, and no dependency names RabbitMQ",
+    "data missing: files": "the storage or database is chosen in a settings module or a config key that no rule reads"
+  }
+}

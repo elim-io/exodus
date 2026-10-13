@@ -1,0 +1,9 @@
+{
+  "exodus": "answers/1",
+  "answers": [
+    { "id": "platform", "q": "Where does the app run now?", "answer": "Railway, one service built from website/Dockerfile.", "found": "railway status in the repository's folder", "value": "Railway", "at": "2026-10-11T11:00:00Z" },
+    { "id": "visits", "q": "How many people use the app a day?", "answer": "About 300.", "found": "Railway's HTTP metrics, the last 30 days", "value": 300, "at": "2026-10-11T11:01:00Z" },
+    { "id": "bill", "q": "What does Railway bill you a month, per service?", "answer": "$5.00 a month in all, the plan's minimum.", "value": { "total": 500 }, "at": "2026-10-11T11:02:00Z" },
+    { "id": "growth", "q": "How fast is the traffic growing?", "answer": "About 10% a month.", "value": 10, "at": "2026-10-11T11:03:00Z" }
+  ]
+}

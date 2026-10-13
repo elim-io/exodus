@@ -1,0 +1,28 @@
+{
+  "exodus": "corpus/1",
+  "name": "s2-shape",
+  "shape": "static site in a subfolder behind Caddy with browser timers, a build script writing html, a tools script writing json, Firebase Functions 2nd gen, an iOS app",
+  "platform": { "name": "Unknown", "file": null, "ask": true, "why": "the site's host is configured outside the repository (no railway.json, render.yaml, fly.toml or vercel.json); the agent finds it with the host's CLI" },
+  "processes": [
+    { "kind": "web", "what": "static site", "from": "website/Dockerfile", "note": "Caddy (website/Caddyfile) serves website/dist, which website/build.py writes in the image's build stage; listens on $PORT" }
+  ],
+  "stays": [
+    { "what": "Firebase Functions 2nd gen", "from": "functions/index.js", "note": "signup (onRequest) and dailyCount (onSchedule) from firebase-functions/v2, deployed by firebase.json; they already run on Cloud Run functions and Cloud Scheduler" }
+  ],
+  "data": [
+    { "kind": "db", "engine": "Firestore", "from": "functions/index.js", "note": "the functions write signups and stats with firebase-admin; already on Google" }
+  ],
+  "breaks": [],
+  "idle": [],
+  "notBreaks": [
+    { "rule": "in-process-timer", "file": "website/start/carousel.js", "why": "browser code: a carousel's setInterval in a file Caddy serves as a static asset" },
+    { "rule": "local-disk-write", "file": "website/build.py", "why": "static site generator: writes html into dist/ while the image is built" },
+    { "rule": "local-disk-write", "file": "tools/catalog.py", "why": "a local tool that rebuilds the catalog the iOS app ships with" },
+    { "rule": "in-process-timer", "file": "functions/index.js", "why": "onSchedule is Cloud Scheduler calling a function, not a timer inside a process" },
+    { "rule": "in-process-timer", "file": "ios/Tiles/BoardView.swift", "why": "iOS app source: a Timer on the phone" },
+    { "rule": "local-disk-write", "file": "ios/Tiles/BoardView.swift", "why": "iOS app source: writes to the phone's documents folder" }
+  ],
+  "notOnServer": ["website/start/", "website/build.py", "tools/", "ios/"],
+  "questions": ["platform"],
+  "notes": "Reproduces the shape of a real session (SPEC F7, S2) without its content: every name and line here is made up. A correct audit finds one web process (the static site), two functions that stay, no breaks, names website/start/, website/build.py, tools/ and ios/ as not on the server, and asks for the platform. The site's form posts to the signup function, so the site and the functions are two parts of one product."
+}

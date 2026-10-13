@@ -1,0 +1,52 @@
+{
+  "exodus": "findings/1",
+  "kind": "move",
+  "platform": { "name": "Fly.io", "file": "fly.toml", "sleep": { "on": false, "from": "fly.toml:16" } },
+  "stack": ["Go 1.23", "net/http", "SQLite", "fly.toml"],
+  "manifests": [
+    { "file": "Dockerfile", "kind": "dockerfile" },
+    { "file": "fly.toml", "kind": "fly" },
+    { "file": "go.mod", "kind": "gomod" }
+  ],
+  "processes": [
+    {
+      "id": "web", "kind": "web", "name": "app", "command": "/app", "from": "fly.toml:13", "alwaysOn": true, "framework": "net/http",
+      "schedules": [ { "cron": "*/10 * * * *", "from": "main.go:36" } ]
+    }
+  ],
+  "data": [
+    { "id": "sqlite", "kind": "sqlite", "name": "cards_data", "engine": "SQLite", "from": "fly.toml:9", "envName": "DB_PATH" }
+  ],
+  "settings": {
+    "envNames": ["DB_PATH"],
+    "secretsGuess": 0,
+    "dockerfile": "Dockerfile",
+    "variablesTotal": 1
+  },
+  "patterns": [
+    {
+      "id": "sqlite-database", "rule": "sqlite-database", "kind": "breaks",
+      "title": "SQLite on a volume as the database",
+      "at": "main.go:15",
+      "code": "db, err := sql.Open(\"sqlite\", os.Getenv(\"DB_PATH\"))",
+      "why": "Cloud Run has no volume a database file can live on: the disk is memory, and each instance would hold its own copy.",
+      "fix": "Move the data to Firestore before the move: each table becomes a collection and each row a document, the database/sql calls become reads and writes through cloud.google.com/go/firestore, and a join becomes a second read or a field copied into the document.",
+      "part": "sqlite", "kb": "cloud-sql-firestore-or-serverless-postgres", "subject": "the SQLite file"
+    },
+    {
+      "id": "in-process-timer", "rule": "in-process-timer", "kind": "breaks",
+      "title": "Timers inside the process",
+      "at": "main.go:36",
+      "code": "ticker := time.NewTicker(10 * time.Minute)",
+      "why": "Instances stop when idle and several can run at once, so a timer inside one fires late, never, or twice.",
+      "fix": "Cloud Scheduler starts a Cloud Run job at the same times.",
+      "part": "web", "kb": "cron-and-timers-with-cloud-scheduler", "subject": "the timers"
+    }
+  ],
+  "clean": ["workers waiting on a queue", "work after the response", "files written to disk", "sessions in memory", "sessions kept in Redis", "long-lived connections", "migrations in a release step", "background threads"],
+  "questions": [
+    { "id": "visits" }, { "id": "bill" }, { "id": "users" }, { "id": "egress" }, { "id": "connections" }, { "id": "peak" },
+    { "id": "domains" }, { "id": "downtime" }, { "id": "ci" }, { "id": "services" }, { "id": "envs" }, { "id": "growth" },
+    { "id": "account" }, { "id": "cpu" }, { "id": "schedules" }
+  ]
+}

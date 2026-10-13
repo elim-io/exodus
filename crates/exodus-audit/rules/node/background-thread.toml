@@ -1,0 +1,20 @@
+id = "background-thread"
+kind = "breaks"
+title = "Background threads"
+kb = "background-workers-with-cloud-tasks"
+part = "web"
+subject = "the background threads"
+clean = "background threads"
+why = "A thread that works outside a request gets no CPU once the response is out, and it dies with the instance when traffic falls, so its work stalls or is lost."
+include = ["**/*.js", "**/*.mjs", "**/*.cjs", "**/*.ts", "**/*.mts", "**/*.cts"]
+exclude = ["**/use[A-Z]*.?s", "**/*.d.ts"]  # the front-end folders and configs are places.toml's
+regex = [
+  '''from\s+['"](?:node:)?worker_threads['"]''',
+  '''require\(\s*['"](?:node:)?worker_threads['"]\s*\)''',
+]
+fix = "Keep worker threads for CPU work a request waits on; anything that runs after the response goes to Cloud Tasks."
+[task]
+title = "Background threads to Cloud Tasks or the request"
+detail = "Run short work inside the request; send longer work to Cloud Tasks; a loop that must always run goes to a worker pool."
+effort = "M"
+phase = 2

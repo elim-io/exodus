@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: books-web
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: gunicorn books.wsgi --workers 3
+    preDeployCommand: python manage.py migrate
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: books-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: books-redis
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+  - type: worker
+    name: books-worker
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: celery -A books worker --beat --loglevel info
+    disk:
+      name: media
+      mountPath: /opt/render/project/src/media
+      sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: books-db
+          property: connectionString
+      - key: CELERY_BROKER_URL
+        fromService:
+          type: redis
+          name: books-redis
+          property: connectionString
+  - type: redis
+    name: books-redis
+    plan: starter
+    ipAllowList: []
+
+databases:
+  - name: books-db
+    plan: basic-256mb
+    postgresMajorVersion: "16"
