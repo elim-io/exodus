@@ -1,0 +1,22 @@
+id = "redis-sessions"
+kind = "idle"
+title = "Sessions kept in Redis"
+kb = "sessions-without-redis"
+part = "cache"
+subject = "the sessions in Redis"
+takes_over = "the sessions to signed cookies"
+clean = "sessions kept in Redis"
+why = "Redis works on Cloud Run, but a managed one bills every hour of the month. When the sessions are what it holds, they keep a paid instance running for a few kilobytes."
+include = ["**/*.rs"]
+stop_at = "#[cfg(test)]"
+# tower-sessions on tower-sessions-redis-store, and actix-session's Redis store.
+regex = [
+  '''\bRedisStore::new\(''',
+  '''\bRedisSessionStore::(?:new|builder)\(''',
+]
+fix = "Signed cookies: axum-extra's SignedCookieJar or actix-session's CookieSessionStore, with the key in Secret Manager."
+[task]
+title = "Sessions to signed cookies"
+detail = "Keep a user id, a role and an expiry in a signed cookie (key in Secret Manager; Secure, HttpOnly, SameSite=Lax; under 4 KB), then drop Redis if nothing else uses it. For log out everywhere, keep a session version on the user row."
+effort = "S"
+phase = 2

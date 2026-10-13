@@ -167,18 +167,39 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
                 } else {
                     format!("{fw} web process, {on}")
                 };
+                // Connections the plan keeps open (WebSockets, server-sent events) need CPU between requests, so
+                // the service runs one instance all month on instance-based billing. Timers and loops the plan
+                // moves to Cloud Scheduler and Cloud Tasks leave it request-based, scaling to zero.
+                let (after, uses) = if f.patterns.iter().any(|x| x.rule == "long-lived-connection") {
+                    let secs = exodus_cost::DAYS * 86_400.0;
+                    let how =
+                        "one instance all month, 1 vCPU and 0.5 GiB: the open connections need CPU between requests";
+                    (
+                        "Cloud Run service, one instance always on (instance-based billing) for the open connections"
+                            .to_string(),
+                        vec![
+                            use_("run-cpu-always", secs, None, how),
+                            use_("run-mem-always", secs * 0.5, None, how),
+                        ],
+                    )
+                } else {
+                    (
+                        "Cloud Run service, request-based, scales to zero".to_string(),
+                        vec![
+                            use_("run-cpu", r * s, Some("visit"), &how),
+                            use_("run-mem", r * s * 0.5, Some("visit"), &how),
+                            use_("run-req", r, Some("visit"), n),
+                        ],
+                    )
+                };
                 out.push(part(
                     &p.id,
                     "web",
                     &p.name,
                     planned(now),
-                    "Cloud Run service, request-based, scales to zero".into(),
+                    after,
                     Some("cloud-run"),
-                    vec![
-                        use_("run-cpu", r * s, Some("visit"), &how),
-                        use_("run-mem", r * s * 0.5, Some("visit"), &how),
-                        use_("run-req", r, Some("visit"), n),
-                    ],
+                    uses,
                 ));
             }
             "worker" => {

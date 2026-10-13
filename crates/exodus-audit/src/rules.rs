@@ -239,6 +239,7 @@ builtin![
     "ruby/queue-worker.toml",
     "go/queue-worker.toml",
     "elixir/queue-worker.toml",
+    "rust/queue-worker.toml",
     "node/work-after-response.toml",
     "python/work-after-response.toml",
     "ruby/work-after-response.toml",
@@ -265,6 +266,7 @@ builtin![
     "python/redis-sessions.toml",
     "ruby/redis-sessions.toml",
     "go/redis-sessions.toml",
+    "rust/redis-sessions.toml",
     "node/long-lived-connection.toml",
     "python/long-lived-connection.toml",
     "ruby/long-lived-connection.toml",
@@ -604,6 +606,18 @@ mod tests {
         let tokens =
             "static RESET_TOKENS: LazyLock<Mutex<HashMap<String, Token>>> = LazyLock::new(Default::default);\n";
         assert_eq!(fires("memory-state", "src/auth.rs", tokens), Some(1));
+        // A worker waiting on a Redis list or an apalis storage; a plain pop that does not block is not a worker.
+        let pop = "async fn run(c: &Pool) {\n    loop {\n        let next: Option<(String, String)> = c.brpop(\"jobs\", 5.0).await?;\n    }\n}\n";
+        assert_eq!(fires("queue-worker", "src/bin/worker.rs", pop), Some(3));
+        let lpop = "let next: Option<String> = c.rpop(\"jobs\", None).await?;\n";
+        assert_eq!(fires("queue-worker", "src/jobs.rs", lpop), None);
+        let apalis = "let w = WorkerBuilder::new(\"mail\").backend(RedisStorage::new(conn)).build_fn(send);\n";
+        assert_eq!(fires("queue-worker", "src/bin/worker.rs", apalis), Some(1));
+        // Sessions in Redis; tower-sessions on its memory store is the memory rule's.
+        let redis = "let layer = SessionManagerLayer::new(RedisStore::new(pool));\n";
+        assert_eq!(fires("redis-sessions", "src/app.rs", redis), Some(1));
+        let memory = "let layer = SessionManagerLayer::new(MemoryStore::default());\n";
+        assert_eq!(fires("redis-sessions", "src/app.rs", memory), None);
         let go = "var (\n\ttokens = make(map[string]Token)\n\tmu     sync.RWMutex\n)\n";
         assert_eq!(fires("memory-state", "internal/tmptokens/tmptokens.go", go), Some(2));
         assert_eq!(fires("memory-state", "internal/tmptokens/tmptokens_test.go", go), None);

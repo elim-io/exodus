@@ -463,6 +463,26 @@ const ROWS: &[Row] = &[
         "internal/manager/manager.go:2",
     ),
     row(
+        "guide 1-3",
+        "a Rust worker blocking on a Redis list",
+        &[(
+            "src/bin/worker.rs",
+            "async fn main() {\n    loop {\n        let job: Option<(String, String)> = redis.brpop(\"jobs\", 5.0).await.unwrap();\n    }\n}\n",
+        )],
+        "queue-worker",
+        "src/bin/worker.rs:3",
+    ),
+    row(
+        "guide 1-3",
+        "Rust sessions in Redis",
+        &[(
+            "src/app.rs",
+            "fn app(pool: Pool) -> Router {\n    Router::new().layer(SessionManagerLayer::new(RedisStore::new(pool)))\n}\n",
+        )],
+        "redis-sessions",
+        "src/app.rs:2",
+    ),
+    row(
         "guide 4",
         "a file written in Rust",
         &[(

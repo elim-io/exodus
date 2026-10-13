@@ -540,3 +540,32 @@ fn a_subject_found_in_two_places_is_named_once_with_its_count() {
         r.verdict.reason
     );
 }
+
+/// Open connections the plan keeps (WebSockets, server-sent events) need CPU between requests: the web service is
+/// priced as one instance on instance-based billing all month. Without them it stays request-based, at zero when idle.
+#[test]
+fn kept_open_connections_price_the_service_as_one_instance_always_on() {
+    let mut f = audit("node-railway");
+    let web = |r: &Report| r.cost.lines.iter().find(|l| l.part.kind == "web").cloned().unwrap();
+    let before = web(&build(&f, &Answers::default(), None, None));
+    assert_eq!(before.part.after, "Cloud Run service, request-based, scales to zero");
+    assert!(before.uses.iter().all(|u| !u.sku.ends_with("-always")));
+
+    let mut open = f.patterns[0].clone();
+    open.id = "long-lived-connection".into();
+    open.rule = "long-lived-connection".into();
+    open.part = "web".into();
+    f.patterns.push(open);
+    let r = build(&f, &Answers::default(), None, None);
+    let after = web(&r);
+    assert!(
+        after.part.after.contains("one instance always on"),
+        "{}",
+        after.part.after
+    );
+    let skus: Vec<&str> = after.uses.iter().map(|u| u.sku.as_str()).collect();
+    assert_eq!(skus, ["run-cpu-always", "run-mem-always"]);
+    // 30 days of 1 vCPU less the free 240,000 vCPU-s at $0.000018, and 0.5 GiB less 450,000 GiB-s at $0.000002
+    assert_eq!(after.cents, 4234 + 169);
+    assert!(r.day.always_on);
+}
