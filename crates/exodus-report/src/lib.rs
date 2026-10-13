@@ -106,7 +106,8 @@ pub fn build(input: &Input, prices: &Prices, platforms: &PlatformPrices) -> Resu
         (None, None) => (Today::Unknown, "unknown"),
     };
 
-    let mut parts = parts::parts(f, &traffic, &prices.firestore);
+    let open = parts::public_connections(f, value("connections").and_then(serde_json::Value::as_str));
+    let mut parts = parts::parts(f, &traffic, &prices.firestore, open.as_deref());
     if let Today::Bill(b) = &today {
         parts.extend(parts::bill_part(f, b));
     }

@@ -541,31 +541,56 @@ fn a_subject_found_in_two_places_is_named_once_with_its_count() {
     );
 }
 
-/// Open connections the plan keeps (WebSockets, server-sent events) need CPU between requests: the web service is
-/// priced as one instance on instance-based billing all month. Without them it stays request-based, at zero when idle.
+/// Connections the app's users keep open (a chat's WebSocket) price the web service as one instance on
+/// instance-based billing all month, and the line says why; an admin's event stream, or the `connections` answer
+/// saying the connections are not the users', leaves it request-based, at zero when idle.
 #[test]
-fn kept_open_connections_price_the_service_as_one_instance_always_on() {
-    let mut f = audit("node-railway");
+fn only_users_open_connections_price_the_service_as_one_instance_always_on() {
+    let base = audit("node-railway");
     let web = |r: &Report| r.cost.lines.iter().find(|l| l.part.kind == "web").cloned().unwrap();
-    let before = web(&build(&f, &Answers::default(), None, None));
-    assert_eq!(before.part.after, "Cloud Run service, request-based, scales to zero");
-    assert!(before.uses.iter().all(|u| !u.sku.ends_with("-always")));
+    let with = |at: &str| {
+        let mut f = base.clone();
+        let mut open = f.patterns[0].clone();
+        open.id = "long-lived-connection".into();
+        open.rule = "long-lived-connection".into();
+        open.part = "web".into();
+        open.at = at.into();
+        f.patterns.push(open);
+        f
+    };
+    let answer = |v: &str| -> Answers {
+        serde_json::from_value(serde_json::json!({
+            "exodus": "answers/1",
+            "answers": [{ "id": "connections", "q": "Open connections?", "answer": v, "value": v, "at": AT }]
+        }))
+        .unwrap()
+    };
+    let request_based = |r: &Report| {
+        let w = web(r);
+        assert_eq!(w.part.after, "Cloud Run service, request-based, scales to zero");
+        assert!(w.uses.iter().all(|u| !u.sku.ends_with("-always")));
+    };
+    request_based(&build(&base, &Answers::default(), None, None));
 
-    let mut open = f.patterns[0].clone();
-    open.id = "long-lived-connection".into();
-    open.rule = "long-lived-connection".into();
-    open.part = "web".into();
-    f.patterns.push(open);
-    let r = build(&f, &Answers::default(), None, None);
-    let after = web(&r);
+    // an admin's event stream (a listmonk-like cmd/events.go) stays request-based
+    let admin = with("cmd/events.go:16");
+    request_based(&build(&admin, &Answers::default(), None, None));
+    // a chat's WebSocket is the users': one instance always on, the reason in the line
+    let chat = with("src/chat/socket.js:12");
+    let r = build(&chat, &Answers::default(), None, None);
+    let w = web(&r);
     assert!(
-        after.part.after.contains("one instance always on"),
+        w.part.after.contains("one instance always on") && w.part.after.contains("src/chat/socket.js:12"),
         "{}",
-        after.part.after
+        w.part.after
     );
-    let skus: Vec<&str> = after.uses.iter().map(|u| u.sku.as_str()).collect();
+    let skus: Vec<&str> = w.uses.iter().map(|u| u.sku.as_str()).collect();
     assert_eq!(skus, ["run-cpu-always", "run-mem-always"]);
     // 30 days of 1 vCPU less the free 240,000 vCPU-s at $0.000018, and 0.5 GiB less 450,000 GiB-s at $0.000002
-    assert_eq!(after.cents, 4234 + 169);
+    assert_eq!(w.cents, 4234 + 169);
     assert!(r.day.always_on);
+    // the answer decides over the file name, both ways
+    request_based(&build(&chat, &answer("admin"), None, None));
+    let r = build(&admin, &answer("public"), None, None);
+    assert!(web(&r).part.after.contains("one instance always on"));
 }

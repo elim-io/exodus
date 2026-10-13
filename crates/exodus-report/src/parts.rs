@@ -141,8 +141,9 @@ pub fn runs_a_month(cron: &str) -> Option<f64> {
 }
 
 /// The parts of the app in the cabinet's order: processes, scheduled work, data, then builds, variables and traffic.
-/// `fs` gives the document reads and writes a request makes, for an app whose SQLite moves to Firestore.
-pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
+/// `fs` gives the document reads and writes a request makes, for an app whose SQLite moves to Firestore; `open` says
+/// why the service keeps connections open for its users after the move ([`public_connections`]), if it does.
+pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) -> Vec<Part> {
     let new = f.kind == "new";
     let lang = language(&f.stack);
     let planned = |s: String| if new { "Planned".to_string() } else { s };
@@ -167,19 +168,17 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
                 } else {
                     format!("{fw} web process, {on}")
                 };
-                // Connections the plan keeps open (WebSockets, server-sent events) need CPU between requests, so
-                // the service runs one instance all month on instance-based billing. Timers and loops the plan
-                // moves to Cloud Scheduler and Cloud Tasks leave it request-based, scaling to zero.
-                let (after, uses) = if f.patterns.iter().any(|x| x.rule == "long-lived-connection") {
+                // Connections the service keeps open for its users need CPU between requests, so it runs one
+                // instance all month on instance-based billing. Timers and loops the plan moves to Cloud Scheduler and
+                // Cloud Tasks, an admin's event stream or a heartbeat leave it request-based, scaling to zero.
+                let (after, uses) = if let Some(why) = open {
                     let secs = exodus_cost::DAYS * 86_400.0;
-                    let how =
-                        "one instance all month, 1 vCPU and 0.5 GiB: the open connections need CPU between requests";
+                    let how = format!("one instance all month, 1 vCPU and 0.5 GiB, because {why}");
                     (
-                        "Cloud Run service, one instance always on (instance-based billing) for the open connections"
-                            .to_string(),
+                        format!("Cloud Run service, one instance always on (instance-based billing), because {why}"),
                         vec![
-                            use_("run-cpu-always", secs, None, how),
-                            use_("run-mem-always", secs * 0.5, None, how),
+                            use_("run-cpu-always", secs, None, &how),
+                            use_("run-mem-always", secs * 0.5, None, &how),
                         ],
                     )
                 } else {
@@ -543,6 +542,37 @@ fn takes_over(f: &Findings, cache: &str) -> Vec<String> {
         }
     }
     out
+}
+
+/// Why the moved service keeps connections open for its users, or None. The `connections` answer's value decides
+/// when it is given: `public` (the app's users hold them), anything else (`admin`, `none`) not. Without it, a
+/// long-lived connection counts when its file is a user-facing realtime surface (chat, notifications, live, socket,
+/// ws, hub, presence) outside admin, internal, debug, dev and test code; an admin's event stream does not.
+pub fn public_connections(f: &Findings, answer: Option<&str>) -> Option<String> {
+    let hits: Vec<_> = f
+        .patterns
+        .iter()
+        .filter(|p| p.rule == "long-lived-connection")
+        .collect();
+    let first = hits.first()?;
+    let file = |at: &str| at.rsplit_once(':').map_or(at, |(a, _)| a).to_lowercase();
+    match answer {
+        Some(a) if a.eq_ignore_ascii_case("public") => Some(format!("its users keep connections open ({})", first.at)),
+        Some(_) => None,
+        None => hits
+            .iter()
+            .find(|p| {
+                let path = file(&p.at);
+                let segs: Vec<&str> = path.split(['/', '.', '_', '-']).collect();
+                let starts = |words: &[&str]| segs.iter().any(|s| words.iter().any(|w| s.starts_with(w)));
+                let is = |words: &[&str]| segs.iter().any(|s| words.contains(s));
+                !starts(&["admin", "internal", "debug", "test", "spec", "mock", "example"])
+                    && !is(&["dev"])
+                    && (starts(&["chat", "notif", "socket", "websocket", "presence", "realtime"])
+                        || is(&["ws", "hub", "live", "room", "rooms"]))
+            })
+            .map(|p| format!("its users keep connections open at {}", p.at)),
+    }
 }
 
 fn platform_or(f: &Findings) -> &str {

@@ -51,7 +51,8 @@ id = "connections"
 when = "web"
 q = "Do clients keep connections open: WebSockets, server-sent events, long polling?"
 affects = "Findings"
-hint = "The code: a WebSocket or SSE library, text/event-stream; the client's reconnect logic."
+hint = "The code: a WebSocket or SSE library, text/event-stream; the client's reconnect logic. Who holds them: the app's users (a chat, live notifications) or only an admin page."
+value = "connections"
 
 [[question]]
 id = "peak"

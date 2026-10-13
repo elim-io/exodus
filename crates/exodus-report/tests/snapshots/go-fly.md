@@ -227,4 +227,4 @@ Google's price lists, read Oct 9, 2026:
 - Artifact Registry pricing: https://cloud.google.com/artifact-registry/pricing
 - Network egress pricing: https://cloud.google.com/vpc/network-pricing
 
-How this report was made: exodus 0.1.0 read 5 files of go-fly on your machine and found 21 findings (5 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
+How this report was made: exodus 0.1.0 read 5 files of go-fly on your machine and found 21 findings (5.1 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.

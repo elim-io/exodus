@@ -76,6 +76,8 @@ no AI of its own and never signs in to Google Cloud: whatever has to happen ther
 - `growth`: traffic growth in percent a month, a number;
 - `users`: the Google Cloud region nearest to most users (`--value europe-west3`; a wrong id makes
   `exodus answer` list the 16 it prices);
+- `connections`: who holds the open connections, `public` (the app's users: a chat, live notifications), `admin`
+  (only an admin page) or `none`; with `public` the report prices the service as one instance always on;
 - `platform`: the host's name, `Railway`, `Render`, `Fly.io`, `Heroku`, `Vercel`, `Netlify`, `Firebase`, or the
   name of another; the report then prices the Today column from that host's list;
 - `bill`: what the platform bills a month in cents, per part id from `findings.json` (processes and data), `egress`,

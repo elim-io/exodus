@@ -278,4 +278,4 @@ Google's price lists, read Oct 9, 2026:
 - Secret Manager pricing: https://cloud.google.com/secret-manager/pricing
 - Network egress pricing: https://cloud.google.com/vpc/network-pricing
 
-How this report was made: exodus 0.1.0 read 12 files of django-render on your machine and found 28 findings (6.8 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
+How this report was made: exodus 0.1.0 read 12 files of django-render on your machine and found 28 findings (6.9 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.

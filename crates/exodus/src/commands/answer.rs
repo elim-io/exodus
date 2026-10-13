@@ -19,7 +19,8 @@ pub struct Args {
     #[arg(long)]
     found: Option<String>,
     /// What the report computes from: a number (visits, egress, growth, egressmb, filesmb), a region
-    /// id (users, who) or a JSON map of part id to cents a month, or {"total": cents} (bill)
+    /// id (users, who), public, admin or none (connections: who holds them), or a JSON map of part id to cents a
+    /// month, or {"total": cents} (bill)
     #[arg(long, value_name = "V", allow_negative_numbers = true)]
     value: Option<String>,
 }
@@ -169,6 +170,13 @@ fn value(kind: &str, v: &str, findings: Option<&Findings>) -> Result<Value, Stri
                 Value::from(n)
             })
         }
+        "connections" => match v.trim().to_lowercase().as_str() {
+            k @ ("public" | "admin" | "none") => Ok(Value::from(k)),
+            _ => Err(
+                "--value for connections is public (the app's users hold them), admin (only an admin page) or none"
+                    .into(),
+            ),
+        },
         "users" => {
             let regions = exodus_cost::bundled().regions;
             if regions.contains_key(v.trim()) {
