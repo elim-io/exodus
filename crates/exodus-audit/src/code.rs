@@ -103,10 +103,23 @@ pub fn slug(s: &str) -> String {
     s.trim_matches('-').to_string()
 }
 
+/// A CI pipeline's file: its `cron:` lines schedule the CI, not the app, and its variables are the CI's.
+fn is_ci(path: &str) -> bool {
+    [
+        ".github/",
+        ".gitlab-ci",
+        ".circleci/",
+        "bitbucket-pipelines",
+        ".buildkite/",
+    ]
+    .iter()
+    .any(|c| path.starts_with(c))
+}
+
 fn code_lines(files: &BTreeMap<String, String>) -> impl Iterator<Item = (&str, usize, &str)> {
     files
         .iter()
-        .filter(|(p, _)| is_code(p))
+        .filter(|(p, _)| is_code(p) && !is_ci(p))
         .flat_map(|(p, t)| t.lines().enumerate().map(move |(i, l)| (p.as_str(), i + 1, l)))
 }
 
@@ -350,6 +363,16 @@ mod tests {
             Some("* * * * *")
         );
         assert!(schedule("app.schedule('nightly')").is_none());
+        // a CI pipeline's cron is the CI's schedule, not the app's
+        let files = BTreeMap::from([
+            (
+                ".github/workflows/nightly.yml".to_string(),
+                "    - cron: '0 2 * * *'\n".to_string(),
+            ),
+            ("config/schedule.yml".to_string(), "  cron: '0 3 * * *'\n".to_string()),
+        ]);
+        let found: Vec<_> = scan(&files).schedules.into_iter().map(|s| s.value).collect();
+        assert_eq!(found, ["0 3 * * *"]);
         let names: Vec<_> = ENV
             .captures_iter(r#"os.environ.setdefault("A_B", 1); ENV.fetch("PORT", 3000); os.Getenv("DB_PATH")"#)
             .filter_map(|c| c.iter().skip(1).flatten().next().map(|m| m.as_str().to_string()))

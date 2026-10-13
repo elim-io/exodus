@@ -1245,7 +1245,7 @@
     "processesAllDay": 3,
     "cpuHoursADay": 2.5,
     "alwaysOn": false,
-    "sleepNote": "Railway can put a service to sleep when it has no traffic and wake it on the next request; it is off in railway.json, so these processes run every hour.",
+    "sleepNote": "Railway can put a service to sleep when it has no traffic and wake it on the next request; that setting is off unless a service turns it on, so these processes run every hour.",
     "serverless": false
   },
   "audit": {

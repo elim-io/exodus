@@ -271,6 +271,7 @@ builtin![
     "node/background-thread.toml",
     "python/background-thread.toml",
     "ruby/background-thread.toml",
+    "go/background-thread.toml",
     "node/sqlite-database.toml",
     "python/sqlite-database.toml",
     "ruby/sqlite-database.toml",
@@ -594,6 +595,52 @@ mod tests {
             None
         );
         assert_eq!(fires("background-thread", "a.js", threads), Some(1));
+        // Go: a goroutine started on a long-running loop is one, a goroutine per request is not; a ticker named for
+        // a timeout bounds a select; a config file written at setup and an archive unpacked to read it are not data.
+        assert_eq!(
+            fires(
+                "background-thread",
+                "m.go",
+                "\tgo m.scanCampaigns(m.cfg.ScanInterval)\n\tgo m.worker()\n"
+            ),
+            Some(1)
+        );
+        assert_eq!(
+            fires("background-thread", "h.go", "\tgo func() {\n\t\tsendMail(u)\n\t}()\n"),
+            None
+        );
+        assert_eq!(
+            fires("in-process-timer", "m.go", "\tt := time.NewTicker(pushTimeout)\n"),
+            None
+        );
+        assert_eq!(
+            fires("in-process-timer", "m.go", "\tt := time.NewTicker(tick)\n"),
+            Some(1)
+        );
+        assert_eq!(
+            fires(
+                "local-disk-write",
+                "i.go",
+                "func newConfigFile(path string) error {\n\treturn os.WriteFile(path, b, 0644)\n}\n"
+            ),
+            None
+        );
+        assert_eq!(
+            fires(
+                "local-disk-write",
+                "z.go",
+                "func (s *Session) ExtractZIP(src string) error {\n\tout, err := os.OpenFile(dir+\"/\"+f, os.O_CREATE, 0644)\n}\n"
+            ),
+            None
+        );
+        assert_eq!(
+            fires(
+                "local-disk-write",
+                "f.go",
+                "func (c *Client) Put(name string) error {\n\tout, err := os.OpenFile(filepath.Join(dir, name), os.O_CREATE, 0664)\n}\n"
+            ),
+            Some(2)
+        );
         // A promise left unawaited after the response is work after it; `void` alone, `void 0` and an assigned task are not.
         assert_eq!(
             fires("work-after-response", "a.ts", "res.send(1);\nvoid sendEmail(u);\n"),

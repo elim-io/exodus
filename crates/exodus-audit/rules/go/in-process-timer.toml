@@ -7,7 +7,9 @@ subject = "the timers"
 clean = "in-process timers"
 why = "A service at zero has no process to run a timer, a running one gets no CPU between requests, and with several instances the timer fires once per instance: late, never, or twice."
 include = ["**/*.go"]
-# A ticker in a goroutine, robfig/cron, gocron.
+# A ticker in a goroutine, robfig/cron, gocron. A ticker named for a timeout bounds one wait in a select, it is no
+# schedule.
+unless = '''(?i)timeout'''
 regex = [
   '''\btime\.(?:NewTicker|Tick)\(''',
   '''\bcron\.New\(''',

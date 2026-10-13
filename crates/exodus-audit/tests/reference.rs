@@ -453,6 +453,16 @@ const ROWS: &[Row] = &[
         "app/models/user.rb:1",
     ),
     row(
+        "guide 1-3",
+        "a scanner goroutine started with a Go server",
+        &[(
+            "internal/manager/manager.go",
+            "func (m *Manager) Run() {\n\tgo m.scanCampaigns(time.Second * 5)\n}\n",
+        )],
+        "background-thread",
+        "internal/manager/manager.go:2",
+    ),
+    row(
         "guide 4",
         "a file written in Rust",
         &[(

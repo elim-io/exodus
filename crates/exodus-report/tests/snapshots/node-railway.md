@@ -38,7 +38,7 @@ A weekday of node-railway:
 - On Railway: 3 processes billed every hour: 72 process-hours a day.
 - On Cloud Run: CPU only while requests and jobs run, about 0.9 CPU-hours a day.
 
-Railway can put a service to sleep when it has no traffic and wake it on the next request; it is off in railway.json, so these processes run every hour. Cloud Run's hours are computed from this report's numbers.
+Railway can put a service to sleep when it has no traffic and wake it on the next request; that setting is off unless a service turns it on, so these processes run every hour. Cloud Run's hours are computed from this report's numbers.
 
 - **Scales with the traffic.** From no copies at night to as many as the traffic needs, each taking up to 1,000 requests at once.
 - **Nothing to keep running.** No server, operating system or certificate to look after. Google patches the machines, renews HTTPS and restarts a copy that fails.

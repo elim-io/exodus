@@ -8,6 +8,8 @@ clean = "files written to disk"
 why = "An instance's disk lives in its memory: a file counts against the memory limit, is gone when the instance stops, and other instances never see it, so an upload saved on one is a 404 on the next."
 unless = '''(?i)\btmp|/tmp\b|tempfile|tempdir|temporary|mkdtemp|os\.TempDir'''
 include = ["**/*.go"]
+# Writing a config file at setup, or unpacking an archive into a temporary folder to read it, is not app data.
+unless_in = '''^func\s+(?:\([^)]*\)\s*)?\w*(?:Config|[Ee]xtract|[Uu]nzip|[Uu]ntar|[Uu]npack)\w*\('''
 regex = [
   '''\bos\.(?:WriteFile|Create|OpenFile|Rename)\(''',
   '''\bioutil\.WriteFile\(''',

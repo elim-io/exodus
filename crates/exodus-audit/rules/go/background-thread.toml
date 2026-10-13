@@ -1,0 +1,19 @@
+id = "background-thread"
+kind = "breaks"
+title = "Background loops inside the process"
+kb = "background-workers-with-cloud-tasks"
+part = "web"
+subject = "the background loops"
+clean = "background threads"
+why = "A goroutine that works outside a request, such as a scanner or a sender started with the server, gets no CPU once the response is out and stops with the instance when traffic falls, so its work stalls or is lost; with several instances each one runs its own copy."
+include = ["**/*.go"]
+# A goroutine started on a method or function named as a long-running loop: go m.worker(), go s.runScanner().
+regex = [
+  '''\bgo\s+(?:\w+\.)*(?:\w*[Ww]orker|\w*[Ll]oop|[Ss]can\w*|run\w*Scanner|\w*[Pp]oll\w*|[Cc]onsume\w*|[Pp]rocessQueue\w*)\(''',
+]
+fix = "Move each loop's trigger out of the process: Cloud Scheduler calls an endpoint that runs one pass, and the work it finds goes to Cloud Tasks or a Cloud Run job. If the loops must keep running as they are, run them in one always-on instance (instance-based billing, at least 1 vCPU), which bills every hour of the month."
+[task]
+title = "Background loops to Cloud Scheduler and Cloud Tasks"
+detail = "Give each loop an endpoint that runs one pass (POST /cron/<name>, OIDC token checked), call it from Cloud Scheduler, send long work to Cloud Tasks or a Cloud Run job, then stop starting the goroutines when the app runs on Cloud Run."
+effort = "M"
+phase = 2

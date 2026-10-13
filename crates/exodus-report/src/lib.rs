@@ -179,7 +179,7 @@ pub fn build(input: &Input, prices: &Prices, platforms: &PlatformPrices) -> Resu
                 .map_or(Some(n), |x| x.part.since);
         }
         for x in &mut findings {
-            x.since = prev.findings.iter().find(|y| y.id == x.id).map_or(Some(n), |y| y.since);
+            x.since = prev.findings.iter().find(|y| same(y, x)).map_or(Some(n), |y| y.since);
         }
         for t in &mut tasks {
             t.since = prev
@@ -880,6 +880,13 @@ fn what(f: &Findings) -> String {
     }
 }
 
+/// Whether two findings are the same pattern in the same file. Ids are numbered by file order (`<rule>-2`), and a
+/// rule that stops firing in one file renumbers the rest, so the id cannot say it; a line can move with an edit.
+fn same(a: &ReportFinding, b: &ReportFinding) -> bool {
+    let file = |at: &str| at.rsplit_once(':').map_or(at, |(f, _)| f).to_string();
+    a.title == b.title && file(&a.at) == file(&b.at)
+}
+
 /// What this report learned since `prev`: parts and patterns found or gone, answers, and how the numbers moved.
 fn since(prev: &Report, r: &Report) -> Since {
     let n = r.n;
@@ -900,7 +907,7 @@ fn since(prev: &Report, r: &Report) -> Since {
     lines.extend(
         prev.findings
             .iter()
-            .filter(|p| !r.findings.iter().any(|x| x.id == p.id))
+            .filter(|p| !r.findings.iter().any(|x| same(p, x)))
             .map(|p| format!("No longer found: {} ({})", p.title, p.at)),
     );
     // mock.ts reportDiff: an answer counts as learned when an earlier report asked the question
@@ -963,4 +970,30 @@ fn since(prev: &Report, r: &Report) -> Since {
         _ => {}
     }
     Since { prev: prev.n, lines }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn finding(id: &str, at: &str) -> ReportFinding {
+        serde_json::from_value(serde_json::json!({
+            "i": 1, "id": id, "kind": "breaks", "title": "Files written to local disk", "at": at,
+            "code": "", "why": "", "fix": "", "part": "files", "kb": ""
+        }))
+        .unwrap()
+    }
+
+    #[test]
+    fn a_finding_renumbered_or_moved_is_the_same() {
+        // a rule that stopped firing in one file renumbers the others: local-disk-write-2 becomes local-disk-write
+        assert!(same(
+            &finding("local-disk-write-2", "a/fs.go:37"),
+            &finding("local-disk-write", "a/fs.go:39")
+        ));
+        assert!(!same(
+            &finding("local-disk-write", "cmd/install.go:301"),
+            &finding("local-disk-write", "a/fs.go:37")
+        ));
+    }
 }

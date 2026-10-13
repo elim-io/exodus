@@ -36,7 +36,7 @@
       "cache": { "cents": 700, "size": "a Redis service at 0.1 vCPU and 0.5 GB" },
       "diskGb": { "cents": 15, "size": "a volume" },
       "egressGb": { "cents": 5, "size": "egress" },
-      "sleep": "Railway can put a service to sleep when it has no traffic and wake it on the next request; it is off in railway.json, so these processes run every hour."
+      "sleep": "Railway can put a service to sleep when it has no traffic and wake it on the next request; that setting is off unless a service turns it on, so these processes run every hour."
     }
   }
 }
