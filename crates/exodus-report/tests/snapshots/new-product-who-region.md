@@ -19,9 +19,9 @@ The parts, as planned:
 
 ## Summary
 
-**class-booking fits Cloud Run at about $11.51 a month at launch.**
+**class-booking fits Cloud Run at about $11.48 a month at launch.**
 
-At launch $11.51 a month at 300 visitors a day. In a year $16.51 a month at 2,675 a day, at 20% growth a month. The free tier covers $5.10 a month at launch.
+At launch $11.48 a month at 300 visitors a day. In a year $16.48 a month at 2,675 a day, at 20% growth a month. The free tier covers $0.54 a month at launch.
 
 Confidence: high. All 6 questions answered.
 
@@ -32,7 +32,7 @@ Cloud Run bills for the seconds the code works, so a product built from parts th
 A weekday of class-booking:
 
 - On an always-on server: billed every hour, 24 hours a day.
-- On Cloud Run: CPU only while requests and jobs run, about 1.6 CPU-hours a day.
+- On Cloud Run: CPU only while requests and jobs run, under 0.1 CPU-hours a day.
 
 A server you rent bills every hour, busy or not. Cloud Run's hours are computed from this report's numbers.
 
@@ -57,13 +57,13 @@ Prices: Google list prices, europe-west3, read Oct 9, 2026.
 | Part | Now | On Google Cloud | Today | Cloud Run |
 |---|---|---|---:|---:|
 | api and app | Planned | Cloud Run service, request-based, scales to zero | - | $0.00 |
-| reminders | Planned | Cloud Scheduler, 1 job, starting a Cloud Run job | - | $0.03 |
+| reminders | Planned | Cloud Scheduler, 1 job, calling the service | - | $0.00 |
 | Postgres | Planned | Cloud SQL for PostgreSQL, db-f1-micro, 10 GB SSD | - | $10.86 |
 | photos | Planned | Cloud Storage bucket, Standard | - | $0.02 |
 | builds | Planned | Artifact Registry, the last 3 images | - | $0.00 |
 | variables | Planned | Secret Manager, 5 secrets | - | $0.00 |
 | egress | Planned | Traffic out | - | $0.60 |
-| **Total a month** | | | **-** | **$11.51** |
+| **Total a month** | | | **-** | **$11.48** |
 
 Today: nothing, the product is not built yet.
 
@@ -75,8 +75,9 @@ How each Cloud Run number is computed:
 - api and app, Cloud Run memory, request-based: 1,350 GiB-s x $0.0000035 = $0.00, less $0.00 free = $0.00 (6 requests a visitor, 0.05 s of 1 vCPU and 0.5 GiB each)
 - api and app, Cloud Run requests: 54,000 requests x $0.00000056 = $0.03, less $0.03 free = $0.00 (6 requests a visitor)
 - reminders, Cloud Scheduler jobs: 1 jobs x $0.10 = $0.10, less $0.10 free = $0.00 (*/15 * * * *)
-- reminders, Cloud Run jobs CPU: 172,800 vCPU-s x $0.0000252 = $4.35, less $4.32 free = $0.03 (2,880 runs a month of about 1 min at 1 vCPU)
-- reminders, Cloud Run jobs memory: 86,400 GiB-s x $0.0000028 = $0.24, less $0.24 free = $0.00 (the same runs at 0.5 GiB)
+- reminders, Cloud Run CPU, request-based: 144 vCPU-s x $0.0000336 = $0.00, less $0.00 free = $0.00 (2,880 passes a month called on the service, 0.05 s of 1 vCPU each, as one of its requests)
+- reminders, Cloud Run memory, request-based: 72 GiB-s x $0.0000035 = $0.00, less $0.00 free = $0.00 (the same passes at 0.5 GiB)
+- reminders, Cloud Run requests: 2,880 requests x $0.00000056 = $0.00, less $0.00 free = $0.00 (one request a pass)
 - Postgres, Cloud SQL db-f1-micro: 730 hours x $0.01218 = $8.89 (always on, 730 hours)
 - Postgres, Cloud SQL SSD storage: 10 GB-months x $0.1972 = $1.97 (10 GB, Cloud SQL's smallest disk)
 - photos, Cloud Storage, Standard: 1 GB-months x $0.023 = $0.02 (1 GB of files)
@@ -88,7 +89,7 @@ How each Cloud Run number is computed:
 ## Architecture
 
 - api and app: Cloud Run service, request-based, scales to zero
-- reminders: Cloud Scheduler, 1 job, starting a Cloud Run job
+- reminders: Cloud Scheduler, 1 job, calling the service
 - Postgres: Cloud SQL for PostgreSQL, db-f1-micro, 10 GB SSD
 - photos: Cloud Storage bucket, Standard
 - builds: Artifact Registry, the last 3 images
@@ -178,7 +179,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 ### Processes (2)
 
 - api and app: Cloud Run service, request-based, scales to zero
-- reminders: Cloud Scheduler, 1 job, starting a Cloud Run job
+- reminders: Cloud Scheduler, 1 job, calling the service
 
 ### Data (2)
 

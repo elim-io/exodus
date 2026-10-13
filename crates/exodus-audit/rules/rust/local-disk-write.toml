@@ -9,10 +9,12 @@ why = "An instance's disk lives in its memory: a file counts against the memory 
 unless = '''(?i)\btmp|/tmp\b|tempfile|tempdir|temporary|mkdtemp|temp_dir'''
 include = ["**/*.rs"]
 stop_at = "#[cfg(test)]"
+# std and tokio file writes, and opendal's local filesystem service (its writes land in the folder it is rooted at).
 regex = [
   '''\bfs::(?:write|copy|rename)\(|\bFile::create\(''',
+  '''\bopendal::services::Fs::default\(\)''',
 ]
-fix = "Write to a Cloud Storage bucket (the google-cloud-storage crate) and hand out signed URLs."
+fix = "Write to a Cloud Storage bucket (the google-cloud-storage crate, or opendal's gcs service where the app already writes through opendal) and hand out signed URLs."
 [task]
 title = "Files to a Cloud Storage bucket"
 detail = "Write to a bucket instead of the disk; for uploads, sign a PUT URL so the browser sends the file straight to the bucket and the service stores only the key. Copy the existing files over before the switch."

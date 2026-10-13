@@ -203,7 +203,7 @@ pub fn version(spec: &str, parts: usize) -> Option<String> {
 }
 
 /// Order of store badges.
-const ENGINES: &[&str] = &["PostgreSQL", "MySQL", "MongoDB", "SQLite", "Redis"];
+const ENGINES: &[&str] = &["PostgreSQL", "MySQL", "MariaDB", "MongoDB", "SQLite", "Redis"];
 
 /// Language and version, frameworks, servers, job runners, the stores in use, the platform's file.
 pub fn badges(f: &Facts, platform: &Platform, files: &BTreeMap<String, String>) -> Vec<String> {

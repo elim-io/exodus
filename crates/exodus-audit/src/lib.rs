@@ -61,6 +61,8 @@ struct Facts {
     language: Option<(u8, &'static str, Option<String>)>,
     dockerfile: Option<String>,
     docker_cmd: Option<String>,
+    /// The route the app answers health checks on (`/alive`), from the platform file or the code.
+    health: Option<String>,
     /// The platform deploys the root folder's app itself (Firebase Hosting of a framework): no fallback process.
     hosted_root: bool,
     /// Parts that stay where they are (`clean` entries starting with `STAYS`).
@@ -117,7 +119,17 @@ pub fn audit_with(root: &Path, rules: &[rules::Rule], limit: usize) -> io::Resul
         f.env.extend(redact::assigned(&p.command).into_iter().map(String::from));
     }
     let code = code::scan(&files);
-    f.env.extend(code.env.iter().map(|(name, _)| name.clone()));
+    // the names the server's code reads; a test harness or a build script reads its own
+    let placer = place::Placer::new(&files);
+    f.env.extend(
+        code.env
+            .iter()
+            .filter(|(_, a)| placer.off_server(at_key(a).0).is_none())
+            .map(|(name, _)| name.clone()),
+    );
+    if f.health.is_none() {
+        f.health.clone_from(&code.health);
+    }
     f.platforms.sort_by_key(|p| p.0);
     let platform = f.platforms.first().map(|p| p.1.clone()).unwrap_or_else(|| Platform {
         name: "Unknown".into(),
@@ -148,6 +160,13 @@ pub fn audit_with(root: &Path, rules: &[rules::Rule], limit: usize) -> io::Resul
     let web: Vec<&str> = stack::found(&f.deps, stack::Role::Web)
         .iter()
         .map(|(l, _)| l.badge)
+        .collect();
+    // an app built for SQLite and a server database (an ORM with both) runs on the server one when it has it, so
+    // its SQLite code is no finding (decision of 2026-10-13: SQLite moves to Firestore only when it is the database)
+    let server_db = f.data.iter().any(|d| d.kind == "db");
+    let hits: Vec<rules::Hit> = hits
+        .into_iter()
+        .filter(|h| !(server_db && h.rule.id == "sqlite-database"))
         .collect();
     // a file written beside the SQLite open in the same file is the database file: one change, not two
     let db_files: Vec<&str> = hits
@@ -185,6 +204,7 @@ pub fn audit_with(root: &Path, rules: &[rules::Rule], limit: usize) -> io::Resul
         dockerfile: f.dockerfile,
         ci: ci_file(&files),
         domains: None,
+        health: f.health,
     };
     Ok(Findings {
         exodus: exodus_schema::FINDINGS.into(),

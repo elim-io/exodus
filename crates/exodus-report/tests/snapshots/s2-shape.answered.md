@@ -1,6 +1,6 @@
 # s2-shape: report 1
 
-From Railway to Google Cloud Run. Report 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 with Claude Code from 22 findings; no code was uploaded.
+From Railway to Google Cloud Run. Report 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 with Claude Code from 23 findings; no code was uploaded.
 
 Built on this machine by `exodus report`; it has no share link.
 
@@ -85,7 +85,7 @@ The container: built from your Dockerfile.
 
 Nothing found that breaks or bills while idle on Cloud Run.
 
-Looked for and not found: workers waiting on a queue, work after the response, in-process timers, files written to disk, sessions in memory, sessions kept in Redis, long-lived connections, migrations in a release step, background threads, SQLite or files used as a database.
+Looked for and not found: workers waiting on a queue, work after the response, in-process timers, files written to disk, sessions in memory, sign-in state in memory, sessions kept in Redis, long-lived connections, migrations in a release step, background threads, SQLite or files used as a database.
 
 Not on the server, so not counted: ios/ (mobile app), tools/ (build and tool code), website/build.py (build and tool code), website/start/ (browser code).
 
@@ -130,7 +130,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 ## Everything the audit sent
 
-22 findings: 1 processes, 3 build, settings and traffic, 10 looked for, not found, 4 not on the server, not counted, 2 stays as it is, not counted, 2 read by your agent.
+23 findings: 1 processes, 3 build, settings and traffic, 11 looked for, not found, 4 not on the server, not counted, 2 stays as it is, not counted, 2 read by your agent.
 
 ### Processes (1)
 
@@ -142,13 +142,14 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 - variables: 0 variables, 0 of them secrets
 - egress: Traffic out
 
-### Looked for, not found (10)
+### Looked for, not found (11)
 
 - No workers waiting on a queue
 - No work after the response
 - No in-process timers
 - No files written to disk
 - No sessions in memory
+- No sign-in state in memory
 - No sessions kept in Redis
 - No long-lived connections
 - No migrations in a release step
@@ -185,4 +186,4 @@ Google's price lists, read Oct 9, 2026:
 - Artifact Registry pricing: https://cloud.google.com/artifact-registry/pricing
 - Network egress pricing: https://cloud.google.com/vpc/network-pricing
 
-How this report was made: exodus 0.1.0 and Claude Code read 19 files of s2-shape on your machine and found 22 findings (4.4 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
+How this report was made: exodus 0.1.0 and Claude Code read 19 files of s2-shape on your machine and found 23 findings (4.4 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.

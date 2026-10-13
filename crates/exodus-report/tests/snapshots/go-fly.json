@@ -340,7 +340,7 @@
   "growth": 0.0,
   "cost": {
     "today": 357,
-    "cloudRun": 95,
+    "cloudRun": 60,
     "lines": [
       {
         "part": {
@@ -409,7 +409,7 @@
           "kind": "cron",
           "name": "app timers",
           "now": "1 schedule inside the app process",
-          "after": "Cloud Scheduler, 1 job, starting a Cloud Run job",
+          "after": "Cloud Scheduler, 1 job, calling the service",
           "today": 0,
           "product": "scheduler",
           "uses": [
@@ -419,18 +419,23 @@
               "how": "*/10 * * * *"
             },
             {
-              "sku": "job-cpu",
-              "qty": 259200.0,
-              "how": "4,320 runs a month of about 1 min at 1 vCPU"
+              "sku": "run-cpu",
+              "qty": 259.2,
+              "how": "4,320 passes a month called on the service, 0.06 s of 1 vCPU each, as one of its requests"
             },
             {
-              "sku": "job-mem",
-              "qty": 129600.0,
-              "how": "the same runs at 0.5 GiB"
+              "sku": "run-mem",
+              "qty": 129.6,
+              "how": "the same passes at 0.5 GiB"
+            },
+            {
+              "sku": "run-req",
+              "qty": 4320.0,
+              "how": "one request a pass"
             }
           ]
         },
-        "cents": 35,
+        "cents": 0,
         "uses": [
           {
             "sku": "scheduler",
@@ -442,21 +447,30 @@
             "cents": 0
           },
           {
-            "sku": "job-cpu",
-            "how": "4,320 runs a month of about 1 min at 1 vCPU",
-            "qty": 259200.0,
-            "price": 0.000018,
-            "gross": 4.6656,
-            "free": 4.32,
-            "cents": 35
+            "sku": "run-cpu",
+            "how": "4,320 passes a month called on the service, 0.06 s of 1 vCPU each, as one of its requests",
+            "qty": 259.2,
+            "price": 0.000024,
+            "gross": 0.0062208,
+            "free": 0.0062208,
+            "cents": 0
           },
           {
-            "sku": "job-mem",
-            "how": "the same runs at 0.5 GiB",
-            "qty": 129600.0,
-            "price": 2e-6,
-            "gross": 0.2592,
-            "free": 0.2592,
+            "sku": "run-mem",
+            "how": "the same passes at 0.5 GiB",
+            "qty": 129.6,
+            "price": 2.5e-6,
+            "gross": 0.000324,
+            "free": 0.000324,
+            "cents": 0
+          },
+          {
+            "sku": "run-req",
+            "how": "one request a pass",
+            "qty": 4320.0,
+            "price": 4e-7,
+            "gross": 0.001728,
+            "free": 0.001728,
             "cents": 0
           }
         ]
@@ -654,6 +668,7 @@
     "work after the response",
     "files written to disk",
     "sessions in memory",
+    "sign-in state in memory",
     "sessions kept in Redis",
     "long-lived connections",
     "migrations in a release step",
@@ -946,6 +961,7 @@
         "No work after the response",
         "No files written to disk",
         "No sessions in memory",
+        "No sign-in state in memory",
         "No sessions kept in Redis",
         "No long-lived connections",
         "No migrations in a release step",
@@ -953,7 +969,7 @@
       ]
     }
   ],
-  "findingsCount": 20,
+  "findingsCount": 21,
   "sources": {
     "kb": [
       {
@@ -1011,14 +1027,14 @@
   },
   "day": {
     "processesAllDay": 1,
-    "cpuHoursADay": 2.47,
+    "cpuHoursADay": 0.07,
     "alwaysOn": false,
     "sleepNote": "Fly.io can stop idle machines (auto_stop_machines); fly.toml keeps them running, so they run every hour.",
     "serverless": false
   },
   "audit": {
     "files": 5,
-    "findings": 20,
+    "findings": 21,
     "kb": 5.0
   }
 }

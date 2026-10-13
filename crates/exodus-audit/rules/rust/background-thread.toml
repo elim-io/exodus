@@ -1,0 +1,25 @@
+id = "background-thread"
+kind = "breaks"
+title = "Background loops inside the process"
+kb = "background-workers-with-cloud-tasks"
+part = "web"
+subject = "the background loops"
+clean = "background threads"
+why = "A thread or task that loops outside a request, such as a poller or a sender started with the server, gets no CPU once the response is out and stops with the instance when traffic falls, so its work stalls or is lost; with several instances each one runs its own copy."
+include = ["**/*.rs"]
+stop_at = "#[cfg(test)]"
+# A thread or a tokio task whose body is a loop: std::thread::spawn(move || loop { .. }), tokio::spawn(async move {
+# loop { .. } }). A task that waits on a signal, or a loop inside one connection, is not background work.
+unless = '''(?i)signal|ctrl_c|shutdown'''
+unless_in = '''(?i)\bws\b|websocket|Stream!|EventStream'''
+regex = [
+  '''\b(?:std::)?thread::spawn\(\s*(?:move\s*)?\|\|\s*(?:\{\s*)?loop\b''',
+  '''\b(?:tokio::|task::)spawn\(\s*async\s+(?:move\s*)?\{\s*loop\b''',
+  '''\b(?:tokio::)?spawn\(\s*async\s+(?:move\s*)?\{\s*(?:let\s+mut\s+\w+\s*=\s*[^;]{0,120};\s*)?loop\b''',
+]
+fix = "Move each loop's trigger out of the process: Cloud Scheduler calls an endpoint that runs one pass, and the work it finds goes to Cloud Tasks or a Cloud Run job. If the loops must keep running as they are, run them in one always-on instance (instance-based billing, at least 1 vCPU), which bills every hour of the month."
+[task]
+title = "Background loops to Cloud Scheduler and Cloud Tasks"
+detail = "Give each loop an endpoint that runs one pass (POST /cron/<name>, OIDC token checked), call it from Cloud Scheduler, send long work to Cloud Tasks or a Cloud Run job, then stop spawning the loops when the app runs on Cloud Run."
+effort = "M"
+phase = 2

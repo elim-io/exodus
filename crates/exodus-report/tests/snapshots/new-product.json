@@ -415,7 +415,7 @@
           "kind": "cron",
           "name": "reminders",
           "now": "Planned",
-          "after": "Cloud Scheduler, 1 job, starting a Cloud Run job",
+          "after": "Cloud Scheduler, 1 job, calling the service",
           "today": null,
           "product": "scheduler",
           "uses": [
@@ -425,14 +425,19 @@
               "how": "*/15 * * * *"
             },
             {
-              "sku": "job-cpu",
-              "qty": 172800.0,
-              "how": "2,880 runs a month of about 1 min at 1 vCPU"
+              "sku": "run-cpu",
+              "qty": 144.0,
+              "how": "2,880 passes a month called on the service, 0.05 s of 1 vCPU each, as one of its requests"
             },
             {
-              "sku": "job-mem",
-              "qty": 86400.0,
-              "how": "the same runs at 0.5 GiB"
+              "sku": "run-mem",
+              "qty": 72.0,
+              "how": "the same passes at 0.5 GiB"
+            },
+            {
+              "sku": "run-req",
+              "qty": 2880.0,
+              "how": "one request a pass"
             }
           ]
         },
@@ -448,21 +453,30 @@
             "cents": 0
           },
           {
-            "sku": "job-cpu",
-            "how": "2,880 runs a month of about 1 min at 1 vCPU",
-            "qty": 172800.0,
-            "price": 0.000018,
-            "gross": 3.1104000000000003,
-            "free": 3.1104000000000003,
+            "sku": "run-cpu",
+            "how": "2,880 passes a month called on the service, 0.05 s of 1 vCPU each, as one of its requests",
+            "qty": 144.0,
+            "price": 0.000024,
+            "gross": 0.003456,
+            "free": 0.003456,
             "cents": 0
           },
           {
-            "sku": "job-mem",
-            "how": "the same runs at 0.5 GiB",
-            "qty": 86400.0,
-            "price": 2e-6,
-            "gross": 0.17279999999999998,
-            "free": 0.17279999999999998,
+            "sku": "run-mem",
+            "how": "the same passes at 0.5 GiB",
+            "qty": 72.0,
+            "price": 2.5e-6,
+            "gross": 0.00018,
+            "free": 0.00018,
+            "cents": 0
+          },
+          {
+            "sku": "run-req",
+            "how": "one request a pass",
+            "qty": 2880.0,
+            "price": 4e-7,
+            "gross": 0.001152,
+            "free": 0.001152,
             "cents": 0
           }
         ]
@@ -899,7 +913,7 @@
       "title": "Processes",
       "items": [
         "api and app: Cloud Run service, request-based, scales to zero",
-        "reminders: Cloud Scheduler, 1 job, starting a Cloud Run job"
+        "reminders: Cloud Scheduler, 1 job, calling the service"
       ]
     },
     {
@@ -1007,7 +1021,7 @@
   },
   "day": {
     "processesAllDay": 0,
-    "cpuHoursADay": 1.63,
+    "cpuHoursADay": 0.03,
     "alwaysOn": false,
     "sleepNote": "A server you rent bills every hour, busy or not.",
     "serverless": false

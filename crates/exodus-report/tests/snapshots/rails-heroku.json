@@ -499,12 +499,12 @@
             },
             {
               "sku": "job-cpu",
-              "qty": 1800.0,
-              "how": "30 runs a month of about 1 min at 1 vCPU"
+              "qty": 300.0,
+              "how": "30 job runs a month, each taken as 10 s at 1 vCPU"
             },
             {
               "sku": "job-mem",
-              "qty": 900.0,
+              "qty": 150.0,
               "how": "the same runs at 0.5 GiB"
             }
           ]
@@ -522,20 +522,20 @@
           },
           {
             "sku": "job-cpu",
-            "how": "30 runs a month of about 1 min at 1 vCPU",
-            "qty": 1800.0,
+            "how": "30 job runs a month, each taken as 10 s at 1 vCPU",
+            "qty": 300.0,
             "price": 0.000018,
-            "gross": 0.0324,
-            "free": 0.0324,
+            "gross": 0.0054,
+            "free": 0.0054,
             "cents": 0
           },
           {
             "sku": "job-mem",
             "how": "the same runs at 0.5 GiB",
-            "qty": 900.0,
+            "qty": 150.0,
             "price": 2e-6,
-            "gross": 0.0018,
-            "free": 0.0018,
+            "gross": 0.0003,
+            "free": 0.0003,
             "cents": 0
           }
         ]
@@ -805,6 +805,7 @@
     "work after the response",
     "in-process timers",
     "sessions in memory",
+    "sign-in state in memory",
     "sessions kept in Redis",
     "long-lived connections",
     "background threads",
@@ -1125,6 +1126,7 @@
         "No work after the response",
         "No in-process timers",
         "No sessions in memory",
+        "No sign-in state in memory",
         "No sessions kept in Redis",
         "No long-lived connections",
         "No background threads",
@@ -1132,7 +1134,7 @@
       ]
     }
   ],
-  "findingsCount": 28,
+  "findingsCount": 29,
   "sources": {
     "kb": [
       {
@@ -1214,14 +1216,14 @@
   },
   "day": {
     "processesAllDay": 2,
-    "cpuHoursADay": 0.38,
+    "cpuHoursADay": 0.37,
     "alwaysOn": false,
     "sleepNote": "Heroku sleeps only Eco dynos; this app runs on paid dynos, which run every hour.",
     "serverless": false
   },
   "audit": {
     "files": 13,
-    "findings": 28,
-    "kb": 6.6
+    "findings": 29,
+    "kb": 6.7
   }
 }

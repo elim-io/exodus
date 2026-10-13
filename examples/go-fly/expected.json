@@ -43,7 +43,7 @@
       "part": "web", "kb": "cron-and-timers-with-cloud-scheduler", "subject": "the timers"
     }
   ],
-  "clean": ["workers waiting on a queue", "work after the response", "files written to disk", "sessions in memory", "sessions kept in Redis", "long-lived connections", "migrations in a release step", "background threads"],
+  "clean": ["workers waiting on a queue", "work after the response", "files written to disk", "sessions in memory", "sign-in state in memory", "sessions kept in Redis", "long-lived connections", "migrations in a release step", "background threads"],
   "questions": [
     { "id": "visits" }, { "id": "bill" }, { "id": "users" }, { "id": "egress" }, { "id": "connections" }, { "id": "peak" },
     { "id": "domains" }, { "id": "downtime" }, { "id": "ci" }, { "id": "services" }, { "id": "envs" }, { "id": "growth" },

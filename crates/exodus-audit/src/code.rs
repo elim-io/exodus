@@ -22,6 +22,8 @@ pub struct Code {
     /// (name, `file:line`) for every read of an env var, in file and line order.
     pub env: Vec<(String, String)>,
     pub schedules: Vec<Found>,
+    /// The first health route the code serves (`/alive`, `/healthz`).
+    pub health: Option<String>,
 }
 
 /// Files the code scan reads: source, templates, and YAML that may embed env reads (`database.yml`).
@@ -84,6 +86,12 @@ static SQLITE: LazyLock<Regex> = LazyLock::new(|| {
         r#"sql\.Open\(\s*"sqlite3?"|sqlite3\.connect\(|new\s+(?:Database|sqlite3\.Database)\(|Connection::open\(|SQLite3::Database\.new|django\.db\.backends\.sqlite3"#,
     )
 });
+/// A route the app answers health checks on, as a string literal in server code.
+static HEALTH: LazyLock<Regex> =
+    LazyLock::new(|| re(r#"["'](/(?:api/)?(?:healthz?|alive|livez|readyz?|_health))["']"#));
+/// Lines just above a timer that put it inside one connection (a WebSocket's or a stream's heartbeat).
+static IN_CONNECTION: LazyLock<Regex> =
+    LazyLock::new(|| re(r"(?i)\bws\b|websocket|Stream!|EventStream|heartbeat|keep.?alive"));
 static UPPER: LazyLock<Regex> = LazyLock::new(|| re(r"\b[A-Z][A-Z0-9_]{2,}\b"));
 
 pub fn is_env_name(s: &str) -> bool {
@@ -126,20 +134,40 @@ fn code_lines(files: &BTreeMap<String, String>) -> impl Iterator<Item = (&str, u
 pub fn scan(files: &BTreeMap<String, String>) -> Code {
     let mut env = Vec::new();
     let mut schedules = Vec::new();
+    let mut health = None;
+    // the last lines of the current file, to see whether a timer sits inside a connection
+    let mut recent: Vec<&str> = Vec::new();
+    let mut file = "";
     for (path, n, line) in code_lines(files) {
+        if path != file {
+            (file, recent) = (path, Vec::new());
+        }
         for c in ENV.captures_iter(line) {
             if let Some(m) = c.iter().skip(1).flatten().next() {
                 env.push((m.as_str().to_string(), at(path, n)));
             }
         }
-        if let Some(cron) = schedule(line) {
+        if let Some(cron) = schedule(line)
+            && !recent.iter().any(|l| IN_CONNECTION.is_match(l))
+        {
             schedules.push(Found {
                 at: at(path, n),
                 value: cron,
             });
         }
+        if health.is_none()
+            && !path.ends_with(".yml")
+            && !path.ends_with(".yaml")
+            && let Some(c) = HEALTH.captures(line)
+        {
+            health = Some(c[1].to_string());
+        }
+        recent.push(line);
+        if recent.len() > 4 {
+            recent.remove(0);
+        }
     }
-    Code { env, schedules }
+    Code { env, schedules, health }
 }
 
 /// The cron line of a timer on this line, if it starts one.
@@ -220,6 +248,7 @@ fn points_at(engine: &str, name: &str) -> bool {
 /// points at the code line that connects or writes (else the dependency).
 pub fn data(f: &mut Facts, code: &Code, files: &BTreeMap<String, String>, hits: &[Hit]) {
     let stores = found(&f.deps, Role::Store);
+    let placer = crate::place::Placer::new(files);
     for (engine, id, kind, name) in [
         ("PostgreSQL", "postgres", "db", "Postgres"),
         ("MySQL", "mysql", "db", "MySQL"),
@@ -229,10 +258,25 @@ pub fn data(f: &mut Facts, code: &Code, files: &BTreeMap<String, String>, hits: 
         let Some((_, dep)) = stores.iter().find(|(l, _)| l.badge == engine) else {
             continue;
         };
-        if f.has_engine(engine) {
+        // one ORM built for several engines (`diesel[postgres]`, `diesel[mysql]`) runs on one of them: the first
+        if kind == "db"
+            && let Some((krate, _)) = dep.name.split_once('[')
+            && f.data.iter().any(|d| d.kind == "db")
+            && stores
+                .iter()
+                .any(|(l, d)| l.badge != engine && d.name.starts_with(&format!("{krate}[")) && f.has_engine(l.badge))
+        {
             continue;
         }
-        let hit = code.env.iter().find(|(n, _)| points_at(engine, n));
+        // a MariaDB server is what a MySQL driver talks to
+        if f.has_engine(engine) || (engine == "MySQL" && f.has_engine("MariaDB")) {
+            continue;
+        }
+        // the env read in code that runs on the server (a test harness reads the same name)
+        let hit = code
+            .env
+            .iter()
+            .find(|(n, a)| points_at(engine, n) && placer.off_server(at_key(a).0).is_none());
         f.data.push(store(
             id,
             kind,

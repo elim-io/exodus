@@ -28,7 +28,7 @@ pub fn read(f: &mut Facts, files: &BTreeMap<String, String>) {
     }
     for name in ["railway.json", "railway.toml"] {
         if let Some(t) = files.get(name) {
-            railway::read(f, name, t);
+            railway::read(f, name, t, files);
         }
     }
     for name in ["render.yaml", "render.yml"] {
@@ -42,12 +42,14 @@ pub fn read(f: &mut Facts, files: &BTreeMap<String, String>) {
     if let Some(t) = files.get("app.json") {
         heroku::read(f, t);
     }
-    // The base compose file first, so it names the processes; a compose folder (`docker/`) when the root has none.
+    // The base compose file first, so it names the processes; a compose folder (`docker/`) when the root has none
+    // and no platform file says how the app is deployed (a compose file in a folder beside one is a dev or test
+    // setup, never the production process list).
     let mut composes: Vec<(&String, &String)> = files
         .iter()
         .filter(|(n, _)| !n.contains('/') && compose::is_compose(n))
         .collect();
-    if composes.is_empty() {
+    if composes.is_empty() && f.platforms.is_empty() {
         let placer = crate::place::Placer::new(files);
         composes = files
             .iter()
@@ -198,6 +200,25 @@ pub fn docker(text: &str) -> Docker {
         cmd: (!parts.is_empty()).then(|| parts.join(" ")),
         line,
         image,
+    }
+}
+
+/// The Dockerfile a platform file names (`build.dockerfilePath`, `[build] dockerfile`): its start command becomes the
+/// app's, and its path the one the report names, when the root has none of its own.
+fn named_dockerfile(f: &mut Facts, files: &BTreeMap<String, String>, path: &str) -> Option<Docker> {
+    let path = path.trim_start_matches("./");
+    let d = docker(files.get(path)?);
+    if f.dockerfile.as_deref().is_none_or(|p| p == path) || f.docker_cmd.is_none() {
+        f.dockerfile = Some(path.into());
+        f.docker_cmd.clone_from(&d.cmd);
+    }
+    Some(d)
+}
+
+/// The route a platform checks the app's health on (`/alive`), else the first health route the code serves.
+pub(crate) fn health(f: &mut Facts, path: &str) {
+    if f.health.is_none() && path.starts_with('/') {
+        f.health = Some(path.into());
     }
 }
 

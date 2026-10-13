@@ -62,7 +62,7 @@
       "part": "worker", "kb": "background-workers-with-cloud-tasks", "subject": "the worker"
     }
   ],
-  "clean": ["work after the response", "in-process timers", "sessions in memory", "sessions kept in Redis", "long-lived connections", "background threads", "SQLite or files used as a database"],
+  "clean": ["work after the response", "in-process timers", "sessions in memory", "sign-in state in memory", "sessions kept in Redis", "long-lived connections", "background threads", "SQLite or files used as a database"],
   "questions": [
     { "id": "visits" }, { "id": "bill" }, { "id": "users" }, { "id": "egress" }, { "id": "connections" }, { "id": "peak" },
     { "id": "domains" }, { "id": "downtime" }, { "id": "jobs" }, { "id": "ci" }, { "id": "services" }, { "id": "envs" },

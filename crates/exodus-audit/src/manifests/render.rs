@@ -37,6 +37,9 @@ pub fn read(f: &mut Facts, file: &str, text: &str) {
             }
             _ => continue,
         };
+        if let Some(path) = svc.str("healthCheckPath") {
+            super::health(f, path);
+        }
         if kind == "web" && sleep.is_none() {
             sleep = svc.get("plan").map(|p| Sleep {
                 on: p.value == "free",

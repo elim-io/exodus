@@ -27,7 +27,7 @@ const STORES: &[(&str, &str, &str, &str)] = &[
     ("postgres", "postgres", "db", "PostgreSQL"),
     ("postgis", "postgres", "db", "PostgreSQL"),
     ("mysql", "mysql", "db", "MySQL"),
-    ("mariadb", "mysql", "db", "MySQL"),
+    ("mariadb", "mariadb", "db", "MariaDB"),
     ("mongo", "mongodb", "db", "MongoDB"),
     ("redis", "redis", "cache", "Redis"),
     ("valkey", "redis", "cache", "Redis"),

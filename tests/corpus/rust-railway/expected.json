@@ -1,0 +1,54 @@
+{
+  "exodus": "corpus/1",
+  "name": "rust-railway",
+  "shape": "Rust Rocket server with a job scheduler, WebSockets and a data folder; Postgres, MySQL or SQLite",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "the repository ships a Docker image and names no host; people run it on Railway, Fly.io or a VPS with a volume at /data"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Rocket server",
+      "from": "Dockerfile",
+      "note": "Dockerfile is a symlink to docker/Dockerfile.debian, whose last stage runs /start.sh; the server answers /alive for health checks"
+    }
+  ],
+  "stays": [],
+  "data": [
+    {
+      "kind": "db",
+      "engine": "PostgreSQL",
+      "from": "Cargo.toml",
+      "note": "diesel is built for postgresql, mysql and sqlite (the image enables all three) and DATABASE_URL chooses; a hosted deployment gives it Postgres, so the SQLite code is not the database"
+    },
+    {
+      "kind": "files",
+      "engine": "disk",
+      "from": "src/storage.rs",
+      "note": "an opendal Fs operator rooted at DATA_FOLDER: attachments, sends, the icon cache, the RSA signing key and config.json"
+    }
+  ],
+  "breaks": [
+    { "rule": "in-process-timer", "file": "src/main.rs", "note": "schedule_jobs starts a job_scheduler_ng thread with about ten cron jobs (purges, reminders, emergency access)" },
+    { "rule": "local-disk-write", "file": "src/storage.rs", "note": "the data folder: files written there are lost with the instance and differ between instances" }
+  ],
+  "idle": [
+    { "rule": "long-lived-connection", "file": "src/api/notifications.rs", "note": "rocket_ws WebSocket hub for client notifications; users on other instances are not reached without a shared bus" }
+  ],
+  "notBreaks": [
+    { "rule": "in-process-timer", "file": "src/api/notifications.rs", "why": "a 15 s ping interval inside one WebSocket connection, not a schedule" },
+    { "rule": "sqlite-database", "file": "src/db/mod.rs", "why": "SQLite is one of three engines and the deployment uses Postgres" }
+  ],
+  "notOnServer": [
+    "playwright/",
+    "src/static/",
+    "tools/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read: src/main.rs (launch, schedule_jobs, signal tasks), src/storage.rs, src/config.rs (config loaded on a thread at start, written to the data folder by the admin page), src/api/notifications.rs, src/api/icons.rs, src/auth.rs (RSA key file), Cargo.toml features, docker/Dockerfile.debian and playwright/ (a test harness whose docker-compose.yml starts Vaultwarden, MariaDB, Postgres and Keycloak for the browser tests; never the production process list). The config is read through a macro rather than env::var, so few env names are found; that is a gap in names, not a finding."
+}

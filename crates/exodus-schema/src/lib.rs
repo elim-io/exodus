@@ -142,6 +142,9 @@ pub struct Settings {
     pub ci: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub domains: Option<Vec<String>>,
+    /// The route the app already answers health checks on (`/alive`), from the platform file or the code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub health: Option<String>,
     pub variables_total: usize,
 }
 

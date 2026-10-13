@@ -17,3 +17,5 @@ fastapi-tasks      https://github.com/mealie-recipes/mealie       0caaf22c470626
 phoenix            https://github.com/plausible/analytics         0ea0cb3f6d6f1079423ed266d542feba6d676f31  Elixir/Phoenix with Oban
 axum               https://github.com/launchbadge/realworld-axum-sqlx f1b25654773228297e35c292f357d33b7121a101 Rust Axum with Postgres
 compose            https://github.com/healthchecks/healthchecks   efcc84b6a49f087445a118ccb05186bfb5c33082  Django with docker-compose and a long-running sender
+rust-railway       https://github.com/dani-garcia/vaultwarden    7c188967e7a467b19b2757bc3326f9cf3ccae327  Rust Rocket server with a job scheduler, WebSockets and a data folder
+go-compose         https://github.com/knadh/listmonk               ef0a75872463f10a4848af6c547d1c057405453a  Go server with in-process campaign workers, timers and uploads on disk

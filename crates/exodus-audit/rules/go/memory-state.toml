@@ -1,0 +1,20 @@
+id = "memory-state"
+kind = "breaks"
+title = "Sign-in state kept in instance memory"
+kb = "sessions-without-redis"
+part = "web"
+subject = "the tokens in memory"
+clean = "sign-in state in memory"
+why = "One-time tokens for a password reset, a 2FA step or an email check live in one instance's memory: the next request may reach another instance, which never saw the token, and a stopped instance loses them all, so the link or code fails."
+include = ["**/*.go"]
+exclude = ["**/*_test.go"]
+# A package-level map of tokens or codes, guarded by a mutex: tokens = make(map[string]Token).
+regex = [
+  '''^\s*(?:var\s+)?\w*(?:[Tt]okens?|[Oo]tps?|OTPs?|[Cc]odes|[Rr]esets|[Cc]hallenges)\s*=\s*make\(map\[string\]''',
+]
+fix = "Keep the tokens where every instance reads them: a table in the app's database with an expiry column (deleted on use and by a periodic cleanup), or a signed, short-lived token the server can check without storing it."
+[task]
+title = "One-time tokens to the database"
+detail = "Store each token's hash with its purpose, user and expiry in a table, delete it on use, and remove expired rows in the scheduled cleanup; or sign the token with a key from Secret Manager so it needs no storage."
+effort = "S"
+phase = 2

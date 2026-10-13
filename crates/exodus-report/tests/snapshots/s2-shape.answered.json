@@ -516,6 +516,7 @@
     "in-process timers",
     "files written to disk",
     "sessions in memory",
+    "sign-in state in memory",
     "sessions kept in Redis",
     "long-lived connections",
     "migrations in a release step",
@@ -764,6 +765,7 @@
         "No in-process timers",
         "No files written to disk",
         "No sessions in memory",
+        "No sign-in state in memory",
         "No sessions kept in Redis",
         "No long-lived connections",
         "No migrations in a release step",
@@ -795,7 +797,7 @@
       ]
     }
   ],
-  "findingsCount": 22,
+  "findingsCount": 23,
   "sources": {
     "kb": [
       {
@@ -839,7 +841,7 @@
   },
   "audit": {
     "files": 19,
-    "findings": 22,
+    "findings": 23,
     "kb": 4.4
   }
 }

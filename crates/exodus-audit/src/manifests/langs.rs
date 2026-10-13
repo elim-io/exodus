@@ -130,6 +130,30 @@ pub fn read(f: &mut Facts, files: &BTreeMap<String, String>) {
                 }
             }
         }
+        // the crate's own features turn on a dependency's engine: `postgresql = ["diesel/postgres"]`
+        let fstart = line_where(t, 1, |l| l.trim() == "[features]").unwrap_or(1);
+        let deps: Vec<String> = table
+            .get("dependencies")
+            .and_then(|d| d.as_table())
+            .map(|d| d.keys().cloned().collect())
+            .unwrap_or_default();
+        for (feature, list) in table.get("features").and_then(|x| x.as_table()).into_iter().flatten() {
+            for item in list.as_array().into_iter().flatten().filter_map(|v| v.as_str()) {
+                if let Some((krate, sub)) = item.split_once('/')
+                    && deps.iter().any(|d| d == krate.trim_end_matches('?'))
+                {
+                    let line =
+                        line_where(t, fstart, |l| l.trim_start().starts_with(feature.as_str())).unwrap_or(fstart);
+                    dep(
+                        f,
+                        Eco::Rust,
+                        &format!("{}[{sub}]", krate.trim_end_matches('?')),
+                        None,
+                        at("Cargo.toml", line),
+                    );
+                }
+            }
+        }
         f.language(4, "Rust", None);
     }
 

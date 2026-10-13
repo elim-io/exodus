@@ -1,0 +1,25 @@
+id = "sqlite-database"
+kind = "breaks"
+title = "SQLite on a volume as the database"
+kb = "cloud-sql-firestore-or-serverless-postgres"
+part = "sqlite"
+subject = "the SQLite file"
+clean = "SQLite or files used as a database"
+why = "Cloud Run has no disk a database file can live on: the filesystem is memory, and each instance would hold its own copy that vanishes when it stops."
+fix = "Move the data to Firestore before the move: each table becomes a collection and each row a document, the queries become reads and writes through the firestore crate, and a join becomes a second read or a field copied into the document."
+include = ["**/*.rs"]
+stop_at = "#[cfg(test)]"
+# rusqlite, sqlx and diesel opening a file. An app that can also run on Postgres or MySQL and is given one keeps its
+# server database; the audit drops this finding when it found one.
+unless = '''(?i):memory:|mode=memory'''
+regex = [
+  '''\brusqlite::Connection::open\(''',
+  '''\bSqlite(?:Pool(?:Options)?|ConnectOptions)::(?:new|connect|from_str)''',
+  '''\bSqliteConnection::establish\(''',
+  '''["']sqlite:(?://)?''',
+]
+[task]
+title = "SQLite to Firestore"
+detail = "Replace the SQLite calls with the firestore crate: a collection per table, a document per row, a transaction where the code needs one, and a composite index for each query that filters or sorts on two fields. The tests run against the Firestore emulator."
+effort = "L"
+phase = 2

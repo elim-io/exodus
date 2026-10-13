@@ -504,12 +504,12 @@
             },
             {
               "sku": "job-cpu",
-              "qty": 45240.0,
-              "how": "754 runs a month of about 1 min at 1 vCPU"
+              "qty": 7540.0,
+              "how": "754 job runs a month, each taken as 10 s at 1 vCPU"
             },
             {
               "sku": "job-mem",
-              "qty": 22620.0,
+              "qty": 3770.0,
               "how": "the same runs at 0.5 GiB"
             }
           ]
@@ -527,20 +527,20 @@
           },
           {
             "sku": "job-cpu",
-            "how": "754 runs a month of about 1 min at 1 vCPU",
-            "qty": 45240.0,
+            "how": "754 job runs a month, each taken as 10 s at 1 vCPU",
+            "qty": 7540.0,
             "price": 0.000018,
-            "gross": 0.81432,
-            "free": 0.81432,
+            "gross": 0.13572,
+            "free": 0.13572,
             "cents": 0
           },
           {
             "sku": "job-mem",
             "how": "the same runs at 0.5 GiB",
-            "qty": 22620.0,
+            "qty": 3770.0,
             "price": 2e-6,
-            "gross": 0.045239999999999995,
-            "free": 0.045239999999999995,
+            "gross": 0.00754,
+            "free": 0.00754,
             "cents": 0
           }
         ]
@@ -810,6 +810,7 @@
   ],
   "clean": [
     "work after the response",
+    "sign-in state in memory",
     "sessions kept in Redis",
     "long-lived connections",
     "migrations in a release step",
@@ -819,8 +820,8 @@
   "tasks": [
     {
       "i": 1,
-      "title": "Dockerfile and a health check route",
-      "detail": "A Node 20 image that listens on $PORT; GET /healthz answers 200 once Postgres answers.",
+      "title": "Dockerfile and the health check",
+      "detail": "A Node 20 image that listens on $PORT; its health route /healthz is the startup probe and answers 200 once Postgres answers.",
       "effort": "S",
       "phase": 1,
       "status": "todo"
@@ -1134,6 +1135,7 @@
       "title": "Looked for, not found",
       "items": [
         "No work after the response",
+        "No sign-in state in memory",
         "No sessions kept in Redis",
         "No long-lived connections",
         "No migrations in a release step",
@@ -1150,7 +1152,7 @@
       ]
     }
   ],
-  "findingsCount": 28,
+  "findingsCount": 29,
   "since": {
     "prev": 1,
     "lines": [
@@ -1243,14 +1245,14 @@
   },
   "day": {
     "processesAllDay": 3,
-    "cpuHoursADay": 2.5,
+    "cpuHoursADay": 2.15,
     "alwaysOn": false,
     "sleepNote": "Railway can put a service to sleep when it has no traffic and wake it on the next request; that setting is off unless a service turns it on, so these processes run every hour.",
     "serverless": false
   },
   "audit": {
     "files": 12,
-    "findings": 28,
-    "kb": 8.9
+    "findings": 29,
+    "kb": 9.0
   }
 }

@@ -59,6 +59,15 @@ pub fn read(f: &mut Facts, text: &str) {
         })
     });
     platform(f, 2, "Fly.io", FILE, sleep);
+    if let Some(path) = http
+        .and_then(|h| h.get("checks"))
+        .and_then(|c| c.as_array())
+        .into_iter()
+        .flatten()
+        .find_map(|c| c.get("path").and_then(|p| p.as_str()))
+    {
+        super::health(f, path);
+    }
 
     let web_groups: Vec<String> = http
         .and_then(|h| h.get("processes"))

@@ -6,8 +6,11 @@ use std::collections::BTreeMap;
 
 use exodus_schema::{Findings, Firestore, Part, PlatformList, Use};
 
-/// Seconds a scheduled run is taken to last when nothing says otherwise.
-const RUN_SECONDS: f64 = 60.0;
+/// Seconds a scheduled run is taken to last when nothing says otherwise: a job that sends, cleans or syncs.
+const RUN_SECONDS: f64 = 10.0;
+/// A schedule that fires more often than hourly is a short pass (a poll, a queue scan): it is a request to the service,
+/// priced like one of the app's requests, not a job that boots each time.
+const PASSES_A_MONTH: f64 = 720.0;
 /// Files written a month when nothing says otherwise.
 const WRITES: f64 = 2000.0;
 
@@ -221,6 +224,7 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
                     &p.name,
                     planned(now),
                     schedules.iter().map(|s| s.cron.as_str()),
+                    lang,
                 ));
             }
             _ => {} // a release step becomes a job of the deploy (its task), not a part of the month
@@ -234,6 +238,7 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
                 &format!("{} timers", p.name),
                 planned(now),
                 s.iter().map(|s| s.cron.as_str()),
+                lang,
             ));
         }
     }
@@ -289,14 +294,23 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
                 out.push(p);
             }
             "db" => {
-                let engine = if d.engine == "MySQL" { "MySQL" } else { "PostgreSQL" };
+                // Cloud SQL has no MariaDB: a MariaDB database moves to Cloud SQL for MySQL, which speaks its protocol
+                let engine = if d.engine == "MySQL" || d.engine == "MariaDB" {
+                    "MySQL"
+                } else {
+                    "PostgreSQL"
+                };
                 let now = format!("{}{version}{}", d.engine, size.clone().unwrap_or_default());
                 let mut p = part(
                     &d.id,
                     "db",
                     &d.name,
                     planned(now),
-                    format!("Cloud SQL for {engine}, db-f1-micro, 10 GB SSD"),
+                    if d.engine == "MariaDB" {
+                        "Cloud SQL for MySQL (Cloud SQL has no MariaDB), db-f1-micro, 10 GB SSD".into()
+                    } else {
+                        format!("Cloud SQL for {engine}, db-f1-micro, 10 GB SSD")
+                    },
                     Some("cloud-sql"),
                     vec![
                         use_("sql-f1", 730.0, None, "always on, 730 hours"),
@@ -409,38 +423,63 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore) -> Vec<Part> {
     out
 }
 
-/// A part that runs on a schedule: Cloud Scheduler starts a Cloud Run job at each time.
-fn scheduled<'a>(id: &str, name: &str, now: String, crons: impl Iterator<Item = &'a str>) -> Part {
+/// A part that runs on a schedule. Cloud Scheduler calls the service for a schedule that fires more often than hourly
+/// (each run a short pass, priced as one of the app's requests) and starts a Cloud Run job for the others (each run
+/// taken as `RUN_SECONDS`), so a poll every minute costs what its requests cost, not a minute of CPU each time.
+fn scheduled<'a>(id: &str, name: &str, now: String, crons: impl Iterator<Item = &'a str>, lang: &str) -> Part {
     let crons: Vec<&str> = crons.collect();
-    let (jobs, runs, how) = if crons.is_empty() {
+    let (jobs, how) = if crons.is_empty() {
         (
             1,
-            30.0,
             "the times are not in the repository; taken as one run a day".to_string(),
         )
     } else {
-        let runs: f64 = crons.iter().map(|c| runs_a_month(c).unwrap_or(30.0)).sum();
-        (crons.len(), runs, crons.join(", "))
+        (crons.len(), crons.join(", "))
     };
-    let secs = runs * RUN_SECONDS;
-    part(
-        id,
-        "cron",
-        name,
-        now,
-        format!("Cloud Scheduler, {}, starting a Cloud Run job", count(jobs, "job")),
-        Some("scheduler"),
-        vec![
-            use_("scheduler", jobs as f64, None, how),
-            use_(
-                "job-cpu",
-                secs,
-                None,
-                format!("{} runs a month of about 1 min at 1 vCPU", num(runs)),
+    let runs_of = |c: &&str| runs_a_month(c).unwrap_or(30.0);
+    let (passes, runs): (Vec<&str>, Vec<&str>) = crons.iter().partition(|c| runs_of(c) > PASSES_A_MONTH);
+    let pass_runs: f64 = passes.iter().map(runs_of).sum();
+    let job_runs: f64 = if crons.is_empty() {
+        30.0
+    } else {
+        runs.iter().map(runs_of).sum()
+    };
+    let (_, req_secs) = web_profile(lang, "visitors");
+    let after = match (passes.is_empty(), job_runs > 0.0) {
+        (true, _) => format!("Cloud Scheduler, {}, starting a Cloud Run job", count(jobs, "job")),
+        (false, false) => format!("Cloud Scheduler, {}, calling the service", count(jobs, "job")),
+        (false, true) => format!(
+            "Cloud Scheduler, {}: the frequent ones call the service, the others start a Cloud Run job",
+            count(jobs, "job")
+        ),
+    };
+    let mut uses = vec![use_("scheduler", jobs as f64, None, how)];
+    if pass_runs > 0.0 {
+        let secs = pass_runs * req_secs;
+        let pass = format!(
+            "{} passes a month called on the service, {} s of 1 vCPU each, as one of its requests",
+            num(pass_runs),
+            num(req_secs)
+        );
+        uses.push(use_("run-cpu", secs, None, &pass));
+        uses.push(use_("run-mem", secs * 0.5, None, "the same passes at 0.5 GiB"));
+        uses.push(use_("run-req", pass_runs, None, "one request a pass"));
+    }
+    if job_runs > 0.0 {
+        let secs = job_runs * RUN_SECONDS;
+        uses.push(use_(
+            "job-cpu",
+            secs,
+            None,
+            format!(
+                "{} job runs a month, each taken as {} s at 1 vCPU",
+                num(job_runs),
+                num(RUN_SECONDS)
             ),
-            use_("job-mem", secs * 0.5, None, "the same runs at 0.5 GiB"),
-        ],
-    )
+        ));
+        uses.push(use_("job-mem", secs * 0.5, None, "the same runs at 0.5 GiB"));
+    }
+    part(id, "cron", name, now, after, Some("scheduler"), uses)
 }
 
 /// What the cache holds, from the patterns that use it: the queue of a worker, the sessions.
@@ -605,6 +644,18 @@ pub fn price_today(parts: &mut [Part], f: &Findings, today: &Today, egress_gb: f
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_poll_every_minute_is_priced_as_requests_and_a_daily_job_as_a_job() {
+        let p = scheduled("t", "t", String::new(), ["* * * * *", "* * * * *"].into_iter(), "Rust");
+        let cpu: f64 = p.uses.iter().filter(|u| u.sku == "run-cpu").map(|u| u.qty).sum();
+        // 2 x 43,200 passes at 0.05 s: 4,320 vCPU-s, about $0.08 at list price, not two vCPU-minutes a run
+        assert!((cpu - 4320.0).abs() < 1.0, "{cpu}");
+        assert!(p.uses.iter().all(|u| u.sku != "job-cpu"));
+        let d = scheduled("d", "d", String::new(), ["0 3 * * *"].into_iter(), "Rust");
+        let job: f64 = d.uses.iter().filter(|u| u.sku == "job-cpu").map(|u| u.qty).sum();
+        assert!((job - 300.0).abs() < 1.0, "{job}");
+    }
 
     #[test]
     fn cron_lines_as_runs_a_month() {

@@ -69,8 +69,16 @@ pub fn read(root: &Path) -> io::Result<BTreeMap<String, String>> {
         })
         .build();
     let mut files = BTreeMap::new();
+    let real_root = root.canonicalize()?;
     for entry in walk.flatten() {
-        if !entry.file_type().is_some_and(|t| t.is_file()) || entry.metadata().map_or(true, |m| m.len() > MAX_BYTES) {
+        // a symlink to a file of the repository counts as that file (`Dockerfile -> docker/Dockerfile.debian`)
+        let linked = entry.file_type().is_some_and(|t| t.is_symlink())
+            && entry
+                .path()
+                .canonicalize()
+                .is_ok_and(|t| t.starts_with(&real_root) && t.is_file());
+        let is_file = entry.file_type().is_some_and(|t| t.is_file()) || linked;
+        if !is_file || std::fs::metadata(entry.path()).map_or(true, |m| m.len() > MAX_BYTES) {
             continue;
         }
         let Ok(rel) = entry.path().strip_prefix(root) else {

@@ -1,0 +1,46 @@
+{
+  "exodus": "corpus/1",
+  "name": "go-compose",
+  "shape": "Go mailing-list server with in-process campaign workers, timers and uploads on disk; Postgres",
+  "platform": {
+    "name": "Unknown",
+    "file": null,
+    "ask": true,
+    "why": "a Dockerfile and a docker-compose.yml for self-hosting; no platform file"
+  },
+  "processes": [
+    {
+      "kind": "web",
+      "what": "Go server (Echo) with the admin UI",
+      "from": "Dockerfile",
+      "note": "docker-entrypoint.sh ./listmonk; one process serves the API, the admin, the public pages and runs the background loops"
+    }
+  ],
+  "stays": [],
+  "data": [
+    { "kind": "db", "engine": "PostgreSQL", "from": "docker-compose.yml", "note": "postgres:17 in the compose file; the app speaks to it through sqlx/pq" },
+    { "kind": "files", "engine": "disk", "from": "internal/media/providers/filesystem/filesystem.go", "note": "the filesystem media provider writes uploads under uploads/ (the S3 provider is the other option)" }
+  ],
+  "breaks": [
+    { "rule": "in-process-timer", "file": "cmd/init.go", "note": "robfig/cron for the bounce mailbox scan and other periodic jobs" },
+    { "rule": "in-process-timer", "file": "cmd/updates.go", "note": "a ticker that checks for new versions" },
+    { "rule": "in-process-timer", "file": "internal/manager/manager.go", "note": "the campaign scanner ticker" },
+    { "rule": "in-process-timer", "file": "internal/tmptokens/tmptokens.go", "note": "the cleaner of expired one-time tokens" },
+    { "rule": "background-thread", "file": "internal/manager/manager.go", "note": "goroutines that scan campaigns and send messages" },
+    { "rule": "background-thread", "file": "internal/bounce/bounce.go", "note": "the bounce mailbox scanner" },
+    { "rule": "local-disk-write", "file": "internal/media/providers/filesystem/filesystem.go", "note": "uploads on local disk" },
+    { "rule": "memory-state", "file": "internal/tmptokens/tmptokens.go", "note": "password reset and 2FA tokens in a package-level map behind a mutex" }
+  ],
+  "idle": [
+    { "rule": "long-lived-connection", "file": "cmd/events.go", "note": "server-sent events stream for the admin" }
+  ],
+  "notBreaks": [],
+  "notOnServer": [
+    "frontend/",
+    "scripts/"
+  ],
+  "questions": [
+    "platform"
+  ],
+  "notes": "Read: cmd/init.go, cmd/updates.go, cmd/events.go, internal/manager/manager.go, internal/bounce/bounce.go, internal/media/providers/filesystem/filesystem.go, internal/tmptokens/tmptokens.go, Dockerfile, docker-compose.yml. A ticker named for a push timeout and the install step's config write are not findings (v0.2.5)."
+}

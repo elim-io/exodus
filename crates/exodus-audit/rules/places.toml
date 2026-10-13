@@ -10,7 +10,7 @@ front = ["js", "mjs", "cjs", "jsx", "ts", "mts", "cts", "tsx", "vue", "svelte"]
 # languages in `front`. `except_ext`: the folder does not count for these file extensions.
 [[folder]]
 why = "tests"
-names = ["test", "tests", "spec", "__tests__", "e2e", "testdata", "fixtures", "fixture", "mocks", "__mocks__", "bench", "benches", "benchmarks"]
+names = ["test", "tests", "spec", "__tests__", "e2e", "testdata", "fixtures", "fixture", "mocks", "__mocks__", "bench", "benches", "benchmarks", "playwright", "cypress", "selenium", "integration-tests", "load-tests"]
 prefixes = ["e2e-", "e2e_"]
 
 [[folder]]
@@ -19,7 +19,7 @@ names = ["docs", "doc", "examples", "example"]
 
 [[folder]]
 why = "build and tool code"
-names = ["scripts", "script", "tools", "cli", "dev", "codegen", "compiler", "notebooks", "seeds", "lib/tasks", "mix/tasks", "management/commands", "console/commands"]
+names = ["scripts", "script", "tools", "cli", "dev", "codegen", "compiler", "notebooks", "seeds", "lib/tasks", "mix/tasks", "management/commands", "console/commands", ".devcontainer"]
 prefixes = ["generate_", "generate-"]
 suffixes = ["_tools", "-tools", "-cli", "_cli"]
 

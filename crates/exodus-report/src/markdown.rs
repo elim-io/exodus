@@ -308,7 +308,11 @@ pub fn markdown(r: &Report, site: &str, app: &str) -> String {
         } else {
             num(d.cpu_hours_a_day.round())
         };
-        format!("- On Cloud Run: CPU only while requests and jobs run, about {h} CPU-hours a day.")
+        if d.cpu_hours_a_day < 0.05 {
+            "- On Cloud Run: CPU only while requests and jobs run, under 0.1 CPU-hours a day.".into()
+        } else {
+            format!("- On Cloud Run: CPU only while requests and jobs run, about {h} CPU-hours a day.")
+        }
     });
     push(&mut o, format!("A weekday of {}:", p.name));
     push(&mut o, weekday.join("\n"));

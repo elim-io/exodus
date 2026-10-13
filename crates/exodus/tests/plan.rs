@@ -216,7 +216,7 @@ fn plan_task_done_and_need_work_offline_on_plan_md() {
         "{md}"
     );
     assert!(
-        md.contains("- [ ] 1. Dockerfile and a health check route (S, Prepare)\n"),
+        md.contains("- [ ] 1. Dockerfile and the health check (S, Prepare)\n"),
         "{md}"
     );
     assert!(

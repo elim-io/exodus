@@ -1,6 +1,6 @@
 # Corpus baseline
 
-The audit run over the 18 pinned repositories and `synthetic/s2-shape`, compared with each `expected.json`. The
+The audit run over the 20 pinned repositories and `synthetic/s2-shape`, compared with each `expected.json`. The
 section "After the check" is the current state. The sections from "Totals" on are the state of `exodus` v0.1.3 (commit
 `a08a5d9` of the corpus, scanner unchanged), the *before* of the tasks since (browser and build code, project shapes,
 platform question, the check); the states in between are in git.
@@ -20,6 +20,23 @@ twice in one file counts once. A false break is a `breaks` finding with no entry
 marked *trap* when `notBreaks` names it or its file lies under a `notOnServer` path. Data is compared by store (kind and
 the first letters of the engine); processes by kind. A difference passes only when `expected.json`'s `known` explains
 it (README, "known").
+
+## v0.2.6: Rust rules, test harnesses, a Dockerfile behind a platform file
+
+Two cases joined: `rust-railway` (a Rust Rocket server) and `go-compose` (a Go server with in-process workers). Both
+match their `expected.json` with no difference. What changed in the scanner:
+
+- A compose file in a folder beside a platform file, or in a test harness folder (`playwright/`, `cypress/`), is never
+  the production process list. Code under those folders no longer adds env names or names the database's env var.
+- Railway with `build.dockerfilePath` and no `startCommand` runs that Dockerfile's command; its `healthcheckPath` and
+  `requiredMountPath` become the health route and a files volume. A symlinked file (`Dockerfile -> docker/...`) is read.
+- Rust has rules for timers (a tokio interval inside a WebSocket is a heartbeat, not a schedule), background loops,
+  long-lived connections, SQLite and in-memory sign-in state; Go has the last one too.
+- An ORM built for several engines runs on one database; the SQLite finding is dropped when a server database is found.
+  `compose`'s false SQLite break (a read-only search index beside Postgres) went with it.
+- MariaDB is MariaDB, moving to Cloud SQL for MySQL.
+
+Totals now: processes missing 8, data missing 8 / extra 1, breaks missed 10, false breaks 11 (all traps), idle false 1.
 
 ## After the check (fix-check 1/3)
 

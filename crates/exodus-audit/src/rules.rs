@@ -247,6 +247,7 @@ builtin![
     "ruby/in-process-timer.toml",
     "go/in-process-timer.toml",
     "elixir/in-process-timer.toml",
+    "rust/in-process-timer.toml",
     "node/local-disk-write.toml",
     "python/local-disk-write.toml",
     "ruby/local-disk-write.toml",
@@ -258,6 +259,8 @@ builtin![
     "python/memory-sessions.toml",
     "ruby/memory-sessions.toml",
     "go/memory-sessions.toml",
+    "go/memory-state.toml",
+    "rust/memory-state.toml",
     "node/redis-sessions.toml",
     "python/redis-sessions.toml",
     "ruby/redis-sessions.toml",
@@ -267,15 +270,18 @@ builtin![
     "ruby/long-lived-connection.toml",
     "go/long-lived-connection.toml",
     "elixir/long-lived-connection.toml",
+    "rust/long-lived-connection.toml",
     "any/release-migrations.toml",
     "node/background-thread.toml",
     "python/background-thread.toml",
     "ruby/background-thread.toml",
     "go/background-thread.toml",
+    "rust/background-thread.toml",
     "node/sqlite-database.toml",
     "python/sqlite-database.toml",
     "ruby/sqlite-database.toml",
     "go/sqlite-database.toml",
+    "rust/sqlite-database.toml",
     "any/heroku-scheduler.toml",
 ];
 
@@ -540,6 +546,67 @@ mod tests {
         // A process that runs a script puts it on the server.
         let (hits, _) = run(&RULES, &files, "Unknown", &["website/build.py".into()]);
         assert!(hits.iter().any(|h| h.at == "website/build.py:1"));
+    }
+
+    #[test]
+    fn rust_and_go_rules_tell_schedules_from_heartbeats() {
+        // A job scheduler and a tokio interval loop are timers; an interval inside one WebSocket is a heartbeat.
+        assert_eq!(
+            fires(
+                "in-process-timer",
+                "src/main.rs",
+                "fn jobs() {\n    let mut sched = JobScheduler::new();\n}\n"
+            ),
+            Some(2)
+        );
+        let ws = "fn hub() {\n    rocket_ws::Stream! { ws => {\n        let mut interval = tokio::time::interval(Duration::from_secs(15));\n    }}\n}\n";
+        assert_eq!(fires("in-process-timer", "src/api/ws.rs", ws), None);
+        let tick = "async fn poll() {\n    let mut interval = tokio::time::interval(Duration::from_secs(60));\n}\n";
+        assert_eq!(fires("in-process-timer", "src/poll.rs", tick), Some(2));
+        // A spawned loop is background work; a task waiting on a signal is not.
+        let lp = "fn start() {\n    tokio::spawn(async move {\n        loop {\n            scan().await;\n        }\n    });\n}\n";
+        assert_eq!(fires("background-thread", "src/worker.rs", lp), Some(2));
+        let sig = "fn start() {\n    tokio::spawn(async move { let mut s = signal(SignalKind::user_defined1()).unwrap(); loop { s.recv().await; } });\n}\n";
+        assert_eq!(fires("background-thread", "src/main.rs", sig), None);
+        // WebSockets, SQLite, opendal's local filesystem, tokens in a static map.
+        assert_eq!(
+            fires(
+                "long-lived-connection",
+                "src/ws.rs",
+                "async fn ws(ws: WebSocketUpgrade) {}\n"
+            ),
+            Some(1)
+        );
+        assert_eq!(
+            fires(
+                "sqlite-database",
+                "src/db.rs",
+                "let c = rusqlite::Connection::open(\"app.db\")?;\n"
+            ),
+            Some(1)
+        );
+        assert_eq!(
+            fires(
+                "sqlite-database",
+                "src/db.rs",
+                "let c = rusqlite::Connection::open(\":memory:\")?;\n"
+            ),
+            None
+        );
+        assert_eq!(
+            fires(
+                "local-disk-write",
+                "src/storage.rs",
+                "let b = opendal::services::Fs::default().root(path);\n"
+            ),
+            Some(1)
+        );
+        let tokens =
+            "static RESET_TOKENS: LazyLock<Mutex<HashMap<String, Token>>> = LazyLock::new(Default::default);\n";
+        assert_eq!(fires("memory-state", "src/auth.rs", tokens), Some(1));
+        let go = "var (\n\ttokens = make(map[string]Token)\n\tmu     sync.RWMutex\n)\n";
+        assert_eq!(fires("memory-state", "internal/tmptokens/tmptokens.go", go), Some(2));
+        assert_eq!(fires("memory-state", "internal/tmptokens/tmptokens_test.go", go), None);
     }
 
     #[test]

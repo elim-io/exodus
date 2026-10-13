@@ -479,9 +479,14 @@ fn tasks<'r>(
     let has = |kind: &str| lines.iter().any(|l| l.part.kind == kind && l.part.removed.is_none());
     let db = lines.iter().find(|l| l.part.kind == "db").map(|l| l.part.name.clone());
     let image = runtime.name.trim_end_matches(" container");
-    let health = match &db {
-        Some(db) => format!("GET /healthz answers 200 once {db} answers"),
-        None => "GET /healthz answers 200".into(),
+    // an app that already answers a health route keeps it as the startup probe; one without gets /healthz
+    let health = match (f.settings.health.as_deref(), &db) {
+        (Some(route), Some(db)) => {
+            format!("its health route {route} is the startup probe and answers 200 once {db} answers")
+        }
+        (Some(route), None) => format!("its health route {route} is the startup probe"),
+        (None, Some(db)) => format!("GET /healthz answers 200 once {db} answers"),
+        (None, None) => "GET /healthz answers 200".into(),
     };
     let mut drafts = Vec::new();
     if new {
@@ -512,7 +517,12 @@ fn tasks<'r>(
             None if image == "Your" => format!("An image that listens on $PORT; {health}."),
             None => format!("A {image} image that listens on $PORT; {health}."),
         };
-        drafts.push(draft("Dockerfile and a health check route", detail, "S", 1));
+        let title = if f.settings.health.is_some() {
+            "Dockerfile and the health check"
+        } else {
+            "Dockerfile and a health check route"
+        };
+        drafts.push(draft(title, detail, "S", 1));
     }
 
     // one task per rule, from its template; a new product's decisions are their own tasks
@@ -586,7 +596,7 @@ fn tasks<'r>(
         let mut what = Vec::new();
         for d in &f.data {
             let step = match (d.kind.as_str(), d.engine.as_str()) {
-                ("db", "MySQL") => "mysqldump into Cloud SQL, then row counts and checksums per table",
+                ("db", "MySQL" | "MariaDB") => "mysqldump into Cloud SQL, then row counts and checksums per table",
                 ("db", _) => "pg_dump into Cloud SQL, then row counts and checksums per table",
                 ("sqlite", _) => {
                     "a one-off script copies each SQLite table into a Firestore collection, a row a document, then \

@@ -1,6 +1,6 @@
 # go-fly: report 1
 
-From Fly.io to Google Cloud Run. Report 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 from 20 findings; no code was uploaded.
+From Fly.io to Google Cloud Run. Report 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 from 21 findings; no code was uploaded.
 
 Built on this machine by `exodus report`; it has no share link.
 
@@ -18,7 +18,7 @@ Today, as the audit read it:
 
 **You can move go-fly to Cloud Run after 2 changes.** The SQLite file and the timers need a change each before Cloud Run; the rest moves as it is.
 
-Today $3.57 a month on Fly.io (estimated from its list prices), $0.95 on Cloud Run: saves $2.62 a month, $31.44 a year.
+Today $3.57 a month on Fly.io (estimated from its list prices), $0.60 on Cloud Run: saves $2.97 a month, $35.64 a year.
 
 The 2 changes before the move:
 
@@ -34,7 +34,7 @@ Cloud Run bills for the seconds the code works. It rewards an app built from par
 A weekday of go-fly:
 
 - On Fly.io: 1 process billed every hour: 24 process-hours a day.
-- On Cloud Run: CPU only while requests and jobs run, about 2.5 CPU-hours a day.
+- On Cloud Run: CPU only while requests and jobs run, about 0.1 CPU-hours a day.
 
 Fly.io can stop idle machines (auto_stop_machines); fly.toml keeps them running, so they run every hour. Cloud Run's hours are computed from this report's numbers.
 
@@ -59,12 +59,12 @@ Prices: Google list prices, europe-west1, read Oct 9, 2026.
 | Part | Now | On Google Cloud | Today | Cloud Run |
 |---|---|---|---:|---:|
 | app | net/http web process, always on | Cloud Run service, request-based, scales to zero | $3.32 | $0.00 |
-| app timers | 1 schedule inside the app process | Cloud Scheduler, 1 job, starting a Cloud Run job | $0.00 | $0.35 |
+| app timers | 1 schedule inside the app process | Cloud Scheduler, 1 job, calling the service | $0.00 | $0.00 |
 | cards_data | SQLite file on a volume | Firestore, Standard edition, billed per read, write and GiB stored | $0.15 | $0.00 |
 | builds | Fly.io builds the image | Artifact Registry, the last 3 images | $0.00 | $0.00 |
 | variables | 1 variable, 0 of them secrets | No secrets; the variables stay plain | $0.00 | $0.00 |
 | egress | Traffic out | Traffic out | $0.10 | $0.60 |
-| **Total a month** | | | **$3.57** | **$0.95** |
+| **Total a month** | | | **$3.57** | **$0.60** |
 
 Today: Fly.io's list prices for its smallest paid sizes; the bill answer replaces them.
 
@@ -76,8 +76,9 @@ How each Cloud Run number is computed:
 - app, Cloud Run memory, request-based: 3,600 GiB-s x $0.0000025 = $0.01, less $0.01 free = $0.00 (8 requests a visitor, 0.06 s of 1 vCPU and 0.5 GiB each)
 - app, Cloud Run requests: 120,000 requests x $0.0000004 = $0.05, less $0.05 free = $0.00 (8 requests a visitor)
 - app timers, Cloud Scheduler jobs: 1 jobs x $0.10 = $0.10, less $0.10 free = $0.00 (*/10 * * * *)
-- app timers, Cloud Run jobs CPU: 259,200 vCPU-s x $0.000018 = $4.67, less $4.32 free = $0.35 (4,320 runs a month of about 1 min at 1 vCPU)
-- app timers, Cloud Run jobs memory: 129,600 GiB-s x $0.000002 = $0.26, less $0.26 free = $0.00 (the same runs at 0.5 GiB)
+- app timers, Cloud Run CPU, request-based: 259.2 vCPU-s x $0.000024 = $0.01, less $0.01 free = $0.00 (4,320 passes a month called on the service, 0.06 s of 1 vCPU each, as one of its requests)
+- app timers, Cloud Run memory, request-based: 129.6 GiB-s x $0.0000025 = $0.00, less $0.00 free = $0.00 (the same passes at 0.5 GiB)
+- app timers, Cloud Run requests: 4,320 requests x $0.0000004 = $0.00, less $0.00 free = $0.00 (one request a pass)
 - cards_data, Firestore document reads: 240,000 reads x $0.00000033 = $0.08, less $0.08 free = $0.00 (8 requests a visitor, 2 document reads each)
 - cards_data, Firestore document writes: 24,000 writes x $0.00000099 = $0.02, less $0.02 free = $0.00 (8 requests a visitor, 0.2 document writes each)
 - cards_data, Firestore stored data: 1 GiB-months x $0.165 = $0.17, less $0.17 free = $0.00 (the size is not in the repository; taken as 1 GiB)
@@ -88,7 +89,7 @@ How each Cloud Run number is computed:
 ## Now and after
 
 - app: net/http web process, always on -> Cloud Run service, request-based, scales to zero
-- app timers: 1 schedule inside the app process -> Cloud Scheduler, 1 job, starting a Cloud Run job
+- app timers: 1 schedule inside the app process -> Cloud Scheduler, 1 job, calling the service
 - cards_data: SQLite file on a volume -> Firestore, Standard edition, billed per read, write and GiB stored
 - builds: Fly.io builds the image -> Artifact Registry, the last 3 images
 - variables: 1 variable, 0 of them secrets -> No secrets; the variables stay plain
@@ -123,7 +124,7 @@ Read: https://exodus.elim.io/blog/cron-and-timers-with-cloud-scheduler
 
 Task: 3. Timers to Cloud Scheduler
 
-Looked for and not found: workers waiting on a queue, work after the response, files written to disk, sessions in memory, sessions kept in Redis, long-lived connections, migrations in a release step, background threads.
+Looked for and not found: workers waiting on a queue, work after the response, files written to disk, sessions in memory, sign-in state in memory, sessions kept in Redis, long-lived connections, migrations in a release step, background threads.
 
 ## Checklist
 
@@ -168,7 +169,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 ## Everything the audit sent
 
-20 findings: 2 processes, 1 data, 3 build, settings and traffic, 4 stack, 2 patterns found, 8 looked for, not found.
+21 findings: 2 processes, 1 data, 3 build, settings and traffic, 4 stack, 2 patterns found, 9 looked for, not found.
 
 ### Processes (2)
 
@@ -197,12 +198,13 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 - SQLite on a volume as the database (main.go:15)
 - Timers inside the process (main.go:36)
 
-### Looked for, not found (8)
+### Looked for, not found (9)
 
 - No workers waiting on a queue
 - No work after the response
 - No files written to disk
 - No sessions in memory
+- No sign-in state in memory
 - No sessions kept in Redis
 - No long-lived connections
 - No migrations in a release step
@@ -225,4 +227,4 @@ Google's price lists, read Oct 9, 2026:
 - Artifact Registry pricing: https://cloud.google.com/artifact-registry/pricing
 - Network egress pricing: https://cloud.google.com/vpc/network-pricing
 
-How this report was made: exodus 0.1.0 read 5 files of go-fly on your machine and found 20 findings (5 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
+How this report was made: exodus 0.1.0 read 5 files of go-fly on your machine and found 21 findings (5 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.

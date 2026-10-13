@@ -30,6 +30,8 @@ true about the code, not what the audit printed.
 | `phoenix` | plausible/analytics | Elixir/Phoenix with Oban |
 | `axum` | launchbadge/realworld-axum-sqlx | Rust Axum with Postgres |
 | `compose` | healthchecks/healthchecks | Django with docker-compose and a long-running sender |
+| `rust-railway` | dani-garcia/vaultwarden | Rust Rocket server with a job scheduler, WebSockets and a data folder |
+| `go-compose` | knadh/listmonk | Go server with in-process campaign workers, timers and uploads on disk |
 | `synthetic/s2-shape` | (in this folder) | static site in a subfolder behind Caddy with browser timers, a build script, a tools script, Firebase Functions, an iOS app |
 
 ## expected.json (`corpus/1`)

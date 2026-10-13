@@ -1,6 +1,6 @@
 # django-render: report 1
 
-From Render to Google Cloud Run. Report 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 from 27 findings; no code was uploaded.
+From Render to Google Cloud Run. Report 1 of 1, Oct 11, 2026. Made by exodus 0.1.0 from 28 findings; no code was uploaded.
 
 Built on this machine by `exodus report`; it has no share link.
 
@@ -84,8 +84,8 @@ How each Cloud Run number is computed:
 - books-worker, Cloud Run requests: 7,500 requests x $0.0000004 = $0.00, less $0.00 free = $0.00 (one request a job)
 - books-worker, Cloud Tasks operations: 7,500 operations x $0.0000004 = $0.00, less $0.00 free = $0.00 (one task a job)
 - books-worker timers, Cloud Scheduler jobs: 1 jobs x $0.10 = $0.10, less $0.10 free = $0.00 (0 2 * * *)
-- books-worker timers, Cloud Run jobs CPU: 1,800 vCPU-s x $0.000018 = $0.03, less $0.03 free = $0.00 (30 runs a month of about 1 min at 1 vCPU)
-- books-worker timers, Cloud Run jobs memory: 900 GiB-s x $0.000002 = $0.00, less $0.00 free = $0.00 (the same runs at 0.5 GiB)
+- books-worker timers, Cloud Run jobs CPU: 300 vCPU-s x $0.000018 = $0.01, less $0.01 free = $0.00 (30 job runs a month, each taken as 10 s at 1 vCPU)
+- books-worker timers, Cloud Run jobs memory: 150 GiB-s x $0.000002 = $0.00, less $0.00 free = $0.00 (the same runs at 0.5 GiB)
 - media, Cloud Storage, Standard: 1 GB-months x $0.02 = $0.02 (1 GB of files, taken as the size)
 - media, Cloud Storage writes, class A: 2,000 writes x $0.000005 = $0.01, less $0.01 free = $0.00 (about 2,000 files written a month, taken as the count)
 - books-db, Cloud SQL db-f1-micro: 730 hours x $0.0105 = $7.67 (always on, 730 hours)
@@ -161,7 +161,7 @@ Read: https://exodus.elim.io/blog/database-migrations-as-cloud-run-jobs
 
 Task: 5. Migrations as a Cloud Run job before each deploy
 
-Looked for and not found: work after the response, sessions in memory, sessions kept in Redis, long-lived connections, background threads, SQLite or files used as a database.
+Looked for and not found: work after the response, sessions in memory, sign-in state in memory, sessions kept in Redis, long-lived connections, background threads, SQLite or files used as a database.
 
 ## Checklist
 
@@ -208,7 +208,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 ## Everything the audit sent
 
-27 findings: 4 processes, 3 data, 3 build, settings and traffic, 7 stack, 4 patterns found, 6 looked for, not found.
+28 findings: 4 processes, 3 data, 3 build, settings and traffic, 7 stack, 4 patterns found, 7 looked for, not found.
 
 ### Processes (4)
 
@@ -246,10 +246,11 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 - Files written to local disk (exports/tasks.py:13)
 - Migrations run in a release step (render.yaml:8)
 
-### Looked for, not found (6)
+### Looked for, not found (7)
 
 - No work after the response
 - No sessions in memory
+- No sign-in state in memory
 - No sessions kept in Redis
 - No long-lived connections
 - No background threads
@@ -277,4 +278,4 @@ Google's price lists, read Oct 9, 2026:
 - Secret Manager pricing: https://cloud.google.com/secret-manager/pricing
 - Network egress pricing: https://cloud.google.com/vpc/network-pricing
 
-How this report was made: exodus 0.1.0 read 12 files of django-render on your machine and found 27 findings (6.8 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
+How this report was made: exodus 0.1.0 read 12 files of django-render on your machine and found 28 findings (6.8 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.

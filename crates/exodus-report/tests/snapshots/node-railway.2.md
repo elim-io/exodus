@@ -1,6 +1,6 @@
 # node-railway: report 2
 
-From Railway to Google Cloud Run. Report 2 of 2, Oct 11, 2026. Made by exodus 0.1.0 with Claude Code from 28 findings; no code was uploaded.
+From Railway to Google Cloud Run. Report 2 of 2, Oct 11, 2026. Made by exodus 0.1.0 with Claude Code from 29 findings; no code was uploaded.
 
 Built on this machine by `exodus report`; it has no share link.
 
@@ -49,7 +49,7 @@ Cloud Run bills for the seconds the code works. It rewards an app built from par
 A weekday of node-railway:
 
 - On Railway: 3 processes billed every hour: 72 process-hours a day.
-- On Cloud Run: CPU only while requests and jobs run, about 2.5 CPU-hours a day.
+- On Cloud Run: CPU only while requests and jobs run, about 2.1 CPU-hours a day.
 
 Railway can put a service to sleep when it has no traffic and wake it on the next request; that setting is off unless a service turns it on, so these processes run every hour. Cloud Run's hours are computed from this report's numbers.
 
@@ -98,8 +98,8 @@ How each Cloud Run number is computed:
 - worker, Cloud Run requests: 30,000 requests x $0.0000004 = $0.01, less $0.01 free = $0.00 (one request a job)
 - worker, Cloud Tasks operations: 30,000 operations x $0.0000004 = $0.01, less $0.01 free = $0.00 (one task a job)
 - clock, Cloud Scheduler jobs: 3 jobs x $0.10 = $0.30, less $0.30 free = $0.00 (0 * * * *, 0 2 * * *, 0 8 * * 1)
-- clock, Cloud Run jobs CPU: 45,240 vCPU-s x $0.000018 = $0.81, less $0.81 free = $0.00 (754 runs a month of about 1 min at 1 vCPU)
-- clock, Cloud Run jobs memory: 22,620 GiB-s x $0.000002 = $0.05, less $0.05 free = $0.00 (the same runs at 0.5 GiB)
+- clock, Cloud Run jobs CPU: 7,540 vCPU-s x $0.000018 = $0.14, less $0.14 free = $0.00 (754 job runs a month, each taken as 10 s at 1 vCPU)
+- clock, Cloud Run jobs memory: 3,770 GiB-s x $0.000002 = $0.01, less $0.01 free = $0.00 (the same runs at 0.5 GiB)
 - Postgres, Cloud SQL db-f1-micro: 730 hours x $0.0105 = $7.67 (always on, 730 hours)
 - Postgres, Cloud SQL SSD storage: 10 GB-months x $0.17 = $1.70 (10 GB, Cloud SQL's smallest disk)
 - uploads, Cloud Storage, Standard: 1 GB-months x $0.02 = $0.02 (1 GB of files, taken as the size)
@@ -173,13 +173,13 @@ Read: https://exodus.elim.io/blog/background-workers-with-cloud-tasks
 
 Task: 5. Worker: queue jobs to a Cloud Tasks handler
 
-Looked for and not found: work after the response, sessions kept in Redis, long-lived connections, migrations in a release step, background threads, SQLite or files used as a database.
+Looked for and not found: work after the response, sign-in state in memory, sessions kept in Redis, long-lived connections, migrations in a release step, background threads, SQLite or files used as a database.
 
 ## Checklist
 
 | # | Task | Answers | Effort | Status |
 |---:|---|---|---|---|
-| 1 | Dockerfile and a health check route: A Node 20 image that listens on $PORT; GET /healthz answers 200 once Postgres answers. | - | S | To do |
+| 1 | Dockerfile and the health check: A Node 20 image that listens on $PORT; its health route /healthz is the startup probe and answers 200 once Postgres answers. | - | S | To do |
 | 2 | Timers to Cloud Scheduler: Give each schedule an endpoint (POST /cron/<name>, OIDC token checked) or a Cloud Run job, create a Cloud Scheduler job per schedule with its time zone, then remove the timer and its process. | Finding 1 | M | To do |
 | 3 | Sessions to signed cookies: Keep a user id, a role and an expiry in a signed cookie (key in Secret Manager; Secure, HttpOnly, SameSite=Lax; under 4 KB). For log out everywhere, keep a session version on the user row. | Finding 2 | S | To do |
 | 4 | Files to a Cloud Storage bucket: Write to a bucket instead of the disk; for uploads, sign a PUT URL so the browser sends the file straight to the bucket and the service stores only the key. Copy the existing files over before the switch. | Finding 3 | M | To do |
@@ -193,7 +193,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 ## Roadmap
 
-1. Prepare: Dockerfile and a health check route.
+1. Prepare: Dockerfile and the health check.
 2. Change the code: Timers to Cloud Scheduler; Sessions to signed cookies; Files to a Cloud Storage bucket; Worker: queue jobs to a Cloud Tasks handler.
 3. Stand up on Google Cloud: Infrastructure: service, Cloud SQL, bucket, queue, scheduler; Keyless deploys from CI.
 4. Cut over: Data: copy Postgres and uploads and compare; Switch the domain and stop Railway.
@@ -220,7 +220,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 ## Everything the audit sent
 
-28 findings: 3 processes, 3 data, 3 build, settings and traffic, 6 stack, 4 patterns found, 6 looked for, not found, 3 read by your agent.
+29 findings: 3 processes, 3 data, 3 build, settings and traffic, 6 stack, 4 patterns found, 7 looked for, not found, 3 read by your agent.
 
 ### Processes (3)
 
@@ -256,9 +256,10 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 - Files written to local disk (src/server.js:30)
 - A worker waits on a Redis queue (src/worker.js:9)
 
-### Looked for, not found (6)
+### Looked for, not found (7)
 
 - No work after the response
+- No sign-in state in memory
 - No sessions kept in Redis
 - No long-lived connections
 - No migrations in a release step
@@ -293,4 +294,4 @@ Google's price lists, read Oct 9, 2026:
 - Secret Manager pricing: https://cloud.google.com/secret-manager/pricing
 - Network egress pricing: https://cloud.google.com/vpc/network-pricing
 
-How this report was made: exodus 0.1.0 and Claude Code read 12 files of node-railway on your machine and found 28 findings (8.9 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
+How this report was made: exodus 0.1.0 and Claude Code read 12 files of node-railway on your machine and found 29 findings (9 KB); no code left it. The cost is computed by plain code from the price lists above; no model on our side wrote any of this report.
