@@ -54,13 +54,25 @@ curl -fsSL https://exodus.elim.io/install | sh
 
 The script picks the binary for your machine from the [latest release](https://github.com/elim-io/exodus/releases/latest),
 checks it against the release's `SHA256SUMS`, and puts it in `~/.local/bin`. Releases are built for Linux (x86_64 and
-arm64, static) and macOS (Intel and Apple silicon).
+arm64, static), macOS (Intel and Apple silicon) and Windows (x64 and arm64).
 
 - `sh -s -- --path` also adds `~/.local/bin` to `PATH` in your shell's rc file.
 - `sh -s -- CODE` installs and then runs `exodus init --code CODE` in the current folder, which links it only when it is
   the top folder of a git repository (with `--new`, also an empty folder). Anywhere else, the home folder included, the
   code stays unused and the installer prints the command that spends it in the right folder.
 - `EXODUS_VERSION=v0.2.4` installs a given release; `EXODUS_INSTALL_DIR=/some/bin` puts the binary elsewhere.
+
+On Windows, in PowerShell:
+
+```powershell
+irm https://exodus.elim.io/install.ps1 | iex
+```
+
+It checks the binary the same way, puts it in `%LOCALAPPDATA%\Programs\exodus` and adds that folder to your user
+`PATH` (no administrator rights). With a code from the cabinet,
+`& ([scriptblock]::Create((irm https://exodus.elim.io/install.ps1))) -Code CODE` installs and then runs
+`exodus init --code CODE` in the current folder (`-New` for an empty folder), under the same rules as above. The
+credentials file is `%APPDATA%\exodus\credentials`.
 
 From source, with Rust installed (edition 2024):
 
@@ -218,7 +230,8 @@ key; the check's exit code never depends on the platform being reachable.
 | `crates/exodus-report` | findings and answers into the report and its Markdown |
 | `crates/exodus` | the `exodus` binary: commands, `.exodus/` files, credentials, the platform client, the agent templates |
 | `examples/` | four made-up sample repositories (Railway, Heroku, Render, Fly.io) with the findings expected of each ([README](examples/README.md)) |
-| `install.sh` | the installer the release ships |
+| `install.sh` | the installer the release ships (macOS, Linux) |
+| `install.ps1` | the Windows installer the release ships |
 
 Only the `exodus` binary talks to the network, and only to the platform's API (`https://app.exodus.elim.io`, or
 `--api`) when an account is linked. The platform builds its reports with the same `exodus-cost` and `exodus-report`

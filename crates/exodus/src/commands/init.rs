@@ -72,7 +72,7 @@ struct Linked {
 pub fn run(args: Args) -> ExitCode {
     let root = Path::new(".");
     if let Some(code) = args.code.as_deref().filter(|_| !args.here) {
-        let home = std::env::var_os("HOME").and_then(|h| std::fs::canonicalize(h).ok());
+        let home = crate::platform::home_dir().and_then(|h| std::fs::canonicalize(h).ok());
         let again = format!(
             "{} init --code {}{}{}",
             exe(home.as_deref()),
@@ -316,7 +316,7 @@ fn exe(home: Option<&Path>) -> String {
     let on_path = std::env::var_os("PATH")
         .and_then(|path| {
             std::env::split_paths(&path)
-                .map(|d| d.join("exodus"))
+                .map(|d| d.join(format!("exodus{}", std::env::consts::EXE_SUFFIX)))
                 .find(|p| p.is_file())
         })
         .and_then(|p| std::fs::canonicalize(p).ok());
@@ -347,6 +347,12 @@ fn quote(s: &str) -> String {
 
 /// This machine's name, as Settings lists the key.
 fn hostname() -> String {
+    if let Some(name) = std::env::var("COMPUTERNAME")
+        .ok()
+        .filter(|n| cfg!(windows) && !n.is_empty())
+    {
+        return name;
+    }
     std::process::Command::new("hostname")
         .output()
         .ok()

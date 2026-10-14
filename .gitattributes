@@ -1,0 +1,6 @@
+# LF everywhere, on Windows checkouts too: snapshots and fixtures are compared byte for byte
+* text=auto eol=lf
+*.png binary
+*.gif binary
+*.zip binary
+*.gz binary

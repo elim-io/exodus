@@ -1,7 +1,7 @@
 name: release
 
-# A tag v* builds the binaries for linux (static, musl) and macOS, x86_64 and arm64, and makes a GitHub Release with
-# them, SHA256SUMS and install.sh. A tag with a hyphen (v0.1.0-rc) makes a prerelease, which /releases/latest skips.
+# A tag v* builds the binaries for linux (static, musl), macOS and Windows, x86_64 and arm64, and makes a GitHub
+# Release with them, SHA256SUMS, install.sh and install.ps1. A tag with a hyphen (v0.1.0-rc) makes a prerelease, which /releases/latest skips.
 
 on:
   push:
@@ -23,7 +23,12 @@ jobs:
           - { target: aarch64-unknown-linux-musl, os: ubuntu-latest, zig: true }
           - { target: x86_64-apple-darwin, os: macos-latest }
           - { target: aarch64-apple-darwin, os: macos-latest }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest, zip: true }
+          - { target: aarch64-pc-windows-msvc, os: windows-latest, zip: true }
     runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@v7
       - run: rustup target add ${{ matrix.target }}
@@ -36,11 +41,14 @@ jobs:
         run: cargo zigbuild --release -p exodus --target ${{ matrix.target }}
       - if: ${{ !matrix.zig }}
         run: cargo build --release -p exodus --target ${{ matrix.target }}
-      - run: tar -czf exodus-${{ matrix.target }}.tar.gz -C target/${{ matrix.target }}/release exodus
+      - if: ${{ !matrix.zip }}
+        run: tar -czf exodus-${{ matrix.target }}.tar.gz -C target/${{ matrix.target }}/release exodus
+      - if: matrix.zip
+        run: 7z a -tzip exodus-${{ matrix.target }}.zip ./target/${{ matrix.target }}/release/exodus.exe
       - uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.target }}
-          path: exodus-${{ matrix.target }}.tar.gz
+          path: exodus-${{ matrix.target }}.*
 
   release:
     needs: build
@@ -53,10 +61,26 @@ jobs:
         with:
           path: dist
           merge-multiple: true
-      - run: cp install.sh dist/ && cd dist && sha256sum exodus-*.tar.gz install.sh > SHA256SUMS && cat SHA256SUMS
+      - run: cp install.sh install.ps1 dist/ && cd dist && sha256sum exodus-*.tar.gz exodus-*.zip install.sh install.ps1 > SHA256SUMS && cat SHA256SUMS
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |
           pre=""; case "$GITHUB_REF_NAME" in *-*) pre="--prerelease" ;; esac
           gh release create "$GITHUB_REF_NAME" dist/* --verify-tag --title "exodus ${GITHUB_REF_NAME#v}" $pre \
-            --notes "Install: curl -fsSL https://exodus.elim.io/install | sh, then exodus init --code CODE in the repository (the code comes from the cabinet)."
+            --notes "Install on macOS and Linux: curl -fsSL https://exodus.elim.io/install | sh. On Windows (PowerShell): irm https://exodus.elim.io/install.ps1 | iex. Then exodus init --code CODE in the repository (the code comes from the cabinet)."
+
+  # the Windows installer against the release it just made, as a person runs it: irm | iex, then exodus on PATH
+  verify-windows:
+    needs: release
+    if: ${{ !contains(github.ref_name, '-') }}
+    runs-on: windows-latest
+    steps:
+      - shell: pwsh
+        run: |
+          $env:EXODUS_VERSION = $env:GITHUB_REF_NAME
+          irm "https://github.com/${{ github.repository }}/releases/download/$env:GITHUB_REF_NAME/install.ps1" | iex
+          exodus --version
+          # a code outside a repository is refused before any network call and stays unused
+          Set-Location $HOME
+          exodus init --code EXAMPLE-CODE; if ($LASTEXITCODE -eq 0) { throw "init accepted the home folder" }
+          "ok: refused in the home folder"

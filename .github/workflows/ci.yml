@@ -31,13 +31,22 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
       - uses: Swatinem/rust-cache@v2
       - run: cargo test --workspace --locked
       - run: cargo run --locked -q -- --help
+
+  # the release's second Windows target builds (ring needs clang, which the runner has)
+  windows-arm64:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup target add aarch64-pc-windows-msvc
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo build --locked --release -p exodus --target aarch64-pc-windows-msvc
 
   # SPEC F7: the audit over real repositories (tests/corpus/), pinned by commit; fails on a difference
   # expected.json's `known` does not explain

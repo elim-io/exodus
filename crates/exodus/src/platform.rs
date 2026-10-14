@@ -49,12 +49,21 @@ pub struct Entry {
     pub device: String,
 }
 
-/// `~/.config/exodus/credentials` (or under `XDG_CONFIG_HOME`).
-pub fn credentials_path() -> Option<PathBuf> {
-    let base = std::env::var_os("XDG_CONFIG_HOME")
-        .filter(|v| !v.is_empty())
+/// The person's home folder: `HOME`, else (Windows) `USERPROFILE`.
+pub fn home_dir() -> Option<PathBuf> {
+    ["HOME", "USERPROFILE"]
+        .iter()
+        .filter_map(std::env::var_os)
+        .find(|v| !v.is_empty())
         .map(PathBuf::from)
-        .or_else(|| std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".config")))?;
+}
+
+/// `~/.config/exodus/credentials` (or under `XDG_CONFIG_HOME`); on Windows `%APPDATA%\exodus\credentials`.
+pub fn credentials_path() -> Option<PathBuf> {
+    let nonempty = |name: &str| std::env::var_os(name).filter(|v| !v.is_empty()).map(PathBuf::from);
+    let base = nonempty("XDG_CONFIG_HOME")
+        .or_else(|| if cfg!(windows) { nonempty("APPDATA") } else { None })
+        .or_else(|| home_dir().map(|h| h.join(".config")))?;
     Some(base.join("exodus").join("credentials"))
 }
 
@@ -258,17 +267,17 @@ fn finish(
 /// Writes `entry` into the credentials file, replacing an entry with its id and keeping the others (and any field this
 /// build does not know). The directory is 0700 and the file 0600 from its first byte: it is written beside and renamed.
 pub fn save(entry: &Entry) -> Result<PathBuf, String> {
-    // Note: unix modes only; the release builds linux and macOS (W-CLI), a Windows build would need an ACL here
     use std::io::Write as _;
+    #[cfg(unix)]
     use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt, PermissionsExt};
 
     let path = credentials_path().ok_or("no HOME to keep the credentials in")?;
     let dir = path.parent().ok_or("no folder for the credentials")?;
-    std::fs::DirBuilder::new()
-        .recursive(true)
-        .mode(0o700)
-        .create(dir)
-        .map_err(|e| format!("{}: {e}", dir.display()))?;
+    let mut builder = std::fs::DirBuilder::new();
+    builder.recursive(true);
+    #[cfg(unix)]
+    builder.mode(0o700);
+    builder.create(dir).map_err(|e| format!("{}: {e}", dir.display()))?;
     let old = std::fs::read_to_string(&path).unwrap_or_default();
     let mut table: toml::Table = toml::from_str(&old).map_err(|e| format!("{}: {e}", path.display()))?;
     let mut list = match table.remove("projects") {
@@ -282,16 +291,20 @@ pub fn save(entry: &Entry) -> Result<PathBuf, String> {
 
     let tmp = path.with_extension("tmp");
     let _ = std::fs::remove_file(&tmp);
-    let mut file = std::fs::OpenOptions::new()
-        .write(true)
-        .create_new(true)
-        .mode(0o600)
-        .open(&tmp)
-        .map_err(|e| format!("{}: {e}", tmp.display()))?;
+    let mut options = std::fs::OpenOptions::new();
+    options.write(true).create_new(true);
+    // Note: on Windows there are no unix modes; the file sits under %APPDATA%, whose ACL already limits it to the
+    // person's account
+    #[cfg(unix)]
+    options.mode(0o600);
+    let mut file = options.open(&tmp).map_err(|e| format!("{}: {e}", tmp.display()))?;
     file.write_all(text.as_bytes())
         .and_then(|_| file.sync_all())
-        .and_then(|_| std::fs::rename(&tmp, &path))
-        .and_then(|_| std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600)))
+        .map_err(|e| format!("{}: {e}", tmp.display()))?;
+    drop(file);
+    std::fs::rename(&tmp, &path).map_err(|e| format!("{}: {e}", path.display()))?;
+    #[cfg(unix)]
+    std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o600))
         .map_err(|e| format!("{}: {e}", path.display()))?;
     Ok(path)
 }

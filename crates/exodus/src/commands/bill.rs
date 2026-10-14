@@ -215,7 +215,13 @@ fn usd(cents: i64) -> String {
 
 /// Runs a read-only gcloud or bq command; its stdout, or its last error line.
 fn tool(program: &str, args: &[&str]) -> Result<String, String> {
-    let out = Command::new(program).args(args).output().map_err(|e| {
+    // the Google Cloud CLI on Windows is gcloud.cmd and bq.cmd, which a bare name does not find
+    let exe = if cfg!(windows) {
+        format!("{program}.cmd")
+    } else {
+        program.to_string()
+    };
+    let out = Command::new(&exe).args(args).output().map_err(|e| {
         format!("cannot run {program} ({e}); exodus bill reads the export with the Google Cloud CLI (gcloud and bq), signed in with `gcloud auth login`")
     })?;
     if out.status.success() {
