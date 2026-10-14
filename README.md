@@ -10,6 +10,8 @@
 [![Release](https://img.shields.io/github/v/release/elim-io/exodus?color=15b0f8)](https://github.com/elim-io/exodus/releases/latest)
 [![CI](https://github.com/elim-io/exodus/actions/workflows/ci.yml/badge.svg)](https://github.com/elim-io/exodus/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
+
+<a href="https://www.producthunt.com/products/exodus-by-elim-io?launch=exodus-by-elim-io"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1278817&theme=light" alt="Exodus on Product Hunt" width="250" height="54"></a>
 [![Product Hunt](https://img.shields.io/badge/Product%20Hunt-Exodus%20by%20elim.io-da552f)](https://www.producthunt.com/products/exodus-by-elim-io?launch=exodus-by-elim-io)
 
 `exodus` is a command line for moving an app to Google Cloud Run with the coding agent you already use (Claude Code,
