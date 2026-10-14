@@ -84,3 +84,5 @@ jobs:
           Set-Location $HOME
           exodus init --code EXAMPLE-CODE; if ($LASTEXITCODE -eq 0) { throw "init accepted the home folder" }
           "ok: refused in the home folder"
+          # the step's exit code is the last native command's, which here is the expected refusal
+          exit 0
