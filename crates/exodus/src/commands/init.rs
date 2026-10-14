@@ -331,8 +331,19 @@ fn exe(home: Option<&Path>) -> String {
 fn shell_path(path: &Path, home: Option<&Path>) -> String {
     match home.and_then(|h| path.strip_prefix(h).ok()) {
         Some(rest) if rest.as_os_str().is_empty() => "~".into(),
-        Some(rest) => format!("~/{}", quote(&rest.to_string_lossy())),
-        None => quote(&path.to_string_lossy()),
+        Some(rest) => format!("~/{}", quote(&slashed(rest))),
+        None => quote(&slashed(path)),
+    }
+}
+
+/// `path` with forward slashes and without Windows' `\\?\` prefix: PowerShell, cmd and POSIX shells all take it.
+fn slashed(path: &Path) -> String {
+    let text = path.to_string_lossy();
+    let text = text.strip_prefix(r"\\?\").unwrap_or(&text);
+    if cfg!(windows) {
+        text.replace('\\', "/")
+    } else {
+        text.to_string()
     }
 }
 
