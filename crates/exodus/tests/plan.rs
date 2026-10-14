@@ -158,6 +158,8 @@ fn exodus(dir: &Path, env: &[(&str, &str)], args: &[&str]) -> (i32, String, Stri
         .current_dir(dir.join("shop"))
         .env("HOME", dir.join("home"))
         .env_remove("XDG_CONFIG_HOME")
+        // on Windows the credentials go under %APPDATA%: point it at the test's home so the paths match
+        .env("APPDATA", dir.join("home/.config"))
         .env_remove("EXODUS_KEY")
         .env_remove("GITHUB_SHA")
         .env_remove("CI_COMMIT_SHA");

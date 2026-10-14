@@ -89,6 +89,8 @@ fn exodus(dir: &Path, key: Option<&str>, args: &[&str]) -> (i32, String, String)
         .current_dir(dir)
         .env("HOME", dir.join("home"))
         .env_remove("XDG_CONFIG_HOME")
+        // on Windows the credentials go under %APPDATA%: point it at the test's home so the paths match
+        .env("APPDATA", dir.join("home/.config"))
         .env_remove("EXODUS_KEY");
     if let Some(k) = key {
         cmd.env("EXODUS_KEY", k);
