@@ -7,6 +7,7 @@
 use std::collections::HashMap;
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpListener;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -537,6 +538,7 @@ fn check_fails_on_what_breaks_and_tells_the_cabinet_with_exodus_key_only() {
 }
 
 /// Fake `gcloud` and `bq` in `dir/bin` that answer like the real ones for one account and log every call.
+#[cfg(unix)] // fake gcloud and bq are shell scripts
 fn fake_cloud(dir: &Path) -> PathBuf {
     let bin = dir.join("bin");
     std::fs::create_dir_all(&bin).unwrap();
@@ -579,6 +581,7 @@ esac
 }
 
 #[test]
+#[cfg(unix)]
 fn bill_reads_the_export_read_only_and_sends_the_month() {
     let dir = folder("bill");
     audited(&dir);

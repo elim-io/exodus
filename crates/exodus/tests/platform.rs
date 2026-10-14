@@ -7,6 +7,7 @@
 
 use std::io::{BufRead, BufReader, Read, Write};
 use std::net::TcpListener;
+#[cfg(unix)]
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -172,6 +173,9 @@ fn exodus_with(dir: &Path, key: Option<&str>, args: &[&str], vars: &[(&str, &str
         .env("HOME", dir.join("home"))
         .env_remove("XDG_CONFIG_HOME")
         .env_remove("EXODUS_KEY");
+    // on Windows the credentials go under %APPDATA%: point it at the test's home so the paths match
+    #[cfg(windows)]
+    cmd.env("APPDATA", dir.join("home/.config"));
     for v in PROXY_VARS {
         cmd.env_remove(v);
     }
@@ -196,6 +200,7 @@ fn credentials(dir: &Path) -> PathBuf {
     dir.join("home/.config/exodus/credentials")
 }
 
+#[cfg(unix)]
 fn mode(path: &Path) -> u32 {
     std::fs::metadata(path).unwrap().permissions().mode() & 0o777
 }
@@ -240,8 +245,11 @@ fn init_with_a_code_links_and_keeps_the_key_in_a_0600_file_only() {
 
     // the key is in the credentials file, 0600 in a 0700 folder, and nowhere in the repository
     let path = credentials(&dir);
-    assert_eq!(mode(&path), 0o600);
-    assert_eq!(mode(path.parent().unwrap()), 0o700);
+    #[cfg(unix)]
+    {
+        assert_eq!(mode(&path), 0o600);
+        assert_eq!(mode(path.parent().unwrap()), 0o700);
+    }
     let creds = std::fs::read_to_string(&path).unwrap();
     assert!(creds.contains(KEY) && creds.contains(PID), "{creds}");
     assert!(
@@ -288,6 +296,7 @@ fn init_with_a_code_links_and_keeps_the_key_in_a_0600_file_only() {
         format!("{creds}\n[[projects]]\nid = \"OTHER\"\nkey = \"exk_OTHER_1\"\nname = \"other\"\n"),
     )
     .unwrap();
+    #[cfg(unix)]
     std::fs::set_permissions(&path, std::fs::Permissions::from_mode(0o644)).unwrap();
     state.lock().unwrap().key = KEY2.into();
     let (code, _, err) = exodus(&dir, None, &["init", "--code", "K7QM-4XPT", "--api", &url]);
@@ -298,6 +307,7 @@ fn init_with_a_code_links_and_keeps_the_key_in_a_0600_file_only() {
         "{creds}"
     );
     assert_eq!(creds.matches("[[projects]]").count(), 2);
+    #[cfg(unix)]
     assert_eq!(mode(&path), 0o600, "a file left wider is narrowed again");
 }
 
@@ -830,10 +840,12 @@ fn audit_answer_send_and_pull_go_through_the_platform_with_a_key() {
 // exchange from the fake platform, so nothing leaves the machine; each run has its own HOME, without exodus on PATH.
 
 /// The installer's script, fed to `sh -s` on stdin the way `curl | sh` does.
+#[cfg(unix)]
 const INSTALL: &str = include_str!("../../../install.sh");
 
 /// A release of this build: `exodus-<target>.tar.gz` for every target the installer may ask for, `SHA256SUMS`, and
 /// `bin/curl`, which copies the asset a URL names from this folder.
+#[cfg(unix)] // the tests run install.sh, a POSIX shell script
 fn release() -> &'static Path {
     static DIR: std::sync::OnceLock<PathBuf> = std::sync::OnceLock::new();
     DIR.get_or_init(|| {
@@ -871,6 +883,7 @@ chmod 755 bin/curl"#,
 }
 
 /// `curl -fsSL .../install | sh -s -- ARGS` in `cwd` with HOME at `home`: (exit code, everything it printed).
+#[cfg(unix)] // the tests run install.sh, a POSIX shell script
 fn install(home: &Path, cwd: &Path, args: &[&str]) -> (i32, String) {
     let mut child = Command::new("sh")
         .args(["-s", "--"])
@@ -901,6 +914,7 @@ fn install(home: &Path, cwd: &Path, args: &[&str]) -> (i32, String) {
 }
 
 #[test]
+#[cfg(unix)]
 fn install_from_the_home_folder_keeps_the_code_and_prints_the_command_that_spends_it() {
     let dir = folder("install-home");
     let (url, state) = platform();
@@ -940,6 +954,7 @@ fn install_from_the_home_folder_keeps_the_code_and_prints_the_command_that_spend
 }
 
 #[test]
+#[cfg(unix)]
 fn install_in_a_repository_links_it_and_a_used_code_asks_for_a_fresh_line() {
     let dir = folder("install-repo");
     let (url, state) = platform();
@@ -965,6 +980,7 @@ fn install_in_a_repository_links_it_and_a_used_code_asks_for_a_fresh_line() {
 }
 
 #[test]
+#[cfg(unix)]
 fn install_with_new_plans_in_an_empty_folder_only() {
     let dir = folder("install-new");
     let (url, state) = platform();
@@ -995,6 +1011,7 @@ fn install_with_new_plans_in_an_empty_folder_only() {
 }
 
 #[test]
+#[cfg(unix)]
 fn install_without_a_code_only_installs() {
     let dir = folder("install-only");
     let home = dir.join("home");
