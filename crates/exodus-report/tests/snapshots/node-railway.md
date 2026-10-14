@@ -172,9 +172,10 @@ Looked for and not found: work after the response, sign-in state in memory, sess
 | 4 | Files to a Cloud Storage bucket: Write to a bucket instead of the disk; for uploads, sign a PUT URL so the browser sends the file straight to the bucket and the service stores only the key. Copy the existing files over before the switch. | Finding 3 | M | To do |
 | 5 | Worker: queue jobs to a Cloud Tasks handler: Replace each queue.add() with a Cloud Tasks task that POSTs to /tasks/<name>, move the processor into that route, check the OIDC token, then drop the worker process and its Redis. | Finding 4 | L | To do |
 | 6 | Infrastructure: service, Cloud SQL, bucket, queue, scheduler: Max 3 instances and a database pool of 5 a copy, because db-f1-micro takes 25 connections. | - | M | To do |
-| 7 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
-| 8 | Data: copy Postgres and uploads and compare: pg_dump into Cloud SQL, then row counts and checksums per table; the files with gcloud storage rsync. | - | M | To do |
-| 9 | Switch the domain and stop Railway: Point the domains at Cloud Run in a quiet hour; Railway stays stopped, not deleted, for a week. | - | S | To do |
+| 7 | Budget and alerts: A Cloud Billing budget of $11 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name="node-railway on Cloud Run" --budget-amount=11USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export. | - | S | To do |
+| 8 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
+| 9 | Data: copy Postgres and uploads and compare: pg_dump into Cloud SQL, then row counts and checksums per table; the files with gcloud storage rsync. | - | M | To do |
+| 10 | Switch the domain and stop Railway: Point the domains at Cloud Run in a quiet hour; Railway stays stopped, not deleted, for a week. | - | S | To do |
 
 Effort: S one file or a setting, M a few files and a test, L a part of the app rewritten.
 
@@ -182,7 +183,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 1. Prepare: Dockerfile and the health check.
 2. Change the code: Timers to Cloud Scheduler; Sessions to signed cookies; Files to a Cloud Storage bucket; Worker: queue jobs to a Cloud Tasks handler.
-3. Stand up on Google Cloud: Infrastructure: service, Cloud SQL, bucket, queue, scheduler; Keyless deploys from CI.
+3. Stand up on Google Cloud: Infrastructure: service, Cloud SQL, bucket, queue, scheduler; Budget and alerts; Keyless deploys from CI.
 4. Cut over: Data: copy Postgres and uploads and compare; Switch the domain and stop Railway.
 
 ## Questions

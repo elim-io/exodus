@@ -552,6 +552,14 @@
     },
     {
       "i": 3,
+      "title": "Budget and alerts",
+      "detail": "A Cloud Billing budget of $5 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name=\"s2-shape on Cloud Run\" --budget-amount=5USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export.",
+      "effort": "S",
+      "phase": 3,
+      "status": "todo"
+    },
+    {
+      "i": 4,
       "title": "Keyless deploys from CI",
       "detail": "The deploy signs in with Workload Identity Federation; no key file anywhere.",
       "effort": "S",
@@ -559,7 +567,7 @@
       "status": "todo"
     },
     {
-      "i": 4,
+      "i": 5,
       "title": "Switch the domain and stop Railway",
       "detail": "Point the domains at Cloud Run in a quiet hour; Railway stays stopped, not deleted, for a week.",
       "effort": "S",
@@ -591,7 +599,8 @@
       "name": "Stand up on Google Cloud",
       "tasks": [
         2,
-        3
+        3,
+        4
       ],
       "done": 0,
       "state": "todo"
@@ -600,7 +609,7 @@
       "phase": 4,
       "name": "Cut over",
       "tasks": [
-        4
+        5
       ],
       "done": 0,
       "state": "todo"

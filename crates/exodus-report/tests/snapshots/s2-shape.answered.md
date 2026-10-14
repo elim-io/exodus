@@ -97,8 +97,9 @@ Stays as it is, so not counted: functions/ (Firebase Functions 2nd gen, already 
 |---:|---|---|---|---|
 | 1 | Dockerfile and a health check route: An image that listens on $PORT; GET /healthz answers 200. | - | S | To do |
 | 2 | Infrastructure: service: Max 3 instances to begin with; the busiest hour decides when to raise it. | - | M | To do |
-| 3 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
-| 4 | Switch the domain and stop Railway: Point the domains at Cloud Run in a quiet hour; Railway stays stopped, not deleted, for a week. | - | S | To do |
+| 3 | Budget and alerts: A Cloud Billing budget of $5 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name="s2-shape on Cloud Run" --budget-amount=5USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export. | - | S | To do |
+| 4 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
+| 5 | Switch the domain and stop Railway: Point the domains at Cloud Run in a quiet hour; Railway stays stopped, not deleted, for a week. | - | S | To do |
 
 Effort: S one file or a setting, M a few files and a test, L a part of the app rewritten.
 
@@ -106,7 +107,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 1. Prepare: Dockerfile and a health check route.
 2. Change the code: nothing to change in the code.
-3. Stand up on Google Cloud: Infrastructure: service; Keyless deploys from CI.
+3. Stand up on Google Cloud: Infrastructure: service; Budget and alerts; Keyless deploys from CI.
 4. Cut over: Switch the domain and stop Railway.
 
 ## Questions

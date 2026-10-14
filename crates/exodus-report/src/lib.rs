@@ -574,6 +574,7 @@ fn tasks<'r>(
         );
     }
     drafts.push(draft(format!("Infrastructure: {}", infra.join(", ")), detail, "M", 3));
+    drafts.push(draft("Budget and alerts", budget(lines, name), "S", 3));
     let ci = match f.settings.ci.as_deref() {
         Some(ci) if ci.starts_with(".github") => "GitHub Actions signs in".to_string(),
         Some(ci) => format!("The CI in {ci} signs in"),
@@ -656,6 +657,30 @@ fn tasks<'r>(
             }
         })
         .collect()
+}
+
+/// The budget task: the monthly Cloud Run estimate rounded up to whole dollars, never under $5, with alerts at 50%,
+/// 90% and 100% of it and on the forecast. It changes billing settings, so the person approves the command first.
+fn budget(lines: &[Line], name: &str) -> String {
+    let cents: i64 = lines.iter().map(|l| l.cents).sum();
+    let usd = budget_usd(cents);
+    format!(
+        "A Cloud Billing budget of ${usd} a month on this project (the Cloud Run estimate rounded up, at least $5), with \
+         email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: \
+         `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name=\"{name} on Cloud Run\" \
+         --budget-amount={usd}USD --calendar-period=month --filter-projects=projects/PROJECT_ID \
+         --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 \
+         --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; \
+         `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account \
+         Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It \
+         changes billing settings: the agent shows the command, the person approves, and it runs with the person's \
+         own gcloud. How budgets work: {SITE}/blog/budget-alerts-and-the-billing-export."
+    )
+}
+
+/// Whole dollars, rounded up, at least 5.
+fn budget_usd(cents: i64) -> i64 {
+    ((cents.max(0) + 99) / 100).max(5)
 }
 
 fn effort(e: &str) -> &'static str {
@@ -1006,5 +1031,15 @@ mod tests {
             &finding("local-disk-write", "cmd/install.go:301"),
             &finding("local-disk-write", "a/fs.go:37")
         ));
+    }
+
+    #[test]
+    fn the_budget_is_the_estimate_rounded_up_and_at_least_5() {
+        assert_eq!(budget_usd(0), 5);
+        assert_eq!(budget_usd(-300), 5);
+        assert_eq!(budget_usd(499), 5);
+        assert_eq!(budget_usd(1083), 11);
+        assert_eq!(budget_usd(1100), 11);
+        assert_eq!(budget_usd(4401), 45);
     }
 }

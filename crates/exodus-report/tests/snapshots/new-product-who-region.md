@@ -149,8 +149,9 @@ Task: 7. Sessions in signed cookies
 | 6 | Payment webhooks answer at once; the work goes to a task: The handler checks the signature, queues a Cloud Task and answers 200; the task does the booking. | Finding 2 | M | To do |
 | 7 | Sessions in signed cookies: A signed, encrypted cookie holds the session; no Redis to pay for. | Finding 3 | M | To do |
 | 8 | Infrastructure: service, Cloud SQL, bucket, scheduler: Max 3 instances and a database pool of 5 a copy, because db-f1-micro takes 25 connections. | - | M | To do |
-| 9 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
-| 10 | Domain and launch: The domain on Cloud Run, then the first users. | - | S | To do |
+| 9 | Budget and alerts: A Cloud Billing budget of $12 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name="class-booking on Cloud Run" --budget-amount=12USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export. | - | S | To do |
+| 10 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
+| 11 | Domain and launch: The domain on Cloud Run, then the first users. | - | S | To do |
 
 Effort: S one file or a setting, M a few files and a test, L a part of the app rewritten.
 
@@ -158,7 +159,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 1. Scaffold: Repository for class-booking; Dockerfile.
 2. Build the core: Schema and migrations as a Cloud Run job; The core of class-booking; Reminders run as a job on a schedule; Payment webhooks answer at once; the work goes to a task; Sessions in signed cookies.
-3. Stand up on Google Cloud: Infrastructure: service, Cloud SQL, bucket, scheduler; Keyless deploys from CI.
+3. Stand up on Google Cloud: Infrastructure: service, Cloud SQL, bucket, scheduler; Budget and alerts; Keyless deploys from CI.
 4. Launch: Domain and launch.
 
 ## Questions

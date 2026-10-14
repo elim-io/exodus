@@ -212,7 +212,7 @@ fn plan_task_done_and_need_work_offline_on_plan_md() {
 
     let (code, o, _) = exodus(&dir, &[], &["plan"]);
     assert_eq!(code, 0);
-    assert!(o.contains("9 tasks from report 1") && o.contains("Not linked"), "{o}");
+    assert!(o.contains("10 tasks from report 1") && o.contains("Not linked"), "{o}");
     let md = plan_md(&dir);
     assert!(
         md.starts_with("# Plan for shop, from report 1 (exodus plan, 20"),
@@ -304,14 +304,14 @@ fn plan_task_done_and_need_work_offline_on_plan_md() {
 
     let (code, _, e) = exodus(&dir, &[], &["plan"]);
     assert!(
-        code == 1 && e.contains("1 of 9 tasks are done") && e.contains("--force"),
+        code == 1 && e.contains("1 of 10 tasks are done") && e.contains("--force"),
         "{e}"
     );
     let (code, ..) = exodus(&dir, &[], &["plan", "--force"]);
     assert_eq!(code, 0);
-    assert_eq!(plan_md(&dir).matches("- [ ]").count(), 9);
+    assert_eq!(plan_md(&dir).matches("- [ ]").count(), 10);
     let (_, o, _) = exodus(&dir, &[], &["status"]);
-    assert!(o.contains("plan.md: 0 of 9 tasks done"), "{o}");
+    assert!(o.contains("plan.md: 0 of 10 tasks done"), "{o}");
 }
 
 #[test]

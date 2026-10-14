@@ -866,6 +866,14 @@
     },
     {
       "i": 7,
+      "title": "Budget and alerts",
+      "detail": "A Cloud Billing budget of $10 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name=\"django-render on Cloud Run\" --budget-amount=10USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export.",
+      "effort": "S",
+      "phase": 3,
+      "status": "todo"
+    },
+    {
+      "i": 8,
       "title": "Keyless deploys from CI",
       "detail": "The deploy signs in with Workload Identity Federation; no key file anywhere.",
       "effort": "S",
@@ -873,7 +881,7 @@
       "status": "todo"
     },
     {
-      "i": 8,
+      "i": 9,
       "title": "Data: copy media and books-db and compare",
       "detail": "the files with gcloud storage rsync; pg_dump into Cloud SQL, then row counts and checksums per table.",
       "effort": "M",
@@ -881,7 +889,7 @@
       "status": "todo"
     },
     {
-      "i": 9,
+      "i": 10,
       "title": "Switch the domain and stop Render",
       "detail": "Point the domains at Cloud Run in a quiet hour; Render stays stopped, not deleted, for a week.",
       "effort": "S",
@@ -918,7 +926,8 @@
       "tasks": [
         5,
         6,
-        7
+        7,
+        8
       ],
       "done": 0,
       "state": "todo"
@@ -927,8 +936,8 @@
       "phase": 4,
       "name": "Cut over",
       "tasks": [
-        8,
-        9
+        9,
+        10
       ],
       "done": 0,
       "state": "todo"

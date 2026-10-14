@@ -134,9 +134,10 @@ Looked for and not found: workers waiting on a queue, work after the response, f
 | 2 | SQLite to Firestore: Replace the database/sql calls with cloud.google.com/go/firestore: a collection per table, a document per row, a transaction where the code needs one, and a composite index for each query that filters or sorts on two fields. The tests run against the Firestore emulator. | Finding 1 | L | To do |
 | 3 | Timers to Cloud Scheduler: Give each schedule an endpoint (POST /cron/<name>, OIDC token checked) or a Cloud Run job, create a Cloud Scheduler job per schedule with its time zone, then remove the timer and its process. | Finding 2 | M | To do |
 | 4 | Infrastructure: service, Firestore, scheduler: Max 3 instances to begin with; the busiest hour decides when to raise it. Firestore's (default) database in Native mode in the service's region, the one database the free quota covers; the service's account gets roles/datastore.user. | - | M | To do |
-| 5 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
-| 6 | Data: copy cards_data and compare: a one-off script copies each SQLite table into a Firestore collection, a row a document, then the documents of each collection are counted against the table's rows. | - | M | To do |
-| 7 | Switch the domain and stop Fly.io: Point the domains at Cloud Run in a quiet hour; Fly.io stays stopped, not deleted, for a week. | - | S | To do |
+| 5 | Budget and alerts: A Cloud Billing budget of $5 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name="go-fly on Cloud Run" --budget-amount=5USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export. | - | S | To do |
+| 6 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
+| 7 | Data: copy cards_data and compare: a one-off script copies each SQLite table into a Firestore collection, a row a document, then the documents of each collection are counted against the table's rows. | - | M | To do |
+| 8 | Switch the domain and stop Fly.io: Point the domains at Cloud Run in a quiet hour; Fly.io stays stopped, not deleted, for a week. | - | S | To do |
 
 Effort: S one file or a setting, M a few files and a test, L a part of the app rewritten.
 
@@ -144,7 +145,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 1. Prepare: Dockerfile and a health check route.
 2. Change the code: SQLite to Firestore; Timers to Cloud Scheduler.
-3. Stand up on Google Cloud: Infrastructure: service, Firestore, scheduler; Keyless deploys from CI.
+3. Stand up on Google Cloud: Infrastructure: service, Firestore, scheduler; Budget and alerts; Keyless deploys from CI.
 4. Cut over: Data: copy cards_data and compare; Switch the domain and stop Fly.io.
 
 ## Questions

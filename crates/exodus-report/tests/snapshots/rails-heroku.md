@@ -172,9 +172,10 @@ Looked for and not found: work after the response, in-process timers, sessions i
 | 4 | Migrations as a Cloud Run job before each deploy: Create a Cloud Run job with the same image and the migrate command, and run it in the deploy before the new revision takes traffic. | Finding 3 | S | To do |
 | 5 | Heroku Scheduler jobs to Cloud Scheduler: List the jobs and their times from the dashboard, create a Cloud Run job per command and a Cloud Scheduler job per time. | Finding 4 | S | To do |
 | 6 | Infrastructure: service, Cloud SQL, bucket, queue, scheduler: Max 3 instances and a database pool of 5 a copy, because db-f1-micro takes 25 connections. | - | M | To do |
-| 7 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
-| 8 | Data: copy Postgres and Active Storage and compare: pg_dump into Cloud SQL, then row counts and checksums per table; the files with gcloud storage rsync. | - | M | To do |
-| 9 | Switch the domain and stop Heroku: Point the domains at Cloud Run in a quiet hour; Heroku stays stopped, not deleted, for a week. | - | S | To do |
+| 7 | Budget and alerts: A Cloud Billing budget of $11 a month on this project (the Cloud Run estimate rounded up, at least $5), with email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: `gcloud billing budgets create --billing-account=BILLING_ACCOUNT_ID --display-name="rails-heroku on Cloud Run" --budget-amount=11USD --calendar-period=month --filter-projects=projects/PROJECT_ID --threshold-rule=percent=0.5 --threshold-rule=percent=0.9 --threshold-rule=percent=1.0 --threshold-rule=percent=1.0,basis=forecasted-spend` (the currency is the billing account's own; `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It changes billing settings: the agent shows the command, the person approves, and it runs with the person's own gcloud. How budgets work: https://exodus.elim.io/blog/budget-alerts-and-the-billing-export. | - | S | To do |
+| 8 | Keyless deploys from CI: The deploy signs in with Workload Identity Federation; no key file anywhere. | - | S | To do |
+| 9 | Data: copy Postgres and Active Storage and compare: pg_dump into Cloud SQL, then row counts and checksums per table; the files with gcloud storage rsync. | - | M | To do |
+| 10 | Switch the domain and stop Heroku: Point the domains at Cloud Run in a quiet hour; Heroku stays stopped, not deleted, for a week. | - | S | To do |
 
 Effort: S one file or a setting, M a few files and a test, L a part of the app rewritten.
 
@@ -182,7 +183,7 @@ Effort: S one file or a setting, M a few files and a test, L a part of the app r
 
 1. Prepare: Dockerfile and a health check route.
 2. Change the code: Files to a Cloud Storage bucket; Worker: Active Job to a Cloud Tasks handler.
-3. Stand up on Google Cloud: Migrations as a Cloud Run job before each deploy; Heroku Scheduler jobs to Cloud Scheduler; Infrastructure: service, Cloud SQL, bucket, queue, scheduler; Keyless deploys from CI.
+3. Stand up on Google Cloud: Migrations as a Cloud Run job before each deploy; Heroku Scheduler jobs to Cloud Scheduler; Infrastructure: service, Cloud SQL, bucket, queue, scheduler; Budget and alerts; Keyless deploys from CI.
 4. Cut over: Data: copy Postgres and Active Storage and compare; Switch the domain and stop Heroku.
 
 ## Questions
