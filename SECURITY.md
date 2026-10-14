@@ -26,7 +26,7 @@ These are the properties a report against this repository usually concerns:
   rows it read; linking sends the repository's name, the machine's hostname and its OS. The findings include the
   agent's description of the project (`exodus describe`), three paragraphs in its own words, when it wrote one. It
   never sends a source file: a finding carries at most one line of code, 200 characters long.
-- The project key is kept in `~/.config/exodus/credentials` with mode 0600 (its folder 0700). It is never put on a
+- The project key is kept in `~/.config/exodus/credentials` with mode 0600 (its folder 0700); on Windows in `%APPDATA%\exodus\credentials`, which the profile's permissions keep to your account. It is never put on a
   command line, printed, logged or included in an error; `exodus status` shows only its id.
 - The one-time code that links an account works once, for 15 minutes.
 - Only the `exodus` binary opens network connections, and only to the platform's API: `https://app.exodus.elim.io`, or

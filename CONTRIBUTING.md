@@ -17,7 +17,7 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 ```
 
-CI runs the same three checks on Linux and macOS for every push and pull request; a pull request is merged when they
+CI runs the same three checks on Linux, macOS and Windows for every push and pull request; a pull request is merged when they
 pass.
 
 ## What to keep in mind

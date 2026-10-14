@@ -144,7 +144,7 @@ yourself). The code is spent only in the top folder of a git repository, or with
 else `exodus init` leaves it unused and prints the command for the right folder (`--here` links the folder anyway). The
 cabinet's Google sign-in is not open yet; until it is, everything in the left column works without it. The code works
 once, for 15 minutes; a used or expired code links nothing (exit 4), and a fresh line from the cabinet does. The key it
-is exchanged for is kept in `~/.config/exodus/credentials` (mode 0600), never in the repository.
+is exchanged for is kept in `~/.config/exodus/credentials` (mode 0600; on Windows `%APPDATA%\exodus\credentials`), never in the repository.
 
 ## Commands
 
