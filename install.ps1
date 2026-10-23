@@ -91,13 +91,22 @@ try {
     New-Item -ItemType Directory -Force -Path $dir | Out-Null
     $exe = Join-Path $dir "exodus.exe"
     # a running exodus.exe cannot be overwritten but can be renamed away
-    if (Test-Path $exe) {
-        $old = Join-Path $dir "exodus.old.exe"
+    $old = Join-Path $dir "exodus.old.exe"
+    $had = Test-Path $exe
+    if ($had) {
         Remove-Item -Force $old -ErrorAction SilentlyContinue
         Move-Item -Force $exe $old
     }
     Copy-Item (Join-Path $tmp "x\exodus.exe") $exe
-    Say "installed $(& $exe --version) to $exe"
+    # a binary that does not start (a DLL missing: 0xC0000135) prints nothing, so its exit code is the only sign
+    $installed = & $exe --version
+    if ($LASTEXITCODE -ne 0) {
+        $rc = $LASTEXITCODE
+        Remove-Item -Force $exe -ErrorAction SilentlyContinue
+        if ($had) { Move-Item -Force $old $exe }
+        Die ("$exe does not start on this machine (exit code 0x{0:X8}); the previous state is kept" -f $rc)
+    }
+    Say "installed $installed to $exe"
 } finally {
     Remove-Item -Recurse -Force $tmp -ErrorAction SilentlyContinue
 }
