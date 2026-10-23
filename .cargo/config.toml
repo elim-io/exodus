@@ -1,0 +1,5 @@
+# Windows: the C runtime is linked into exodus.exe. Without it the binary needs VCRUNTIME140.dll, which a clean
+# Windows does not have (the GitHub windows runners do, so CI passes either way): exodus.exe then exits with
+# 0xC0000135 and prints nothing.
+[target.'cfg(all(windows, target_env = "msvc"))']
+rustflags = ["-C", "target-feature=+crt-static"]

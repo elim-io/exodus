@@ -80,6 +80,8 @@ jobs:
           $env:EXODUS_VERSION = $env:GITHUB_REF_NAME
           irm "https://github.com/${{ github.repository }}/releases/download/$env:GITHUB_REF_NAME/install.ps1" | iex
           exodus --version
+          # the runner has the VC++ runtime and a clean Windows does not: a binary that imports it exits 0xC0000135 there
+          if ([IO.File]::ReadAllText((Get-Command exodus).Source) -match 'VCRUNTIME140') { throw "exodus.exe needs VCRUNTIME140.dll" }
           # a code outside a repository is refused before any network call and stays unused
           Set-Location $HOME
           exodus init --code EXAMPLE-CODE; if ($LASTEXITCODE -eq 0) { throw "init accepted the home folder" }
