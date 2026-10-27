@@ -153,6 +153,7 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) ->
     // a stack with no web framework serves no pages: a "web" process there (a platform's start command) that runs a
     // chat bot library is the bot itself
     let no_web = exodus_audit::runtime_of(&f.stack).framework.is_none();
+    let month = exodus_cost::DAYS * 86_400.0;
     for p in &f.processes {
         let fw = p.framework.clone().unwrap_or_default();
         let on = if p.always_on { "always on" } else { "sleeps when idle" };
@@ -162,7 +163,6 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) ->
             // fits a Cloud Run instance (Preview): a singleton with a shared vCPU at a fraction of a service kept on
             // (cloud.google.com/run/pricing, read 2026-10-27), restarted every 7 days, no disk of its own.
             _ if bot => {
-                let secs = exodus_cost::DAYS * 86_400.0;
                 let how = "one instance all month, a shared vCPU and 0.5 GiB";
                 out.push(part(
                     &p.id,
@@ -175,8 +175,8 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) ->
                     ),
                     Some("cloud-run"),
                     vec![
-                        use_("instance-cpu", secs, None, how),
-                        use_("instance-mem", secs * 0.5, None, how),
+                        use_("instance-cpu", month, None, how),
+                        use_("instance-mem", month * 0.5, None, how),
                     ],
                 ));
             }
@@ -198,13 +198,12 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) ->
                 // instance all month on instance-based billing. Timers and loops the plan moves to Cloud Scheduler and
                 // Cloud Tasks, an admin's event stream or a heartbeat leave it request-based, scaling to zero.
                 let (after, uses) = if let Some(why) = open {
-                    let secs = exodus_cost::DAYS * 86_400.0;
                     let how = format!("one instance all month, 1 vCPU and 0.5 GiB, because {why}");
                     (
                         format!("Cloud Run service, one instance always on (instance-based billing), because {why}"),
                         vec![
-                            use_("run-cpu-always", secs, None, &how),
-                            use_("run-mem-always", secs * 0.5, None, &how),
+                            use_("run-cpu-always", month, None, &how),
+                            use_("run-mem-always", month * 0.5, None, &how),
                         ],
                     )
                 } else {
