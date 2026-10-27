@@ -177,6 +177,11 @@ mod tests {
         for sku in ["run-mem-always", "job-mem"] {
             assert_eq!(free(sku), 450_000.0, "{sku}");
         }
+        // Cloud Run instances (Preview, read 2026-10-27): no free tier; 1 vCPU and 1 GiB for 30 days is Google's $5.70
+        assert_eq!((free("instance-cpu"), free("instance-mem")), (0.0, 0.0));
+        let month = 30.0 * 86_400.0;
+        let five_seventy = month * (p.skus["instance-cpu"].price + p.skus["instance-mem"].price);
+        assert!((five_seventy - 5.70).abs() < 0.005, "{five_seventy}");
         assert_eq!((free("tasks"), free("scheduler")), (1_000_000.0, 3.0));
         assert_eq!((free("secrets"), free("ar")), (6.0, 0.5));
         // Cloud Storage: 5,000 class A operations in any region, 5 GB of storage only in us-central1

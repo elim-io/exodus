@@ -132,6 +132,11 @@ Tasks queue calling the service; a schedule as Cloud Scheduler; a chat bot that 
 (Telegraf, grammY, node-telegram-bot-api, discord.js, python-telegram-bot, aiogram, pyTelegramBotAPI, discord.py) as a
 Cloud Run instance (Preview), one copy with a shared vCPU, restarted every 7 days, in a region that offers instances.
 
+The plan's infrastructure task says which account the project needs: Google's Starter Tier runs apps without a
+billing account but only those published from Google AI Studio, so a repository deployed with `gcloud` needs one, and a
+person who never had one starts on the Free Trial. Its budget task sets a Cloud Billing budget at the estimate and,
+on the person's yes, a Cloud Run spend cap at twice that, which pauses Cloud Run in the project until the next month.
+
 ## Offline, and with an account
 
 | | without an account | with a linked account |
