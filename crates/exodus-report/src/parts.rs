@@ -150,10 +150,36 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) ->
     let mut out = Vec::new();
     let mut timers = Vec::new();
 
+    // a stack with no web framework serves no pages: a "web" process there (a platform's start command) that runs a
+    // chat bot library is the bot itself
+    let no_web = exodus_audit::runtime_of(&f.stack).framework.is_none();
     for p in &f.processes {
         let fw = p.framework.clone().unwrap_or_default();
         let on = if p.always_on { "always on" } else { "sleeps when idle" };
+        let bot = exodus_audit::is_bot(&fw) && (p.kind == "worker" || (p.kind == "web" && no_web));
         match p.kind.as_str() {
+            // A chat bot holds one connection to its platform (long polling or a gateway) as exactly one copy, so it
+            // fits a Cloud Run instance (Preview): a singleton with a shared vCPU at a fraction of a service kept on
+            // (cloud.google.com/run/pricing, read 2026-10-27), restarted every 7 days, no disk of its own.
+            _ if bot => {
+                let secs = exodus_cost::DAYS * 86_400.0;
+                let how = "one instance all month, a shared vCPU and 0.5 GiB";
+                out.push(part(
+                    &p.id,
+                    "worker",
+                    &p.name,
+                    planned(format!("{fw} bot, {on}")),
+                    format!(
+                        "Cloud Run instance (Preview), one copy always on, because {fw} holds one connection to its \
+                         chat platform (long polling or a gateway); restarted every 7 days"
+                    ),
+                    Some("cloud-run"),
+                    vec![
+                        use_("instance-cpu", secs, None, how),
+                        use_("instance-mem", secs * 0.5, None, how),
+                    ],
+                ));
+            }
             "web" => {
                 let (r, s) = web_profile(lang, traffic);
                 let n = format!(
@@ -199,28 +225,6 @@ pub fn parts(f: &Findings, traffic: &str, fs: &Firestore, open: Option<&str>) ->
                     after,
                     Some("cloud-run"),
                     uses,
-                ));
-            }
-            // A chat bot holds one connection to its platform (long polling or a gateway) as exactly one copy, so it
-            // fits a Cloud Run instance (Preview): a singleton with a shared vCPU at a fraction of a service kept on
-            // (cloud.google.com/run/pricing, read 2026-10-27), restarted every 7 days, no disk of its own.
-            "worker" if exodus_audit::is_bot(&fw) => {
-                let secs = exodus_cost::DAYS * 86_400.0;
-                let how = "one instance all month, a shared vCPU and 0.5 GiB";
-                out.push(part(
-                    &p.id,
-                    "worker",
-                    &p.name,
-                    planned(format!("{fw} bot, {on}")),
-                    format!(
-                        "Cloud Run instance (Preview), one copy always on, because {fw} holds one connection to its \
-                         chat platform (long polling or a gateway); restarted every 7 days"
-                    ),
-                    Some("cloud-run"),
-                    vec![
-                        use_("instance-cpu", secs, None, how),
-                        use_("instance-mem", secs * 0.5, None, how),
-                    ],
                 ));
             }
             "worker" => {

@@ -555,8 +555,11 @@ fn tasks<'r>(
         .filter(|l| l.uses.iter().any(|u| u.sku == "instance-cpu"))
         .map(|l| l.part.name.as_str())
         .collect();
-    let mut infra = vec!["service".to_string()];
+    // an app that is only a chat bot has no service: its instance is the whole app
+    let service = has("web") || product("cloud-tasks") || has("cron") || bots.is_empty();
+    let mut infra: Vec<String> = Vec::new();
     for (on, what) in [
+        (service, "service"),
         (sql, "Cloud SQL"),
         (firestore, "Firestore"),
         (has("files"), "bucket"),
@@ -568,10 +571,12 @@ fn tasks<'r>(
             infra.push(what.into());
         }
     }
-    let mut detail = if sql {
-        "Max 3 instances and a database pool of 5 a copy, because db-f1-micro takes 25 connections.".to_string()
-    } else {
-        "Max 3 instances to begin with; the busiest hour decides when to raise it.".to_string()
+    let mut detail = match (service, sql) {
+        (true, true) => {
+            "Max 3 instances and a database pool of 5 a copy, because db-f1-micro takes 25 connections.".to_string()
+        }
+        (true, false) => "Max 3 instances to begin with; the busiest hour decides when to raise it.".to_string(),
+        (false, _) => String::new(),
     };
     if firestore {
         detail.push_str(
@@ -593,7 +598,12 @@ fn tasks<'r>(
     let products: Vec<&str> = lines.iter().filter_map(|l| l.part.product.as_deref()).collect();
     detail.push(' ');
     detail.push_str(&account(&products, new, name));
-    drafts.push(draft(format!("Infrastructure: {}", infra.join(", ")), detail, "M", 3));
+    drafts.push(draft(
+        format!("Infrastructure: {}", infra.join(", ")),
+        detail.trim_start(),
+        "M",
+        3,
+    ));
     drafts.push(draft("Budget and alerts", budget(lines, name), "S", 3));
     let ci = match f.settings.ci.as_deref() {
         Some(ci) if ci.starts_with(".github") => "GitHub Actions signs in".to_string(),

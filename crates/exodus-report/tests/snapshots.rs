@@ -643,4 +643,32 @@ fn a_chat_bot_runs_as_a_cloud_run_instance_and_a_chat_service_stays_a_service() 
     ] {
         assert!(infra.detail.contains(needle), "no {needle:?}: {}", infra.detail);
     }
+
+    // a bot that the platform starts as its one process (railway.json's startCommand) is "web" to the audit: with no
+    // web framework in the stack it is the bot, and the app has no service; next to Express it serves pages and stays
+    let mut only = audit("node-railway");
+    only.processes.retain(|p| p.kind == "web");
+    only.processes[0].framework = Some("Telegraf".into());
+    only.patterns.clear();
+    let with_express = only.clone();
+    only.stack.retain(|s| !s.starts_with("Express"));
+    let r = build(&only, &Answers::default(), None, None);
+    let line = &r.cost.lines[0];
+    assert!(
+        line.part.after.starts_with("Cloud Run instance (Preview)"),
+        "{}",
+        line.part.after
+    );
+    let infra = r.tasks.iter().find(|t| t.title.starts_with("Infrastructure:")).unwrap();
+    assert!(
+        !infra.title.contains("service") && !infra.detail.starts_with(' '),
+        "{}",
+        infra.title
+    );
+    let r = build(&with_express, &Answers::default(), None, None);
+    assert!(
+        r.cost.lines[0].part.after.starts_with("Cloud Run service"),
+        "{}",
+        r.cost.lines[0].part.after
+    );
 }
