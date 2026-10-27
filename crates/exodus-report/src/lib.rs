@@ -660,10 +660,12 @@ fn tasks<'r>(
 }
 
 /// The budget task: the monthly Cloud Run estimate rounded up to whole dollars, never under $5, with alerts at 50%,
-/// 90% and 100% of it and on the forecast. It changes billing settings, so the person approves the command first.
+/// 90% and 100% of it and on the forecast; then a Cloud Run spend cap at twice that, never under $10 ([`cap_usd`]).
+/// Both change billing settings, so the person approves each first.
 fn budget(lines: &[Line], name: &str) -> String {
     let cents: i64 = lines.iter().map(|l| l.cents).sum();
     let usd = budget_usd(cents);
+    let cap = cap_usd(usd);
     format!(
         "A Cloud Billing budget of ${usd} a month on this project (the Cloud Run estimate rounded up, at least $5), with \
          email alerts to the billing admins at 50%, 90% and 100% of actual spend and at 100% of the forecast: \
@@ -674,13 +676,30 @@ fn budget(lines: &[Line], name: &str) -> String {
          `--notifications-rule-pubsub-topic` adds a Pub/Sub topic for automated reactions). It needs Billing Account \
          Administrator or Billing Account Costs Manager, or the project's owner for a budget on this project only. It \
          changes billing settings: the agent shows the command, the person approves, and it runs with the person's \
-         own gcloud. How budgets work: {SITE}/blog/budget-alerts-and-the-billing-export."
+         own gcloud. How budgets work: {SITE}/blog/budget-alerts-and-the-billing-export. \
+         Then a spend cap of ${cap} a month, a second budget that stops Cloud Run instead of only warning: in the \
+         console, Billing, Budgets & alerts, Create new budget, Spend cap enforcement, this project, the service \
+         Cloud Run, the amount ${cap} (or the Cloud Billing Budget API with `spendCap.inputState` CONFIGURED, the \
+         service `services/152E-C115-5142` and `creditTypesTreatment` EXCLUDE_ALL_CREDITS). Past the cap, Cloud Run in \
+         this project pauses until the 1st of the next month or until the person lifts the cap: services answer 5xx, \
+         jobs and worker pools stop, nothing is deleted. It counts gross list-price costs before savings and \
+         credits and fires before the bill shows them, so it sits at twice the budget, at least $10, not at the \
+         estimate. Spend caps are monthly, for one project and one service; alerts go to the billing admins and project \
+         owners at 50%, 80% and 100%. It needs `billing.budgets.configureSpendCap` on the billing account, or \
+         `billing.resourcebudgets.configureSpendCap` on the project. Turning the app off at a ceiling \
+         is the person's call: the agent explains it, shows the steps and waits for a yes or no."
     )
 }
 
 /// Whole dollars, rounded up, at least 5.
 fn budget_usd(cents: i64) -> i64 {
     ((cents.max(0) + 99) / 100).max(5)
+}
+
+/// The spend cap above the budget: twice it, at least $10. The cap stops the app, and Google counts it on gross
+/// list-price costs before savings and credits, so a cap at the estimate would stop an app in an ordinary month.
+fn cap_usd(budget_usd: i64) -> i64 {
+    (budget_usd * 2).max(10)
 }
 
 fn effort(e: &str) -> &'static str {
@@ -1041,5 +1060,15 @@ mod tests {
         assert_eq!(budget_usd(1083), 11);
         assert_eq!(budget_usd(1100), 11);
         assert_eq!(budget_usd(4401), 45);
+    }
+
+    #[test]
+    fn the_spend_cap_is_twice_the_budget_and_at_least_10() {
+        assert_eq!(cap_usd(5), 10);
+        assert_eq!(cap_usd(11), 22);
+        assert_eq!(cap_usd(45), 90);
+        let text = budget(&[], "app");
+        assert!(text.contains("budget of $5 a month") && text.contains("spend cap of $10 a month"));
+        assert!(text.contains("services/152E-C115-5142") && text.contains("waits for a yes or no"));
     }
 }
