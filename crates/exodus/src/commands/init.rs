@@ -43,6 +43,7 @@ pub const MOVE: &str = include_str!("../../templates/move.md");
 pub const NEW: &str = include_str!("../../templates/new.md");
 const SKILL: &str = include_str!("../../templates/skill.md");
 const AGENTS: &str = include_str!("../../templates/agents.md");
+const GOOGLE: &str = include_str!("../../templates/google.md");
 const CURSOR: &str = include_str!("../../templates/cursor.mdc");
 const README: &str = include_str!("../../templates/readme.md");
 
@@ -108,6 +109,11 @@ pub fn run(args: Args) -> ExitCode {
                     "No account linked. `exodus audit` and `exodus report` work; `exodus init --code` links one."
                 ),
             }
+            println!(
+                "Google's Cloud Run skill and the Developer Knowledge MCP server are not installed by exodus: the \
+                 instructions give your agent the commands (`npx skills add google/skills --skill cloud-run-basics`, \
+                 the google-cloud-developer plugin from `google/skills`), to run on your yes."
+            );
             println!(
                 "Next: ask your agent to {} as the exodus instructions say.",
                 if new {
@@ -433,9 +439,55 @@ fn init(root: &Path, args: &Args, linked: Option<&Linked>) -> Result<Vec<String>
     Ok(wrote)
 }
 
-/// The body with the agent's own name in `exodus send --agent`.
+/// The body with Google's skills and MCP steps for this agent, and its own name in `exodus send --agent`.
 fn fill(body: &str, agent: &str) -> String {
-    body.trim_end().replace("{{agent}}", agent)
+    body.trim_end()
+        .replace("{{google}}", &google(agent))
+        .replace("{{agent}}", agent)
+}
+
+/// Google's Cloud Run skill, its `google-cloud-developer` plugin and the Developer Knowledge MCP server, as each agent
+/// installs them (github.com/google/skills, its plugin post of 2026-09-10, developers.google.com/knowledge/mcp, read
+/// 2026-10-27). The agent installs them with the person's yes; the key stays in an environment variable, so the Claude
+/// Code `claude mcp add --header` line Google shows, which puts it on a command line, is not used: the plugin reads it.
+fn google(agent: &str) -> String {
+    let skill = |id: &str| format!("`npx skills add google/skills --skill cloud-run-basics --agent {id}`");
+    let (check, install, mcp) = match agent {
+        "Claude Code" => (
+            "`claude plugin list`, `.claude/skills/` and `~/.claude/skills/`".to_string(),
+            format!(
+                "- `claude plugin marketplace add google/skills`, then \
+                 `claude plugin install google-cloud-developer@google-plugins`\n- {}",
+                skill("claude-code")
+            ),
+            "The plugin brings the MCP server and reads the key from that variable.",
+        ),
+        "Codex" => (
+            "`~/.codex/config.toml` and the installed plugins".to_string(),
+            format!(
+                "- `codex plugin marketplace add google/skills`, then \
+                 `codex plugin add google-cloud-developer@google-plugins`\n- {}",
+                skill("codex")
+            ),
+            "In `~/.codex/config.toml`, the server reads the key by the variable's name: \
+             `[mcp_servers.google-developer-knowledge]` with \
+             `url = \"https://developerknowledge.googleapis.com/mcp\"` and \
+             `env_http_headers = { \"X-Goog-Api-Key\" = \"DEVELOPERKNOWLEDGE_API_KEY\" }`; a \"not logged in\" status \
+             after that is expected.",
+        ),
+        _ => (
+            "`~/.cursor/mcp.json` and `.cursor/skills/`".to_string(),
+            format!("- {}", skill("cursor")),
+            "In the global `~/.cursor/mcp.json`, never this repository's `.cursor/mcp.json`: a server \
+             `google-developer-knowledge` with `\"url\": \"https://developerknowledge.googleapis.com/mcp\"` and \
+             `\"headers\": { \"X-Goog-Api-Key\": \"${env:DEVELOPERKNOWLEDGE_API_KEY}\" }`.",
+        ),
+    };
+    GOOGLE
+        .trim_end()
+        .replace("{{check}}", &check)
+        .replace("{{install}}", &install)
+        .replace("{{mcp}}", mcp)
 }
 
 /// `old` with the Exodus section replaced, or appended after a blank line when it has none.

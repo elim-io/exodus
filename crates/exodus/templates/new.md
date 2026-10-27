@@ -22,6 +22,8 @@ signs in to Google Cloud: whatever has to happen there, you do with the person's
 - If a command answers "not yet", or "needs a linked account" and the person has chosen to work without one, go on
   offline: `exodus answer` and `exodus report` work without an account. Tell the person what was skipped.
 
+{{google}}
+
 ## 1. Ask about the idea
 
 Tell the person what `exodus init` wrote: the agent instructions (`AGENTS.md`, `.claude/skills/exodus/`,

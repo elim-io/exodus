@@ -183,18 +183,24 @@ The text is in `crates/exodus/templates/` (`move.md` for a move, `new.md` for a 
 1. never run an installer itself: when `exodus` is missing (and not in `~/.local/bin`), ask the person to run the
    install line (in Claude Code, after `!`); when a code was used or ran out, ask the person for a fresh line from the
    cabinet instead of going on offline;
-2. tell the person which files `exodus init` wrote and leave committing them to the person (no `git init`, no
+2. check whether Google's Cloud Run skill (`cloud-run-basics` from `google/skills`), its `google-cloud-developer`
+   plugin (Claude Code, Codex) and the Developer Knowledge MCP server are installed, and if not, offer them and install
+   them only on the person's yes, with that agent's commands (`templates/google.md`, filled per agent by `init`). The
+   MCP server's key goes only into `DEVELOPERKNOWLEDGE_API_KEY` in the person's environment. The agent asks Exodus's
+   knowledge base first and Google's skills and documentation for the Cloud Run facts it lacks; `exodus init` prints
+   the same and installs nothing;
+3. tell the person which files `exodus init` wrote and leave committing them to the person (no `git init`, no
    author of its own), then run `exodus audit` and read the code at the lines the scanner cannot decide on, changing
    nothing;
-3. answer the audit's questions itself first, from the repository and the platform's read-only commands
+4. answer the audit's questions itself first, from the repository and the platform's read-only commands
    (`railway status`, `heroku ps`, `fly status` and the like), record each with `exodus answer ... --found`, and ask
    the person only what is left;
-4. write what it understood from the code (what the product is, how it runs today, what the move changes) in three
+5. write what it understood from the code (what the product is, how it runs today, what the move changes) in three
    short paragraphs: to the person in their language, into the report in English with `exodus describe`;
-5. build the report in the same turn, and tell the person the verdict and the two monthly totals;
-6. work the plan one task at a time: change the code, add a test, commit only that task's files as the person's git
+6. build the report in the same turn, and tell the person the verdict and the two monthly totals;
+7. work the plan one task at a time: change the code, add a test, commit only that task's files as the person's git
    identity, run `exodus task done N --commit SHA`;
-7. stop and ask (`exodus need`) for anything only the person can do: signing in to Google Cloud, a billing account,
+8. stop and ask (`exodus need`) for anything only the person can do: signing in to Google Cloud, a billing account,
    DNS, IAM, anything that costs money.
 
 The rules it gives the agent: source code never leaves the machine, secret values are never printed or put on a

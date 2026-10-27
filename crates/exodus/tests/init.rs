@@ -58,6 +58,10 @@ fn lays_out_everything_once() {
     let (ok, out) = exodus(&dir, &["init"]);
     assert!(ok, "{out}");
     assert!(out.contains("No account linked."), "{out}");
+    assert!(
+        out.contains("--skill cloud-run-basics") && out.contains("on your yes"),
+        "{out}"
+    );
 
     let project = json(&dir, ".exodus/project.json");
     assert_eq!(project["owner"], "example");
@@ -97,6 +101,21 @@ fn lays_out_everything_once() {
             assert!(text.contains(needle), "{agent}: no {needle:?}");
         }
         assert!(text.contains(&format!("--agent \"{agent}\"")), "{agent}");
+        // Google's skills and MCP: this agent's install line, the key only in the environment, none on a command line
+        let id = match agent {
+            "Claude Code" => "claude-code",
+            "Codex" => "codex",
+            _ => "cursor",
+        };
+        assert!(
+            text.contains(&format!("--skill cloud-run-basics --agent {id}`"))
+                && text.contains("DEVELOPERKNOWLEDGE_API_KEY"),
+            "{agent}: no Google step"
+        );
+        assert!(
+            !text.contains("--header") && !text.contains("YOUR_API_KEY"),
+            "{agent}: a key on a command line"
+        );
         assert!(!text.contains("{{"), "{agent}: a placeholder left");
         assert!(!text.contains('\u{2014}'), "{agent}: an em dash");
     }

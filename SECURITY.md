@@ -32,6 +32,11 @@ These are the properties a report against this repository usually concerns:
 - Only the `exodus` binary opens network connections, and only to the platform's API: `https://app.exodus.elim.io`, or
   the address given with `--api` (https, or http to `localhost` only). `exodus bill` runs your own `gcloud` and `bq`,
   which talk to Google Cloud with your sign-in.
+- `exodus init` writes only text: `.exodus/`, the `.gitignore` line and the agent instructions. It installs nothing.
+  The instructions name Google's own Agent Skills (`google/skills`) and the Developer Knowledge MCP server and tell
+  the agent to install them only on your yes. That server's API key is meant to live in the environment variable
+  `DEVELOPERKNOWLEDGE_API_KEY`, set by you; the instructions forbid putting it on a command line, in a file of the
+  repository or in the chat.
 - `install.sh` checks the downloaded archive against the release's `SHA256SUMS` before installing it. Both come from
   the same release, so this catches a broken or swapped download, not a compromised release. The binaries are not
   signed yet.
