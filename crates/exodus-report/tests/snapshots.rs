@@ -594,3 +594,53 @@ fn only_users_open_connections_price_the_service_as_one_instance_always_on() {
     let r = build(&admin, &answer("public"), None, None);
     assert!(web(&r).part.after.contains("one instance always on"));
 }
+
+/// A chat bot's process (Telegraf, holding one long poll to Telegram) moves to a Cloud Run instance (Preview): one copy
+/// always on at the instances' price with no free tier, and the infrastructure task names it with its region, its
+/// bucket and its weekly restart. The web service with users' WebSockets next to it stays a service.
+#[test]
+fn a_chat_bot_runs_as_a_cloud_run_instance_and_a_chat_service_stays_a_service() {
+    let mut f = audit("node-railway");
+    let worker = f.processes.iter_mut().find(|p| p.kind == "worker").unwrap();
+    worker.framework = Some("Telegraf".into());
+    let mut open = f.patterns[0].clone();
+    open.id = "long-lived-connection".into();
+    open.rule = "long-lived-connection".into();
+    open.part = "web".into();
+    open.at = "src/chat/socket.js:12".into();
+    f.patterns.push(open);
+
+    let r = build(&f, &Answers::default(), None, None);
+    let bot = r.cost.lines.iter().find(|l| l.part.kind == "worker").unwrap();
+    assert!(
+        bot.part
+            .after
+            .starts_with("Cloud Run instance (Preview), one copy always on, because Telegraf")
+    );
+    let skus: Vec<&str> = bot.uses.iter().map(|u| u.sku.as_str()).collect();
+    assert_eq!(skus, ["instance-cpu", "instance-mem"]);
+    // 30 days of a shared vCPU at $0.00000027 ($0.70) and 0.5 GiB at $0.00000193 ($2.50), nothing free
+    assert_eq!(bot.cents, 70 + 250);
+
+    let web = r.cost.lines.iter().find(|l| l.part.kind == "web").unwrap();
+    assert!(
+        web.part.after.starts_with("Cloud Run service, one instance always on"),
+        "{}",
+        web.part.after
+    );
+
+    let infra = r.tasks.iter().find(|t| t.title.starts_with("Infrastructure:")).unwrap();
+    assert!(
+        infra.title.ends_with(", instance") && !infra.title.contains("queue"),
+        "{}",
+        infra.title
+    );
+    for needle in [
+        "gcloud beta run instances create",
+        "not europe-west1",
+        "restarts every 7 days",
+        "type=cloud-storage",
+    ] {
+        assert!(infra.detail.contains(needle), "no {needle:?}: {}", infra.detail);
+    }
+}

@@ -35,6 +35,8 @@ pub enum Role {
     Server,
     Worker,
     Timer,
+    /// A chat bot that holds one connection to its platform (long polling or a gateway) and must run as one copy.
+    Bot,
     /// A driver of a store; the badge is the engine.
     Store,
 }
@@ -71,6 +73,10 @@ pub const LIBS: &[Lib] = &[
     lib(Node, "node-cron", "node-cron", Timer),
     lib(Node, "cron", "cron", Timer),
     lib(Node, "node-schedule", "node-schedule", Timer),
+    lib(Node, "telegraf", "Telegraf", Bot),
+    lib(Node, "grammy", "grammY", Bot),
+    lib(Node, "node-telegram-bot-api", "node-telegram-bot-api", Bot),
+    lib(Node, "discord.js", "discord.js", Bot),
     lib(Node, "pg", "PostgreSQL", Store),
     lib(Node, "postgres", "PostgreSQL", Store),
     lib(Node, "mysql2", "MySQL", Store),
@@ -91,6 +97,10 @@ pub const LIBS: &[Lib] = &[
     lib(Python, "rq", "RQ", Worker),
     lib(Python, "dramatiq", "Dramatiq", Worker),
     lib(Python, "apscheduler", "APScheduler", Timer),
+    lib(Python, "python-telegram-bot", "python-telegram-bot", Bot),
+    lib(Python, "aiogram", "aiogram", Bot),
+    lib(Python, "pytelegrambotapi", "pyTelegramBotAPI", Bot),
+    lib(Python, "discord.py", "discord.py", Bot),
     lib(Python, "psycopg", "PostgreSQL", Store),
     lib(Python, "psycopg2", "PostgreSQL", Store),
     lib(Python, "psycopg2-binary", "PostgreSQL", Store),
@@ -176,6 +186,11 @@ impl Lib {
     }
 }
 
+/// Whether a process's framework is a chat bot library: one copy holding its platform's connection all the time.
+pub fn is_bot(framework: &str) -> bool {
+    LIBS.iter().any(|l| l.role == Bot && l.badge == framework)
+}
+
 /// The libraries of a role the dependencies list, in table order, each with the dependency that matched.
 pub fn found(deps: &[Dep], role: Role) -> Vec<(&'static Lib, &Dep)> {
     LIBS.iter()
@@ -211,7 +226,7 @@ pub fn badges(f: &Facts, platform: &Platform, files: &BTreeMap<String, String>) 
     if let Some((_, lang, v)) = &f.language {
         out.push(with_version(lang, v.as_deref()));
     }
-    for role in [Web, Server, Worker] {
+    for role in [Web, Server, Worker, Bot] {
         for (lib, dep) in found(&f.deps, role) {
             let badge = with_version(lib.badge, dep.version.as_deref());
             if !out
@@ -291,7 +306,10 @@ pub fn frameworks(processes: &mut [Process], deps: &[Dep], files: &BTreeMap<Stri
         let by_import = entry_file(&p.command, files).and_then(|file| first_import(&files[&file], deps));
         let by_kind = match p.kind.as_str() {
             "web" => web,
-            "worker" => found(deps, Worker).first().map(|(l, _)| l.badge),
+            "worker" => found(deps, Worker)
+                .first()
+                .or(found(deps, Bot).first())
+                .map(|(l, _)| l.badge),
             "cron" => found(deps, Timer).first().map(|(l, _)| l.badge),
             _ => None,
         };
@@ -405,6 +423,40 @@ pub fn runtime_of(stack: &[String]) -> Runtime {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_worker_that_runs_a_chat_bot_is_named_by_its_library() {
+        let dep = |eco, name: &str| Dep {
+            eco,
+            name: name.into(),
+            version: None,
+            at: "manifest:1".into(),
+        };
+        let worker = |command: &str| Process {
+            id: "bot".into(),
+            kind: "worker".into(),
+            name: "bot".into(),
+            command: command.into(),
+            from: "Procfile:2".into(),
+            always_on: true,
+            schedules: None,
+            framework: None,
+        };
+        let files = BTreeMap::from([(
+            "bot.js".to_string(),
+            "const { Telegraf } = require('telegraf')".to_string(),
+        )]);
+        let mut ps = [worker("node bot.js"), worker("python bot.py")];
+        frameworks(&mut ps[..1], &[dep(Node, "telegraf")], &files);
+        frameworks(&mut ps[1..], &[dep(Python, "aiogram")], &files);
+        assert_eq!(ps[0].framework.as_deref(), Some("Telegraf"));
+        assert_eq!(ps[1].framework.as_deref(), Some("aiogram"));
+        assert!(is_bot("Telegraf") && is_bot("aiogram") && !is_bot("BullMQ") && !is_bot("Express"));
+        // a queue runner wins over a bot library when the stack has both
+        let mut q = [worker("python bot.py")];
+        frameworks(&mut q, &[dep(Python, "celery"), dep(Python, "aiogram")], &files);
+        assert_eq!(q[0].framework.as_deref(), Some("Celery"));
+    }
 
     #[test]
     fn versions() {

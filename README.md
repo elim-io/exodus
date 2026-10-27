@@ -126,6 +126,12 @@ once the agent records it (`exodus answer bill`), part by part or as one total. 
 egress and the stored files with the visitors and keeps the rest (the database, schedules, builds) as it is; the report
 names which lines grow.
 
+Each part goes where it costs least for what it does: a web service request-based, scaling to zero, or with one
+instance always on when its users hold connections open (WebSockets, server-sent events); a queue worker as a Cloud
+Tasks queue calling the service; a schedule as Cloud Scheduler; a chat bot that holds one connection to its platform
+(Telegraf, grammY, node-telegram-bot-api, discord.js, python-telegram-bot, aiogram, pyTelegramBotAPI, discord.py) as a
+Cloud Run instance (Preview), one copy with a shared vCPU, restarted every 7 days, in a region that offers instances.
+
 ## Offline, and with an account
 
 | | without an account | with a linked account |

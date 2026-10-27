@@ -550,13 +550,19 @@ fn tasks<'r>(
 
     let product = |p: &str| lines.iter().any(|l| l.part.product.as_deref() == Some(p));
     let (sql, firestore) = (product("cloud-sql"), product("firestore"));
+    let bots: Vec<&str> = lines
+        .iter()
+        .filter(|l| l.uses.iter().any(|u| u.sku == "instance-cpu"))
+        .map(|l| l.part.name.as_str())
+        .collect();
     let mut infra = vec!["service".to_string()];
     for (on, what) in [
         (sql, "Cloud SQL"),
         (firestore, "Firestore"),
         (has("files"), "bucket"),
-        (has("worker"), "queue"),
+        (product("cloud-tasks"), "queue"),
         (has("cron"), "scheduler"),
+        (!bots.is_empty(), "instance"),
     ] {
         if on {
             infra.push(what.into());
@@ -572,6 +578,17 @@ fn tasks<'r>(
             " Firestore's (default) database in Native mode in the service's region, the one database the free quota \
              covers; the service's account gets roles/datastore.user.",
         );
+    }
+    if !bots.is_empty() {
+        detail.push_str(&format!(
+            " {} as a Cloud Run instance (Preview): `gcloud beta run instances create NAME --image IMAGE --region \
+             REGION`, in a region that offers instances (not europe-west1, us-central1 or us-east1; europe-west4 or \
+             us-east4 instead). An instance has no disk of its own and restarts every 7 days, so whatever it keeps \
+             (a session file, a database file) goes to the database or to a Cloud Storage bucket mounted with \
+             `--add-volume mount-path=PATH,type=cloud-storage,bucket=BUCKET`. Its vCPU is shared, for a bot that \
+             mostly waits on its platform, not for heavy work.",
+            bots.join(", ")
+        ));
     }
     let products: Vec<&str> = lines.iter().filter_map(|l| l.part.product.as_deref()).collect();
     detail.push(' ');

@@ -34,7 +34,7 @@
   },
   "prices": {
     "date": "2026-10-09",
-    "source": "Google Cloud pricing pages, read 2026-10-09: Cloud Run Tier 1 and its free tiers, Cloud SQL db-f1-micro and SSD and Secret Manager as published; Tier 2 is Tier 1 x 1.4; Cloud SQL and Cloud Storage outside europe-west1 and us-central1 are estimates. Firestore Standard edition from the Cloud Billing Catalog, read 2026-10-13: reads, writes and storage at europe-west1's price in every region (the catalog lists $0.03 to $0.06 per 100,000 reads across these regions); its free quota of 50,000 reads, 20,000 writes and 1 GiB a day covers one database a project, is counted in operations, so it is the same in every region, and a month holds 30 days of it. Checked against Google's bill and pricing pages 2026-10-11: Cloud Storage keeps 5,000 free class A operations in every region (the 5 GB of storage is US-only); egress stays at the published $0.12 a GB although Cloud Run bills $0.105 a GiB from Europe to Europe. Twelve more regions added 2026-10-12: each region's Cloud Run tier from Google's Cloud Run locations page, read 2026-10-12; their Cloud SQL and Cloud Storage factors are estimates; the 5 GB free Cloud Storage applies in us-central1, us-east1 and us-west1",
+    "source": "Google Cloud pricing pages, read 2026-10-09: Cloud Run Tier 1 and its free tiers, Cloud SQL db-f1-micro and SSD and Secret Manager as published; Tier 2 is Tier 1 x 1.4; Cloud SQL and Cloud Storage outside europe-west1 and us-central1 are estimates. Firestore Standard edition from the Cloud Billing Catalog, read 2026-10-13: reads, writes and storage at europe-west1's price in every region (the catalog lists $0.03 to $0.06 per 100,000 reads across these regions); its free quota of 50,000 reads, 20,000 writes and 1 GiB a day covers one database a project, is counted in operations, so it is the same in every region, and a month holds 30 days of it. Checked against Google's bill and pricing pages 2026-10-11: Cloud Storage keeps 5,000 free class A operations in every region (the 5 GB of storage is US-only); egress stays at the published $0.12 a GB although Cloud Run bills $0.105 a GiB from Europe to Europe. Twelve more regions added 2026-10-12: each region's Cloud Run tier from Google's Cloud Run locations page, read 2026-10-12; their Cloud SQL and Cloud Storage factors are estimates; the 5 GB free Cloud Storage applies in us-central1, us-east1 and us-west1. Cloud Run instances (Preview) from cloud.google.com/run/pricing, read 2026-10-27: $0.00000027 a vCPU-second (a shared vCPU with a 6.25% baseline outside its burst budget) and $0.00000193 a GiB-second at Tier 1, no free tier; Google's launch post prices 1 vCPU and 1 GiB for 30 days at $5.70, which these give",
     "regions": {
       "asia-northeast1": {
         "place": "Tokyo",
@@ -198,6 +198,22 @@
         "price": 5e-6,
         "free": 5000.0,
         "product": "storage"
+      },
+      "instance-cpu": {
+        "what": "Cloud Run instances CPU, shared vCPU (Preview)",
+        "unit": "vCPU-s",
+        "price": 2.7e-7,
+        "free": 0.0,
+        "scope": "run",
+        "product": "run"
+      },
+      "instance-mem": {
+        "what": "Cloud Run instances memory (Preview)",
+        "unit": "GiB-s",
+        "price": 1.93e-6,
+        "free": 0.0,
+        "scope": "run",
+        "product": "run"
       },
       "job-cpu": {
         "what": "Cloud Run jobs CPU",

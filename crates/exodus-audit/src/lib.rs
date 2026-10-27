@@ -19,7 +19,7 @@ use serde::Deserialize;
 
 use manifests::STAYS;
 use place::NOT_ON_SERVER;
-pub use stack::runtime_of;
+pub use stack::{is_bot, runtime_of};
 
 /// The `clean` entries of findings by kind, the prefixes taken off.
 #[derive(Default)]
