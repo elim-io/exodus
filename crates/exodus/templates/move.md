@@ -137,7 +137,7 @@ platform, for example after the person changed an answer in the cabinet.
 2. For each task, in order: change the code, add or change a test that proves it, run the tests, commit only this
    task's files, then `exodus task done <N> --commit <sha>`. One task, one commit. Commit as the person's git
    identity: if git has none, ask them to set it; never pass an author of your own.
-3. A step only the person can do (sign in with `gcloud auth login`, create or link a billing account, approve the budget command and the spend cap of the "Budget and alerts" task, add a DNS
+3. A step only the person can do (sign in with `gcloud auth login`, create or link a billing account (the Infrastructure task says why and names the Free Trial), approve the budget command and the spend cap of the "Budget and alerts" task, add a DNS
    record, grant a role, approve a cost) is not yours to work around. Ask for it and wait:
    `exodus need "<what you need>" --task <N> --step "<a step>" --step "<a step>|<a command to copy>"`, and say the same
    in this session. When it is done, `exodus need --clear` and go on.

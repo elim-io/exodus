@@ -545,7 +545,7 @@
     {
       "i": 2,
       "title": "Infrastructure: service",
-      "detail": "Max 3 instances to begin with; the busiest hour decides when to raise it.",
+      "detail": "Max 3 instances to begin with; the busiest hour decides when to raise it. This plan deploys from the repository with gcloud, so the project needs a billing account: the Starter Tier takes only apps published from Google AI Studio. A person who never had a billing account starts on Google's Free Trial: $300 of credit for 90 days, nothing billed until they upgrade to a paid account (docs.cloud.google.com/free/docs/free-cloud-features). Creating or linking the account is the person's step: ask with `exodus need`.",
       "effort": "M",
       "phase": 3,
       "status": "todo"

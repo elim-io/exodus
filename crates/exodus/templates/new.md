@@ -146,7 +146,7 @@ nothing. Tell the person the cost at launch and in a year from `report.md`.
    then `exodus task done <N> --commit <sha>`. One task, one commit. If the folder is not a git repository yet, ask
    the person before `git init`; commit as their git identity, and if git has none, ask them to set it rather than
    passing an author of your own.
-3. A step only the person can do (sign in with `gcloud auth login`, create or link a billing account, approve the budget command and the spend cap of the "Budget and alerts" task, add a DNS
+3. A step only the person can do (sign in with `gcloud auth login`, create or link a billing account (the Infrastructure task says why and names the Free Trial), approve the budget command and the spend cap of the "Budget and alerts" task, add a DNS
    record, grant a role, approve a cost) is not yours to work around. Ask for it and wait:
    `exodus need "<what you need>" --task <N> --step "<a step>" --step "<a step>|<a command to copy>"`, and say the same
    in this session. When it is done, `exodus need --clear` and go on.

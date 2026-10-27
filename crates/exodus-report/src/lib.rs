@@ -573,6 +573,9 @@ fn tasks<'r>(
              covers; the service's account gets roles/datastore.user.",
         );
     }
+    let products: Vec<&str> = lines.iter().filter_map(|l| l.part.product.as_deref()).collect();
+    detail.push(' ');
+    detail.push_str(&account(&products, new, name));
     drafts.push(draft(format!("Infrastructure: {}", infra.join(", ")), detail, "M", 3));
     drafts.push(draft("Budget and alerts", budget(lines, name), "S", 3));
     let ci = match f.settings.ci.as_deref() {
@@ -691,6 +694,55 @@ fn budget(lines: &[Line], name: &str) -> String {
          the person's call: the agent explains it, shows the steps and waits for a yes or no. How spend caps work: \
          https://docs.cloud.google.com/billing/docs/how-to/budgets-spend-caps."
     )
+}
+
+/// The account the infrastructure task needs. Google's Starter Tier runs apps with no billing account, but only apps
+/// published from Google AI Studio's Build mode, on four products; a repository deployed with gcloud needs a billing
+/// account, and one that never had any starts on the Free Trial. A new product within the four may start in AI
+/// Studio instead. Secret Manager does not count: it holds the repository's variables, and AI Studio keeps its own.
+/// Sources (2026-10-27): docs.cloud.google.com/docs/starter-tier, ai.google.dev/gemini-api/docs/aistudio-deploying,
+/// the Cloud blog's "The Starter Tier for Google AI Studio explained".
+fn account(products: &[&str], new: bool, name: &str) -> String {
+    let mut outside: Vec<&str> = Vec::new();
+    for p in products {
+        let what = match *p {
+            "scheduler" => "Cloud Scheduler",
+            "cloud-tasks" => "Cloud Tasks",
+            "cloud-storage" => "Cloud Storage",
+            _ => continue,
+        };
+        if !outside.contains(&what) {
+            outside.push(what);
+        }
+    }
+    let mut s = String::new();
+    if new && outside.is_empty() {
+        s.push_str(&format!(
+            "If {name} starts as a prototype in Google AI Studio's Build mode, its Starter Tier publishes it with no \
+             billing account (Cloud Run, Firestore, Cloud SQL for PostgreSQL and Firebase Authentication; up to two \
+             apps, one instance each, one region, an eligible personal Google account, not Workspace and never billed \
+             before), and the project later upgrades to billing in place with the same URLs and data. "
+        ));
+    }
+    s.push_str(
+        "This plan deploys from the repository with gcloud, so the project needs a billing account: the Starter Tier \
+         takes only apps published from Google AI Studio",
+    );
+    if outside.is_empty() {
+        s.push_str(". ");
+    } else {
+        s.push_str(&format!(
+            ", and {} {} outside its four products. ",
+            outside.join(", "),
+            if outside.len() == 1 { "is" } else { "are" }
+        ));
+    }
+    s.push_str(
+        "A person who never had a billing account starts on Google's Free Trial: $300 of credit for 90 days, nothing \
+         billed until they upgrade to a paid account (docs.cloud.google.com/free/docs/free-cloud-features). Creating \
+         or linking the account is the person's step: ask with `exodus need`.",
+    );
+    s
 }
 
 /// Whole dollars, rounded up, at least 5.
@@ -1062,6 +1114,21 @@ mod tests {
         assert_eq!(budget_usd(1083), 11);
         assert_eq!(budget_usd(1100), 11);
         assert_eq!(budget_usd(4401), 45);
+    }
+
+    #[test]
+    fn the_starter_tier_is_offered_only_to_a_new_product_on_its_four_products() {
+        let small = account(&["cloud-run", "firestore", "egress"], true, "notes");
+        assert!(small.starts_with("If notes starts as a prototype in Google AI Studio"));
+        assert!(small.contains("Free Trial") && !small.contains("outside its four products"));
+
+        let worker = account(&["cloud-run", "cloud-tasks", "scheduler", "cloud-tasks"], true, "notes");
+        assert!(!worker.contains("prototype in Google AI Studio"));
+        assert!(worker.contains("and Cloud Tasks, Cloud Scheduler are outside its four products"));
+
+        let moved = account(&["cloud-run", "cloud-sql"], false, "shop");
+        assert!(moved.starts_with("This plan deploys from the repository with gcloud"));
+        assert!(moved.contains("takes only apps published from Google AI Studio. A person who never had"));
     }
 
     #[test]
