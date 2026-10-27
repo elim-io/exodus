@@ -720,13 +720,13 @@ fn account(products: &[&str], new: bool, name: &str) -> String {
         s.push_str(&format!(
             "If {name} starts as a prototype in Google AI Studio's Build mode, its Starter Tier publishes it with no \
              billing account (Cloud Run, Firestore, Cloud SQL for PostgreSQL and Firebase Authentication; up to two \
-             apps, one instance each, one region, an eligible personal Google account, not Workspace and never billed \
-             before), and the project later upgrades to billing in place with the same URLs and data. "
+             apps, one instance each, one region, an eligible personal Google account: not Workspace, no paid billing \
+             account now or before), and the project later upgrades to billing in place with the same URLs and data. "
         ));
     }
     s.push_str(
         "This plan deploys from the repository with gcloud, so the project needs a billing account: the Starter Tier \
-         takes only apps published from Google AI Studio",
+         (docs.cloud.google.com/docs/starter-tier) takes only apps published from Google AI Studio",
     );
     if outside.is_empty() {
         s.push_str(". ");

@@ -704,7 +704,7 @@
     {
       "i": 4,
       "title": "Infrastructure: service, Firestore, scheduler",
-      "detail": "Max 3 instances to begin with; the busiest hour decides when to raise it. Firestore's (default) database in Native mode in the service's region, the one database the free quota covers; the service's account gets roles/datastore.user. This plan deploys from the repository with gcloud, so the project needs a billing account: the Starter Tier takes only apps published from Google AI Studio, and Cloud Scheduler is outside its four products. A person who never had a billing account starts on Google's Free Trial: $300 of credit for 90 days, nothing billed until they upgrade to a paid account (docs.cloud.google.com/free/docs/free-cloud-features). Creating or linking the account is the person's step: ask with `exodus need`.",
+      "detail": "Max 3 instances to begin with; the busiest hour decides when to raise it. Firestore's (default) database in Native mode in the service's region, the one database the free quota covers; the service's account gets roles/datastore.user. This plan deploys from the repository with gcloud, so the project needs a billing account: the Starter Tier (docs.cloud.google.com/docs/starter-tier) takes only apps published from Google AI Studio, and Cloud Scheduler is outside its four products. A person who never had a billing account starts on Google's Free Trial: $300 of credit for 90 days, nothing billed until they upgrade to a paid account (docs.cloud.google.com/free/docs/free-cloud-features). Creating or linking the account is the person's step: ask with `exodus need`.",
       "effort": "M",
       "phase": 3,
       "status": "todo"
