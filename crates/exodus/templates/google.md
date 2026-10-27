@@ -8,7 +8,7 @@ not answer. Exodus does not install them, and neither do you: they are installer
 Once per machine, check whether they are there ({{check}}). If not, tell the person what they are and give them the
 commands to run in their terminal{{bang}}:
 
-{{install}}
+{{plugin}}- `npx skills add google/skills --skill cloud-run-basics --agent={{id}}`
 
 The MCP server needs an API key for the Developer Knowledge API in one of the person's Google Cloud projects:
 `gcloud services enable developerknowledge.googleapis.com --project=PROJECT_ID`, then a key restricted to that API, as

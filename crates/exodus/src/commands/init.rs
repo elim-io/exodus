@@ -451,29 +451,21 @@ fn fill(body: &str, agent: &str) -> String {
 /// 2026-10-27). The person runs them, as with any installer; the key stays in an environment variable, so the Claude
 /// Code `claude mcp add --header` line Google shows, which puts it on a command line, is not used: the plugin reads it.
 fn google(agent: &str) -> String {
-    let skill = |id: &str| format!("`npx skills add google/skills --skill cloud-run-basics --agent={id}`");
-    let bang = if agent == "Claude Code" {
-        " (in Claude Code they can type each after `!` in this session)"
-    } else {
-        ""
-    };
-    let (check, install, mcp) = match agent {
+    let (id, check, bang, plugin, mcp) = match agent {
         "Claude Code" => (
-            "`claude plugin list`, `.claude/skills/` and `~/.claude/skills/`".to_string(),
-            format!(
-                "- `claude plugin marketplace add google/skills`, then \
-                 `claude plugin install google-cloud-developer@google-plugins`\n- {}",
-                skill("claude-code")
-            ),
+            "claude-code",
+            "`claude plugin list`, `.claude/skills/` and `~/.claude/skills/`",
+            " (in Claude Code they can type each after `!` in this session)",
+            "- `claude plugin marketplace add google/skills`, then \
+             `claude plugin install google-cloud-developer@google-plugins`\n",
             "The plugin brings the MCP server and reads the key from that variable.",
         ),
         "Codex" => (
-            "`~/.codex/config.toml` and the installed plugins".to_string(),
-            format!(
-                "- `codex plugin marketplace add google/skills`, then \
-                 `codex plugin add google-cloud-developer@google-plugins`\n- {}",
-                skill("codex")
-            ),
+            "codex",
+            "`~/.codex/config.toml` and the installed plugins",
+            "",
+            "- `codex plugin marketplace add google/skills`, then \
+             `codex plugin add google-cloud-developer@google-plugins`\n",
             "The person adds the server to `~/.codex/config.toml`, which names the variable, not the key: \
              `[mcp_servers.google-developer-knowledge]` with \
              `url = \"https://developerknowledge.googleapis.com/mcp\"` and \
@@ -481,8 +473,10 @@ fn google(agent: &str) -> String {
              after that is expected.",
         ),
         _ => (
-            "`~/.cursor/mcp.json` and `.cursor/skills/`".to_string(),
-            format!("- {}", skill("cursor")),
+            "cursor",
+            "`~/.cursor/mcp.json` and `.cursor/skills/`",
+            "",
+            "",
             "The person adds the server to the global `~/.cursor/mcp.json`, never to this repository's \
              `.cursor/mcp.json`: `google-developer-knowledge` with `\"url\": \"https://developerknowledge.googleapis.com/mcp\"` and \
              `\"headers\": { \"X-Goog-Api-Key\": \"${env:DEVELOPERKNOWLEDGE_API_KEY}\" }`.",
@@ -490,9 +484,10 @@ fn google(agent: &str) -> String {
     };
     GOOGLE
         .trim_end()
-        .replace("{{check}}", &check)
+        .replace("{{check}}", check)
         .replace("{{bang}}", bang)
-        .replace("{{install}}", &install)
+        .replace("{{plugin}}", plugin)
+        .replace("{{id}}", id)
         .replace("{{mcp}}", mcp)
 }
 
