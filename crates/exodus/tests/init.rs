@@ -59,7 +59,7 @@ fn lays_out_everything_once() {
     assert!(ok, "{out}");
     assert!(out.contains("No account linked."), "{out}");
     assert!(
-        out.contains("--skill cloud-run-basics") && out.contains("on your yes"),
+        out.contains("--skill cloud-run-basics") && out.contains("for you to run"),
         "{out}"
     );
 
@@ -108,7 +108,7 @@ fn lays_out_everything_once() {
             _ => "cursor",
         };
         assert!(
-            text.contains(&format!("--skill cloud-run-basics --agent {id}`"))
+            text.contains(&format!("--skill cloud-run-basics --agent={id}`"))
                 && text.contains("DEVELOPERKNOWLEDGE_API_KEY"),
             "{agent}: no Google step"
         );

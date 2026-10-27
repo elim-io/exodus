@@ -184,8 +184,8 @@ The text is in `crates/exodus/templates/` (`move.md` for a move, `new.md` for a 
    install line (in Claude Code, after `!`); when a code was used or ran out, ask the person for a fresh line from the
    cabinet instead of going on offline;
 2. check whether Google's Cloud Run skill (`cloud-run-basics` from `google/skills`), its `google-cloud-developer`
-   plugin (Claude Code, Codex) and the Developer Knowledge MCP server are installed, and if not, offer them and install
-   them only on the person's yes, with that agent's commands (`templates/google.md`, filled per agent by `init`). The
+   plugin (Claude Code, Codex) and the Developer Knowledge MCP server are installed, and if not, give the person that
+   agent's commands to run themselves, as with any installer (`templates/google.md`, filled per agent by `init`). The
    MCP server's key goes only into `DEVELOPERKNOWLEDGE_API_KEY` in the person's environment. The agent asks Exodus's
    knowledge base first and Google's skills and documentation for the Cloud Run facts it lacks; `exodus init` prints
    the same and installs nothing;

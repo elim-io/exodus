@@ -34,9 +34,9 @@ These are the properties a report against this repository usually concerns:
   which talk to Google Cloud with your sign-in.
 - `exodus init` writes only text: `.exodus/`, the `.gitignore` line and the agent instructions. It installs nothing.
   The instructions name Google's own Agent Skills (`google/skills`) and the Developer Knowledge MCP server and tell
-  the agent to install them only on your yes. That server's API key is meant to live in the environment variable
-  `DEVELOPERKNOWLEDGE_API_KEY`, set by you; the instructions forbid putting it on a command line, in a file of the
-  repository or in the chat.
+  the agent to give you the commands to run; it does not run installers itself. That server's API key is meant to
+  live in the environment variable `DEVELOPERKNOWLEDGE_API_KEY`, set by you; the instructions forbid putting it on a
+  command line, in a file of the repository or in the chat.
 - `install.sh` checks the downloaded archive against the release's `SHA256SUMS` before installing it. Both come from
   the same release, so this catches a broken or swapped download, not a compromised release. The binaries are not
   signed yet.
